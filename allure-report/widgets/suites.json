@@ -1,0 +1,1 @@
+{"total":2,"items":[{"uid":"dbbf90f08677f3a962f32774500d4575","name":"Google Chrome","statistic":{"failed":1,"broken":1,"skipped":0,"passed":0,"unknown":0,"total":2}},{"uid":"47151c4556efae7ce19cb0bfec851639","name":"smoke.spec.js","statistic":{"failed":0,"broken":0,"skipped":0,"passed":1,"unknown":0,"total":1}}]}

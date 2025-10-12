@@ -1,0 +1,97 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "mat mattwo@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12] [cursor=pointer]:
+          - paragraph [ref=e13] [cursor=pointer]: mat
+          - paragraph [ref=e14] [cursor=pointer]: mattwo@yopmail.com
+        - img [ref=e15] [cursor=pointer]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Postcode" [ref=e21] [cursor=pointer]:
+        - img [ref=e22] [cursor=pointer]
+        - generic [ref=e25] [cursor=pointer]: Postcode
+      - button "Waste Type" [ref=e27] [cursor=pointer]:
+        - img [ref=e28] [cursor=pointer]
+        - generic [ref=e31] [cursor=pointer]: Waste Type
+      - button "Select Skip" [ref=e33] [cursor=pointer]:
+        - img [ref=e34] [cursor=pointer]
+        - generic [ref=e39] [cursor=pointer]: Select Skip
+      - button "Permit Check" [ref=e41] [cursor=pointer]:
+        - img [ref=e42] [cursor=pointer]
+        - generic [ref=e44] [cursor=pointer]: Permit Check
+      - button "Choose Date" [ref=e46] [cursor=pointer]:
+        - img [ref=e47] [cursor=pointer]
+        - generic [ref=e49] [cursor=pointer]: Choose Date
+      - button "Payment" [disabled] [ref=e51]:
+        - img [ref=e52]
+        - generic [ref=e54]: Payment
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - heading "Choose Your Delivery Date" [level=2] [ref=e58]
+        - paragraph [ref=e59]: Select your preferred skip delivery date. We'll aim to deliver between 7am and 6pm on your chosen day.
+      - generic [ref=e60]:
+        - heading "Delivery Date" [level=3] [ref=e61]
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - button "←" [disabled] [ref=e64]
+            - heading "September 2025" [level=2] [ref=e65]
+            - button "→" [ref=e66] [cursor=pointer]
+          - generic [ref=e67]:
+            - generic [ref=e68]: Sun
+            - generic [ref=e69]: Mon
+            - generic [ref=e70]: Tue
+            - generic [ref=e71]: Wed
+            - generic [ref=e72]: Thu
+            - generic [ref=e73]: Fri
+            - generic [ref=e74]: Sat
+          - generic [ref=e75]:
+            - button "1" [disabled] [ref=e77]
+            - button "2" [disabled] [ref=e78]
+            - button "3" [disabled] [ref=e79]
+            - button "4" [disabled] [ref=e80]
+            - button "5" [disabled] [ref=e81]
+            - button "6" [disabled] [ref=e82]
+            - button "7" [disabled] [ref=e83]
+            - button "8" [disabled] [ref=e84]
+            - button "9" [disabled] [ref=e85]
+            - button "10" [disabled] [ref=e86]
+            - button "11" [disabled] [ref=e87]
+            - button "12" [disabled] [ref=e88]
+            - button "13" [disabled] [ref=e89]
+            - button "14" [disabled] [ref=e90]
+            - button "15" [disabled] [ref=e91]
+            - button "16" [disabled] [ref=e92]
+            - button "17" [disabled] [ref=e93]
+            - button "18" [disabled] [ref=e94]
+            - button "19" [disabled] [ref=e95]
+            - button "20" [disabled] [ref=e96]
+            - button "21" [disabled] [ref=e97]
+            - button "22" [disabled] [ref=e98]
+            - button "23" [disabled] [ref=e99]
+            - button "24" [disabled] [ref=e100]
+            - button "25" [disabled] [ref=e101]
+            - button "26" [disabled] [ref=e102]
+            - button "27" [disabled] [ref=e103]
+            - button "28" [disabled] [ref=e104]
+            - button "29" [disabled] [ref=e105]
+            - button "30" [active] [ref=e106] [cursor=pointer]
+      - generic [ref=e107]:
+        - heading "Collection Date" [level=3] [ref=e108]
+        - generic [ref=e109]:
+          - paragraph [ref=e110]: Tuesday 14 October 2025
+          - paragraph [ref=e111]: We'll collect your skip on this date. Please ensure it's accessible. You can change collection date on delivery if needed.
+      - generic [ref=e114]:
+        - generic [ref=e115]:
+          - paragraph [ref=e117]: 4 Yard Skip
+          - paragraph [ref=e119]: 14 days
+        - generic [ref=e120]:
+          - button "Back" [ref=e121] [cursor=pointer]
+          - button "Continue" [ref=e122] [cursor=pointer]:
+            - text: Continue
+            - img [ref=e123] [cursor=pointer]
+```

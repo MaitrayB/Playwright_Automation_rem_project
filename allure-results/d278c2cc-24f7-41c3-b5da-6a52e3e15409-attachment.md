@@ -1,0 +1,94 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "mat mattwo@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12] [cursor=pointer]:
+          - paragraph [ref=e13] [cursor=pointer]: mat
+          - paragraph [ref=e14] [cursor=pointer]: mattwo@yopmail.com
+        - img [ref=e15] [cursor=pointer]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Postcode" [ref=e21] [cursor=pointer]:
+        - img [ref=e22] [cursor=pointer]
+        - generic [ref=e25] [cursor=pointer]: Postcode
+      - button "Waste Type" [ref=e27] [cursor=pointer]:
+        - img [ref=e28] [cursor=pointer]
+        - generic [ref=e31] [cursor=pointer]: Waste Type
+      - button "Select Skip" [disabled] [ref=e33]:
+        - img [ref=e34]
+        - generic [ref=e39]: Select Skip
+      - button "Permit Check" [disabled] [ref=e41]:
+        - img [ref=e42]
+        - generic [ref=e44]: Permit Check
+      - button "Choose Date" [disabled] [ref=e46]:
+        - img [ref=e47]
+        - generic [ref=e49]: Choose Date
+      - button "Payment" [disabled] [ref=e51]:
+        - img [ref=e52]
+        - generic [ref=e54]: Payment
+    - generic [ref=e55]:
+      - heading "What type of waste are you disposing of?" [level=2] [ref=e56]
+      - paragraph [ref=e57]: Select all that apply
+      - generic [ref=e58]:
+        - button "Construction Waste Building materials and renovation debris." [ref=e59] [cursor=pointer]:
+          - img [ref=e62] [cursor=pointer]
+          - generic [ref=e64] [cursor=pointer]:
+            - img [ref=e66] [cursor=pointer]
+            - generic [ref=e70] [cursor=pointer]:
+              - heading "Construction Waste" [level=3] [ref=e71] [cursor=pointer]
+              - paragraph [ref=e72] [cursor=pointer]: Building materials and renovation debris.
+        - button "Household Waste General household items and furniture" [ref=e73] [cursor=pointer]:
+          - generic [ref=e76] [cursor=pointer]:
+            - img [ref=e78] [cursor=pointer]
+            - generic [ref=e81] [cursor=pointer]:
+              - heading "Household Waste" [level=3] [ref=e82] [cursor=pointer]
+              - paragraph [ref=e83] [cursor=pointer]: General household items and furniture
+        - button "Garden Waste Green waste and landscaping materials." [ref=e84] [cursor=pointer]:
+          - generic [ref=e87] [cursor=pointer]:
+            - img [ref=e89] [cursor=pointer]
+            - generic [ref=e92] [cursor=pointer]:
+              - heading "Garden Waste" [level=3] [ref=e93] [cursor=pointer]
+              - paragraph [ref=e94] [cursor=pointer]: Green waste and landscaping materials.
+        - button "Commercial Waste Business and office clearance" [ref=e95] [cursor=pointer]:
+          - generic [ref=e98] [cursor=pointer]:
+            - img [ref=e100] [cursor=pointer]
+            - generic [ref=e103] [cursor=pointer]:
+              - heading "Commercial Waste" [level=3] [ref=e104] [cursor=pointer]
+              - paragraph [ref=e105] [cursor=pointer]: Business and office clearance
+      - generic [ref=e107]:
+        - generic [ref=e108]:
+          - img [ref=e109]
+          - generic [ref=e111]: We do not accept hazardous waste
+        - button "See hazardous waste types" [ref=e112] [cursor=pointer]
+      - generic [ref=e114]:
+        - generic [ref=e115]:
+          - heading "Waste Type Questions" [level=3] [ref=e116]
+          - button [ref=e117] [cursor=pointer]:
+            - img [ref=e118] [cursor=pointer]
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - heading "Do you have any heavy waste?" [level=4] [ref=e123]
+            - paragraph [ref=e124]: "Examples: soil, concrete, bricks, rubble, or other dense materials"
+            - generic [ref=e125]:
+              - generic [ref=e129] [cursor=pointer]: "Yes"
+              - generic [ref=e134] [cursor=pointer]: "No"
+          - generic [ref=e135]:
+            - heading "Do you have any plasterboard?" [level=4] [ref=e136]
+            - paragraph [ref=e137]: "Examples: drywall, wallboard, or gypsum board"
+            - generic [ref=e138]:
+              - generic [ref=e142] [cursor=pointer]: "Yes"
+              - generic [ref=e146] [cursor=pointer]: "No"
+      - generic [ref=e149]:
+        - generic [ref=e151]:
+          - heading "Selected Waste Types" [level=3] [ref=e152]
+          - paragraph [ref=e153]: Construction Waste
+        - generic [ref=e154]:
+          - button "Back" [ref=e155] [cursor=pointer]
+          - button "Continue" [disabled] [ref=e156]:
+            - text: Continue
+            - img [ref=e157]
+```
