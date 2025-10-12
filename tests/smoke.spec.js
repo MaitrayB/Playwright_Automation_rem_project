@@ -2,6 +2,7 @@ import { test } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage.js';
 import { OrderPage } from '../pages/OrderPage.js';
 import { DashboardPage } from '../pages/DashboardPage.js';
+import { testData } from '../data/testData.js';
 
 test('Place Order End-to-End', async ({ page }) => {
   const loginPage = new LoginPage(page);
@@ -10,7 +11,7 @@ test('Place Order End-to-End', async ({ page }) => {
 
   await test.step('Login to application', async () => {
     await loginPage.goto();
-    await loginPage.login('mattwo@yopmail.com', 'P@ssw0rd');
+    await loginPage.login(testData.credentials.username, testData.credentials.password);
   });
 
   await test.step('Enter postcode', async () => {

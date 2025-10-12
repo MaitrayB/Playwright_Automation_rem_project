@@ -1,3 +1,5 @@
+import { testData } from "../Data/testData";
+
 export class LoginPage {
   constructor(page) {
     this.page = page;
@@ -8,7 +10,7 @@ export class LoginPage {
   }
 
   async goto() {
-    await this.page.goto('https://develop.wewantwaste.co.uk/');
+    await this.page.goto(testData.baseURL);
     await this.page.waitForTimeout(1000);
   }
 
