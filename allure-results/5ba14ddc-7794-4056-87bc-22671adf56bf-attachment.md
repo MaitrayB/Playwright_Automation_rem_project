@@ -1,0 +1,79 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "mat mattwo@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12] [cursor=pointer]:
+          - paragraph [ref=e13] [cursor=pointer]: mat
+          - paragraph [ref=e14] [cursor=pointer]: mattwo@yopmail.com
+        - img [ref=e15] [cursor=pointer]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Postcode" [ref=e21] [cursor=pointer]:
+        - img [ref=e22] [cursor=pointer]
+        - generic [ref=e25] [cursor=pointer]: Postcode
+      - button "Waste Type" [ref=e27] [cursor=pointer]:
+        - img [ref=e28] [cursor=pointer]
+        - generic [ref=e31] [cursor=pointer]: Waste Type
+      - button "Select Skip" [disabled] [ref=e33]:
+        - img [ref=e34]
+        - generic [ref=e39]: Select Skip
+      - button "Permit Check" [disabled] [ref=e41]:
+        - img [ref=e42]
+        - generic [ref=e44]: Permit Check
+      - button "Choose Date" [disabled] [ref=e46]:
+        - img [ref=e47]
+        - generic [ref=e49]: Choose Date
+      - button "Payment" [disabled] [ref=e51]:
+        - img [ref=e52]
+        - generic [ref=e54]: Payment
+    - generic [ref=e55]:
+      - heading "What type of waste are you disposing of?" [level=2] [ref=e56]
+      - paragraph [ref=e57]: Select all that apply
+      - generic [ref=e58]:
+        - button "Construction Waste Building materials and renovation debris." [ref=e59] [cursor=pointer]:
+          - img [ref=e62] [cursor=pointer]
+          - generic [ref=e64] [cursor=pointer]:
+            - img [ref=e66] [cursor=pointer]
+            - generic [ref=e70] [cursor=pointer]:
+              - heading "Construction Waste" [level=3] [ref=e71] [cursor=pointer]
+              - paragraph [ref=e72] [cursor=pointer]: Building materials and renovation debris.
+        - button "Household Waste General household items and furniture" [ref=e73] [cursor=pointer]:
+          - img [ref=e76] [cursor=pointer]
+          - generic [ref=e78] [cursor=pointer]:
+            - img [ref=e80] [cursor=pointer]
+            - generic [ref=e83] [cursor=pointer]:
+              - heading "Household Waste" [level=3] [ref=e84] [cursor=pointer]
+              - paragraph [ref=e85] [cursor=pointer]: General household items and furniture
+        - button "Garden Waste Green waste and landscaping materials." [ref=e86] [cursor=pointer]:
+          - img [ref=e89] [cursor=pointer]
+          - generic [ref=e91] [cursor=pointer]:
+            - img [ref=e93] [cursor=pointer]
+            - generic [ref=e96] [cursor=pointer]:
+              - heading "Garden Waste" [level=3] [ref=e97] [cursor=pointer]
+              - paragraph [ref=e98] [cursor=pointer]: Green waste and landscaping materials.
+        - button "Commercial Waste Business and office clearance" [active] [ref=e99] [cursor=pointer]:
+          - img [ref=e102] [cursor=pointer]
+          - generic [ref=e104] [cursor=pointer]:
+            - img [ref=e106] [cursor=pointer]
+            - generic [ref=e109] [cursor=pointer]:
+              - heading "Commercial Waste" [level=3] [ref=e110] [cursor=pointer]
+              - paragraph [ref=e111] [cursor=pointer]: Business and office clearance
+      - generic [ref=e113]:
+        - generic [ref=e114]:
+          - img [ref=e115]
+          - generic [ref=e117]: We do not accept hazardous waste
+        - button "See hazardous waste types" [ref=e118] [cursor=pointer]
+      - generic [ref=e121]:
+        - generic [ref=e123]:
+          - heading "Selected Waste Types" [level=3] [ref=e124]
+          - paragraph [ref=e125]: Construction Waste, Household Waste and 2 more
+        - generic [ref=e126]:
+          - button "Back" [ref=e127] [cursor=pointer]
+          - button "Continue" [ref=e128] [cursor=pointer]:
+            - text: Continue
+            - img [ref=e129] [cursor=pointer]
+```

@@ -1,4 +1,4 @@
-import { testData } from "../Data/testData";
+import { TestData } from "../Data/testData.js";
 
 export class LoginPage {
   constructor(page) {
@@ -10,7 +10,7 @@ export class LoginPage {
   }
 
   async goto() {
-    await this.page.goto(testData.baseURL);
+    await this.page.goto(TestData.baseURL);
     await this.page.waitForTimeout(1000);
   }
 
