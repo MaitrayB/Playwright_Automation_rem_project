@@ -18,13 +18,24 @@ export const TestData = {
     'Commercial Waste'
   ],
   HeavyWaste: [
-    'Yes',
-    'No'
+    'No',
+    'Yes'
   ],
   PlasterBoard: [
-    'Yes',
-    'No'
+    'No',
+    'Yes'
+  ],
+  SkipSize: [
+    '4','6','8','16','20','40'
+  ],
+  BookingDay: [
+    '28'
+  ],
+  Placement: [
+    'Private Property',
+    'Public Property',
+    'Grass verge',
+    'Not sure'
   ]
-
 
 };

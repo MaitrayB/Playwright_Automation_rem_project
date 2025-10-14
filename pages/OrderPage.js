@@ -15,14 +15,23 @@ export class OrderPage {
     this.heavyWasteNobtn = page.locator('xpath=//h4[contains(.,"Do you have any heavy waste?")]/../div/label[contains(.,"No")]');
     this.heavyWasteYesbtn = page.locator('xpath=//h4[contains(.,"Do you have any heavy waste?")]/../div/label[contains(.,"Yes")]');
 
-    this.skip4YardBtn = page.locator('div').filter({ hasText: /^-24%4 Yards4 Yard Skip14 day hire periodSelect This Skip$/ }).getByRole('button');
+    const skipSize = 6;
+    this.skipYardBtn = page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+
     this.noPermitBtn = page.getByRole('button', { name: 'No, continue without' });
     this.privatePropertyBtn = page.getByRole('button', { name: 'Private Property Driveway or' });
-    this.date30Btn = page.getByRole('button', { name: '30' });
+    this.dateBtn = page.getByRole('button', { name: '30' });
+    this.skipCheckbox = page.getByText('Skip this step to upload a');
+
+    this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
+    this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
+    this.notsureBtn = page.getByRole('button', { name: 'Unsure We will check for you We\'ll determine if a permit is needed' });
+
+    this.noBtn = page.locator('//button[contains(.,"No")]');
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
     
- 
+
   }
 
   //Postcode selection
@@ -73,6 +82,7 @@ export class OrderPage {
       await this.heavyWasteNobtn.waitFor({ state: 'visible' });
       this.heavyWasteNobtn.click();
     }
+    await this.page.waitForTimeout(1000);
 
     if (PlasterBoard === 'Yes') {
       await this.plasterboardYesbtn.waitFor({ state: 'visible' });
@@ -87,24 +97,50 @@ export class OrderPage {
     await this.page.waitForTimeout(1000);
   }
 
-  async selectSkip() {
-    await this.skip4YardBtn.waitFor({ state: 'visible' });
-    await this.skip4YardBtn.click();
+  async selectSkip(skipSize) {
+    this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+    await this.skipYardBtn.waitFor({ state: 'visible' });
+    await this.skipYardBtn.click();
+
     await this.continueBtn.click();
     await this.noPermitBtn.click();
-    await this.privatePropertyBtn.click();
-    await this.continueBtn.click();
-    await this.page.getByText('Skip this step to upload a').waitFor({ state: 'visible' });
-    await this.page.getByText('Skip this step to upload a').click();
+
+/*
+  await this.page.getByRole('button', { name: 'Public Property Council or' }).click();
+  await this.page.getByRole('button', { name: 'Continue' }).click();
+
+  await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg');
+
+  await this.page.getByRole('button', { name: 'Continue' }).click();
+    */
     await this.page.waitForTimeout(1000);
   }
 
-  async chooseDate() {
+  //permit check
+async permitCheck(Placement) {
+
+if (Placement === 'Private Property') {
+
+    await this.privatePropertyBtn.click();
     await this.continueBtn.click();
-    await this.date30Btn.waitFor({ state: 'visible' });
-    await this.date30Btn.click();
+    await this.skipCheckbox.waitFor({ state: 'visible' });
+    await this.skipCheckbox.click();
+}
+
+
+}
+
+  async chooseDate(Day) {
     await this.continueBtn.click();
-    await this.page.waitForTimeout(1000);
+    this.dateBtn = this.page.getByRole('button', { name: Day });
+    await this.dateBtn.waitFor({ state: 'visible' });
+    await this.dateBtn.click();
+    await this.continueBtn.click();
+
+    await this.noBtn.waitFor({ state: 'visible' });
+    await this.noBtn.click();
+
+    await this.page.waitForTimeout(6000);
   }
 
   async completePayment() {
@@ -112,6 +148,6 @@ export class OrderPage {
     await this.termsCheckbox.check();
     await this.completePaymentBtn.waitFor({ state: 'visible' });
     await this.completePaymentBtn.click();
-    //await this.page.waitForTimeout(20000);
+    await this.page.waitForTimeout(10000);
   }
 }
