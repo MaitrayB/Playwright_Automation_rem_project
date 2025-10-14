@@ -1,1 +1,1 @@
-[{"uid":"275627bd22aa20e4","name":"Place Order End-to-End","time":{"start":1760251707505,"stop":1760251744735,"duration":37230},"status":"passed","severity":"normal"},{"uid":"4f6e3b8dc8d4faae","name":"test","time":{"start":1759245503775,"stop":1759245534341,"duration":30566},"status":"broken","severity":"normal"},{"uid":"a0248290904c66ca","name":"Place Order End-to-End","time":{"start":1759246169585,"stop":1759246198862,"duration":29277},"status":"failed","severity":"normal"}]
+[]

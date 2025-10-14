@@ -1,4 +1,0 @@
-"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","30566","test","Google Chrome","Tue Sep 30 20:48:23 IST 2025","broken","Tue Sep 30 20:48:54 IST 2025","","tests/smoke.spec.js","",""
-"","37230","Place Order End-to-End","","Sun Oct 12 12:18:27 IST 2025","passed","Sun Oct 12 12:19:04 IST 2025","","smoke.spec.js","",""
-"","29277","Place Order End-to-End","Google Chrome","Tue Sep 30 20:59:29 IST 2025","failed","Tue Sep 30 20:59:58 IST 2025","","tests/smoke.spec.js","",""

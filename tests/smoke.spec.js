@@ -24,8 +24,9 @@ test('Place Order End-to-End', async ({ page }) => {
   await test.step('Select waste type', async () => {
     await orderPage.selectWaste(TestData.WasteType[0]);
     await orderPage.selectWaste(TestData.WasteType[1]);
-    await orderPage.selectWaste(TestData.WasteType[2]);
-    await orderPage.selectWaste(TestData.WasteType[3]);
+  //  await orderPage.selectWaste(TestData.WasteType[2]);
+   // await orderPage.selectWaste(TestData.WasteType[3]);
+ 
   });
 
   //select heavy waste & plasterboard options
@@ -33,12 +34,19 @@ test('Place Order End-to-End', async ({ page }) => {
     await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
   });
 
+  //select skip & property
   await test.step('Select skip & property', async () => {
-    await orderPage.selectSkip();
+    await orderPage.selectSkip(TestData.SkipSize[0]);
   });
 
+ //Permit check
+  await test.step('Permit check', async () => {
+    await orderPage.permitCheck(TestData.Placement[0]);
+  });
+ 
+
   await test.step('Choose date', async () => {
-    await orderPage.chooseDate();
+    await orderPage.chooseDate(TestData.BookingDay[0]);
   });
 
   await test.step('Complete payment', async () => {
