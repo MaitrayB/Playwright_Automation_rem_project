@@ -1,0 +1,2 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","54594","Place Order End-to-End","","Wed Oct 15 13:22:35 IST 2025","passed","Wed Oct 15 13:23:30 IST 2025","","smoke.spec.js","",""
