@@ -25,6 +25,8 @@ export class OrderPage {
 
     this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
     this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
+    this.grassNoPermitBtn = page.getByText('I maintain this land myself');
+    this.grassPopupContinueBtn = page.locator('div').filter({ hasText: /^CancelContinue$/ }).getByRole('button', { name: 'Continue' });
     this.notsureBtn = page.getByRole('button', { name: 'Unsure We will check for you We\'ll determine if a permit is needed' });
 
     this.noBtn = page.locator('//button[contains(.,"No")]');
@@ -104,15 +106,6 @@ export class OrderPage {
 
     await this.continueBtn.click();
     await this.noPermitBtn.click();
-
-/*
-  await this.page.getByRole('button', { name: 'Public Property Council or' }).click();
-  await this.page.getByRole('button', { name: 'Continue' }).click();
-
-  await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg');
-
-  await this.page.getByRole('button', { name: 'Continue' }).click();
-    */
     await this.page.waitForTimeout(1000);
   }
 
@@ -125,13 +118,40 @@ if (Placement === 'Private Property') {
     await this.continueBtn.click();
     await this.skipCheckbox.waitFor({ state: 'visible' });
     await this.skipCheckbox.click();
+    await this.continueBtn.click();
+}
+else if( Placement === 'Public Property') {
+  await this.publicPropertyBtn.click();
+  await this.continueBtn.click();
+  await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg'); //upload permit file
+  await this.continueBtn.click();
+}
+  else if( Placement === 'Grass verge') {
+    await this.grassVergeBtn.waitFor({ state: 'visible' });
+    await this.grassVergeBtn.click();
+
+    await this.grassNoPermitBtn.waitFor({ state: 'visible' });
+    await this.grassNoPermitBtn.click();
+    await this.grassPopupContinueBtn.click();
+    await this.page.waitForTimeout(2000);
+    await this.continueBtn.click();
+    await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg');
+    await this.continueBtn.click();
+
+}
+
+else {
+  await this.notsureBtn.click();
+  await this.continueBtn.click();
+  await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg');
+  await this.continueBtn.click(); 
 }
 
 
 }
 
   async chooseDate(Day) {
-    await this.continueBtn.click();
+    
     this.dateBtn = this.page.getByRole('button', { name: Day });
     await this.dateBtn.waitFor({ state: 'visible' });
     await this.dateBtn.click();
