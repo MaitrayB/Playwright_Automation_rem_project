@@ -77,22 +77,23 @@ export class OrderPage {
     await this.continueBtn.click();
 
     if (HeavyWaste === 'Yes') {
-      await this.heavyWasteYesbtn.waitFor({ state: 'visible' });
-      this.heavyWasteYesbtn.click();
+       await this.page.waitForTimeout(1000);
+      if(await this.heavyWasteYesbtn.isVisible()){
+      this.heavyWasteYesbtn.click();}
     }
     else {
-      await this.heavyWasteNobtn.waitFor({ state: 'visible' });
-      this.heavyWasteNobtn.click();
+      if(await this.heavyWasteNobtn.isVisible()){ 
+      this.heavyWasteNobtn.click();}
     }
     await this.page.waitForTimeout(1000);
 
     if (PlasterBoard === 'Yes') {
-      await this.plasterboardYesbtn.waitFor({ state: 'visible' });
-      this.plasterboardYesbtn.click();
+      if(await this.plasterboardYesbtn.isVisible()){
+      this.plasterboardYesbtn.click();}
     }
     else {
-      await this.plasterboardNobtn.waitFor({ state: 'visible' });
-      this.plasterboardNobtn.click();
+      if(await this.plasterboardNobtn.isVisible()){
+      this.plasterboardNobtn.click();}
     }
    
     await this.continueBtn.click();
@@ -157,10 +158,12 @@ else {
     await this.dateBtn.click();
     await this.continueBtn.click();
 
-    await this.noBtn.waitFor({ state: 'visible' });
+    await this.page.waitForTimeout(3000);
+    if (await this.noBtn.isVisible()){
     await this.noBtn.click();
+    }
 
-    await this.page.waitForTimeout(6000);
+    await this.page.waitForTimeout(4000);
   }
 
   async completePayment() {
