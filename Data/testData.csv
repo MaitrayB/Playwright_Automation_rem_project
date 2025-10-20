@@ -1,5 +1,5 @@
 Postcodes,WasteType,HeavyWaste,PlasterBoard,SkipSize,BookingDay,Placement
 LE10 2DD,Construction Waste,No,No,4,27,Private Property
-LE10 0UH,Household Waste,No,No,6,27,Public Property
+LE10 0UH,Household Waste,No,No,6,29,Public Property
 RG10 9FA,Garden Waste,No,No,8,28,Grass verge
-LE10 2DD,Commercial Waste,No,No,4,29,Not sure
+LE10 2FF,Commercial Waste,No,No,4,29,Not sure
