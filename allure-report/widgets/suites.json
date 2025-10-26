@@ -1,1 +1,1 @@
-{"total":1,"items":[{"uid":"47151c4556efae7ce19cb0bfec851639","name":"smoke.spec.js","statistic":{"failed":0,"broken":0,"skipped":0,"passed":1,"unknown":0,"total":1}}]}
+{"total":1,"items":[{"uid":"47151c4556efae7ce19cb0bfec851639","name":"smoke.spec.js","statistic":{"failed":2,"broken":0,"skipped":0,"passed":2,"unknown":0,"total":4}}]}

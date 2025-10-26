@@ -1,2 +1,5 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","54594","Place Order End-to-End","","Wed Oct 15 13:22:35 IST 2025","passed","Wed Oct 15 13:23:30 IST 2025","","smoke.spec.js","",""
+"","80058","Place order for postcode: LE10 0UH, Waste Type: Household Waste, No - Heavy Waste, No - Plasterboard, Skip size - 6, Placement - Public Property","","Sun Oct 26 10:25:09 IST 2025","failed","Sun Oct 26 10:26:29 IST 2025","Place multiple orders","smoke.spec.js","",""
+"","42333","Place order for postcode: LE10 2DD, Waste Type: Construction Waste, No - Heavy Waste, Yes - Plasterboard, Skip size - 4, Placement - Private Property","","Sun Oct 26 10:22:53 IST 2025","passed","Sun Oct 26 10:23:35 IST 2025","Place multiple orders","smoke.spec.js","",""
+"","40805","Place order for postcode: RG10 9FA, Waste Type: Garden Waste, No - Heavy Waste, No - Plasterboard, Skip size - 8, Placement - Grass verge","","Sun Oct 26 10:26:41 IST 2025","passed","Sun Oct 26 10:27:22 IST 2025","Place multiple orders","smoke.spec.js","",""
+"","80069","Place order for postcode: LE10 2FF, Waste Type: Commercial Waste, No - Heavy Waste, Yes - Plasterboard, Skip size - 4, Placement - Not sure","","Sun Oct 26 10:23:49 IST 2025","failed","Sun Oct 26 10:25:09 IST 2025","Place multiple orders","smoke.spec.js","",""

@@ -4,6 +4,7 @@ export class OrderPage {
     this.page = page;
     this.postcodeInput = page.getByRole('textbox', { name: 'Start Typing Your Delivery' });
     this.continueBtn = page.getByRole('button', { name: 'Continue' });
+    this.confirmBtn = page.getByRole('button', { name: 'Confirm' });
    
     this.constructionWasteBtn = page.getByRole('button', { name: 'Construction Waste Building' });
     this.commercialWasteBtn = page.getByRole('button', { name: 'Commercial Waste' });
@@ -18,7 +19,9 @@ export class OrderPage {
     const skipSize = 6;
     this.skipYardBtn = page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
 
-    this.noPermitBtn = page.getByRole('button', { name: 'No, continue without' });
+    this.noSkipGauranteeBtn = page.getByRole('button', { name: 'No, continue without' });
+    this.toneBagtile = page.locator('(//div[contains(.,"Use Tonne Bags")])[last()]');
+    this.nextArrowIcon = page.locator('.p-2 > div:nth-child(2) > div > button')
     this.privatePropertyBtn = page.getByRole('button', { name: 'Private Property Driveway or' });
     this.dateBtn = page.getByRole('button', { name: '30' });
     this.skipCheckbox = page.getByText('Skip this step to upload a');
@@ -30,6 +33,9 @@ export class OrderPage {
     this.notsureBtn = page.getByRole('button', { name: 'Unsure We will check for you We\'ll determine if a permit is needed' });
 
     this.noBtn = page.locator('//button[contains(.,"No")]');
+
+    this.calendarNextArrow = page.getByRole('button', { name: '→' })
+
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
     
@@ -100,14 +106,28 @@ export class OrderPage {
     await this.page.waitForTimeout(1000);
   }
 
-  async selectSkip(skipSize) {
+  async selectSkip(skipSize,Plasterboard,ToneBag,SelfDispose) {
     this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
     await this.skipYardBtn.waitFor({ state: 'visible' });
     await this.skipYardBtn.click();
 
     await this.continueBtn.click();
-    await this.noPermitBtn.click();
+    await this.noSkipGauranteeBtn.click();
     await this.page.waitForTimeout(1000);
+
+    if (Plasterboard === 'Yes') {
+      if (ToneBag === 'Yes') {
+       
+        await this.confirmBtn.click();
+
+      }
+      else {
+        await this.nextArrowIcon.click();
+        await this.confirmBtn.click();
+      }
+    }
+   
+
   }
 
   //permit check
@@ -153,6 +173,11 @@ else {
 
   async chooseDate(Day) {
     
+    await this.calendarNextArrow.click();
+    this.dateBtn = this.page.getByRole('button', { name: Day });
+    if(await this.dateBtn.isDisabled()){
+    Day = Day - 2;
+    }
     this.dateBtn = this.page.getByRole('button', { name: Day });
     await this.dateBtn.waitFor({ state: 'visible' });
     await this.dateBtn.click();

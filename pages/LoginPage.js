@@ -1,4 +1,4 @@
-import { TestData } from "../Data/testData.js";
+import { TestData } from "../Data/TestData.js";
 
 export class LoginPage {
   constructor(page) {
