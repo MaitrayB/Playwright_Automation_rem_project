@@ -1,0 +1,105 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "mat mattwo@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12] [cursor=pointer]:
+          - paragraph [ref=e13] [cursor=pointer]: mat
+          - paragraph [ref=e14] [cursor=pointer]: mattwo@yopmail.com
+        - img [ref=e15] [cursor=pointer]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Postcode" [ref=e21] [cursor=pointer]:
+        - img [ref=e22] [cursor=pointer]
+        - generic [ref=e25] [cursor=pointer]: Postcode
+      - button "Waste Type" [ref=e27] [cursor=pointer]:
+        - img [ref=e28] [cursor=pointer]
+        - generic [ref=e31] [cursor=pointer]: Waste Type
+      - button "Select Skip" [ref=e33] [cursor=pointer]:
+        - img [ref=e34] [cursor=pointer]
+        - generic [ref=e39] [cursor=pointer]: Select Skip
+      - button "Permit Check" [ref=e41] [cursor=pointer]:
+        - img [ref=e42] [cursor=pointer]
+        - generic [ref=e44] [cursor=pointer]: Permit Check
+      - button "Choose Date" [ref=e46] [cursor=pointer]:
+        - img [ref=e47] [cursor=pointer]
+        - generic [ref=e49] [cursor=pointer]: Choose Date
+      - button "Payment" [disabled] [ref=e51]:
+        - img [ref=e52]
+        - generic [ref=e54]: Payment
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - heading "Choose Your Delivery Date" [level=2] [ref=e58]
+        - paragraph [ref=e59]: Select your preferred skip delivery date. We'll aim to deliver between 7am and 6pm on your chosen day.
+      - generic [ref=e61]:
+        - img [ref=e62]
+        - generic [ref=e64]:
+          - heading "Permit Information" [level=4] [ref=e65]
+          - paragraph [ref=e66]: You've selected to place your skip on a public property, which requires a council permit. The council needs 5 working days to process permit applications.
+          - paragraph [ref=e67]: The earliest available date is Monday 3 November.
+      - generic [ref=e68]:
+        - heading "Delivery Date" [level=3] [ref=e69]
+        - generic [ref=e70]:
+          - generic [ref=e71]:
+            - button "←" [disabled] [ref=e72]
+            - heading "October 2025" [level=2] [ref=e73]
+            - button "→" [ref=e74] [cursor=pointer]
+          - generic [ref=e75]:
+            - generic [ref=e76]: Sun
+            - generic [ref=e77]: Mon
+            - generic [ref=e78]: Tue
+            - generic [ref=e79]: Wed
+            - generic [ref=e80]: Thu
+            - generic [ref=e81]: Fri
+            - generic [ref=e82]: Sat
+          - generic [ref=e83]:
+            - button "1" [disabled] [ref=e87]
+            - button "2" [disabled] [ref=e88]
+            - button "3" [disabled] [ref=e89]
+            - button "4" [disabled] [ref=e90]
+            - button "5" [disabled] [ref=e91]
+            - button "6" [disabled] [ref=e92]
+            - button "7" [disabled] [ref=e93]
+            - button "8" [disabled] [ref=e94]
+            - button "9" [disabled] [ref=e95]
+            - button "10" [disabled] [ref=e96]
+            - button "11" [disabled] [ref=e97]
+            - button "12" [disabled] [ref=e98]
+            - button "13" [disabled] [ref=e99]
+            - button "14" [disabled] [ref=e100]
+            - button "15" [disabled] [ref=e101]
+            - button "16" [disabled] [ref=e102]
+            - button "17" [disabled] [ref=e103]
+            - button "18" [disabled] [ref=e104]
+            - button "19" [disabled] [ref=e105]
+            - button "20" [disabled] [ref=e106]
+            - button "21" [disabled] [ref=e107]
+            - button "22" [disabled] [ref=e108]
+            - button "23" [disabled] [ref=e109]
+            - button "24" [disabled] [ref=e110]
+            - button "25" [disabled] [ref=e111]
+            - button "26" [disabled] [ref=e112]
+            - button "27" [ref=e113] [cursor=pointer]
+            - button "28" [ref=e114] [cursor=pointer]
+            - button "29" [active] [ref=e115] [cursor=pointer]
+            - button "30" [ref=e116] [cursor=pointer]
+            - button "31" [ref=e117] [cursor=pointer]
+      - generic [ref=e119]:
+        - generic [ref=e120]:
+          - img [ref=e121]
+          - generic [ref=e123]:
+            - heading "Permit Processing Required" [level=3] [ref=e124]
+            - paragraph [ref=e125]: Since you need a road permit, you must select a delivery date that allows at least 5 working days for the council to process your application.
+            - paragraph [ref=e126]: The earliest available date is Monday 3 November 2025.
+        - button "Understood" [ref=e128] [cursor=pointer]
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - heading "6 Yard Skip" [level=3] [ref=e133]
+          - paragraph [ref=e135]: 14 days
+        - generic [ref=e136]:
+          - button "Back" [ref=e137] [cursor=pointer]
+          - button "Continue" [disabled] [ref=e138]
+```

@@ -1,0 +1,320 @@
+{
+  "uuid": "309c476d-f050-4b35-81b0-24ddf3274a71",
+  "name": "Place order for postcode: LE10 2FF, Waste Type: Commercial Waste, No - Heavy Waste, Yes - Plasterboard, Skip size - 4, Placement - Not sure",
+  "historyId": "147264d3af8ca798d058dd6c12df5101:d41d8cd98f00b204e9800998ecf8427e",
+  "status": "failed",
+  "statusDetails": {
+    "message": "Test timeout of 80000ms exceeded.",
+    "trace": "Test timeout of 80000ms exceeded."
+  },
+  "stage": "finished",
+  "steps": [
+    {
+      "status": "passed",
+      "statusDetails": {},
+      "stage": "finished",
+      "steps": [],
+      "attachments": [],
+      "parameters": [],
+      "name": "Before Hooks",
+      "start": 1761454429389,
+      "uuid": "f047ee85-af11-44c2-96ea-62958e3c0ddb",
+      "stop": 1761454429392
+    },
+    {
+      "status": "passed",
+      "statusDetails": {},
+      "stage": "finished",
+      "steps": [
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454429393,
+          "name": "Navigate to \"/\"",
+          "uuid": "5e75a167-0e88-42a4-a5e2-3f03257e0cba",
+          "stop": 1761454430106
+        },
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454430107,
+          "name": "Wait for timeout",
+          "uuid": "1a26d132-886e-4b5f-a510-bfae63703b0c",
+          "stop": 1761454431110
+        },
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454431112,
+          "name": "Wait for selector getByRole('textbox', { name: 'Start Typing Your Delivery' })",
+          "uuid": "4268eb0d-56ae-4569-a879-1a78f2a585f0",
+          "stop": 1761454431130
+        },
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454431131,
+          "name": "Fill \"LE10 2FF\" getByRole('textbox', { name: 'Start Typing Your Delivery' })",
+          "uuid": "085ff151-56a4-4acc-a8ab-db92d84d9513",
+          "stop": 1761454431740
+        },
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454431742,
+          "name": "Click getByRole('button').nth(3)",
+          "uuid": "61b4f4c0-472f-4a49-b552-0cc840eecb1e",
+          "stop": 1761454432559
+        },
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454432564,
+          "name": "Click getByRole('button', { name: 'Continue' })",
+          "uuid": "0f89d535-6ca0-44b9-b51f-f02a87798a86",
+          "stop": 1761454433200
+        },
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454433204,
+          "name": "Wait for timeout",
+          "uuid": "5ca420c5-fcec-4d83-a74d-95bd97511ba4",
+          "stop": 1761454434205
+        }
+      ],
+      "attachments": [],
+      "parameters": [],
+      "start": 1761454429392,
+      "name": "Enter postcode",
+      "uuid": "342e4e11-be28-4078-bdf0-998f4c96ce5a",
+      "stop": 1761454434205
+    },
+    {
+      "status": "passed",
+      "statusDetails": {},
+      "stage": "finished",
+      "steps": [
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454434208,
+          "name": "Wait for selector getByRole('button', { name: 'Commercial Waste' })",
+          "uuid": "b2129a8c-6c12-4872-af8b-7f73dc215048",
+          "stop": 1761454434217
+        },
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454434218,
+          "name": "Click getByRole('button', { name: 'Commercial Waste' })",
+          "uuid": "58a29142-6a85-45e8-a415-e43b4107ef89",
+          "stop": 1761454434842
+        }
+      ],
+      "attachments": [],
+      "parameters": [],
+      "start": 1761454434206,
+      "name": "Select waste type",
+      "uuid": "237b20f9-58f7-4e8c-869e-337195ef71a7",
+      "stop": 1761454434842
+    },
+    {
+      "statusDetails": {},
+      "stage": "running",
+      "steps": [
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454434846,
+          "name": "Click getByRole('button', { name: 'Continue' })",
+          "uuid": "718e3b86-b6f2-4438-bbfc-76336d29d996",
+          "stop": 1761454435479
+        },
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454435482,
+          "name": "Wait for timeout",
+          "uuid": "4efd7890-5262-4337-81d2-fc3997b0a9c3",
+          "stop": 1761454436484
+        },
+        {
+          "statusDetails": {},
+          "stage": "running",
+          "steps": [
+            {
+              "statusDetails": {},
+              "stage": "finished",
+              "steps": [],
+              "attachments": [
+                {
+                  "name": "screenshot",
+                  "source": "b90eb877-45ed-4c49-9b70-2b10e5c28ccd-attachment.png",
+                  "type": "image/png"
+                }
+              ],
+              "parameters": [],
+              "start": 1761454509510,
+              "name": "screenshot",
+              "stop": 1761454509510
+            },
+            {
+              "statusDetails": {},
+              "stage": "finished",
+              "steps": [],
+              "attachments": [
+                {
+                  "name": "error-context",
+                  "source": "0b17b100-aa61-4864-b9ba-85564bb9d83b-attachment.md",
+                  "type": "text/markdown"
+                }
+              ],
+              "parameters": [],
+              "start": 1761454509511,
+              "name": "error-context",
+              "stop": 1761454509511
+            }
+          ],
+          "attachments": [],
+          "parameters": [],
+          "start": 1761454436492,
+          "name": "Click getByRole('button', { name: 'Continue' })",
+          "uuid": "5dae9152-d897-4667-8875-0d9af6e5057f"
+        }
+      ],
+      "attachments": [],
+      "parameters": [],
+      "start": 1761454434843,
+      "name": "Continue waste type",
+      "uuid": "57310f87-5f5a-49f0-87e4-cdbafdc0b352"
+    },
+    {
+      "status": "passed",
+      "statusDetails": {},
+      "stage": "finished",
+      "steps": [
+        {
+          "status": "passed",
+          "statusDetails": {},
+          "stage": "finished",
+          "steps": [
+            {
+              "status": "passed",
+              "statusDetails": {},
+              "stage": "finished",
+              "steps": [],
+              "attachments": [],
+              "parameters": [],
+              "name": "Close context",
+              "start": 1761454509485,
+              "uuid": "7b381aeb-dccd-4f58-bede-87f4df4368fd",
+              "stop": 1761454509489
+            }
+          ],
+          "attachments": [],
+          "parameters": [],
+          "name": "afterAll hook",
+          "start": 1761454509474,
+          "uuid": "e92120be-2acb-445f-9667-cd65f82c4b47",
+          "stop": 1761454509493
+        }
+      ],
+      "attachments": [],
+      "parameters": [],
+      "name": "After Hooks",
+      "start": 1761454509395,
+      "uuid": "b754039f-2a99-4e16-974a-d7522467b5c9",
+      "stop": 1761454509493
+    }
+  ],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "language",
+      "value": "javascript"
+    },
+    {
+      "name": "framework",
+      "value": "playwright"
+    },
+    {
+      "name": "package",
+      "value": "smoke.spec.js"
+    },
+    {
+      "name": "titlePath",
+      "value": " >  > smoke.spec.js > Place multiple orders"
+    },
+    {
+      "name": "host",
+      "value": "Maitrays-MacBook-Pro-2.local"
+    },
+    {
+      "name": "thread",
+      "value": "pid-2348-worker-0"
+    },
+    {
+      "name": "suite",
+      "value": "smoke.spec.js"
+    },
+    {
+      "name": "subSuite",
+      "value": "Place multiple orders"
+    }
+  ],
+  "links": [],
+  "start": 1761454429401,
+  "testCaseId": "147264d3af8ca798d058dd6c12df5101",
+  "fullName": "smoke.spec.js:37:9",
+  "titlePath": [
+    "smoke.spec.js",
+    "Place multiple orders"
+  ],
+  "stop": 1761454509470
+}

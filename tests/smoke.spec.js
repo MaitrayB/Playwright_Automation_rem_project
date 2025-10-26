@@ -2,7 +2,7 @@ import { test } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage.js';
 import { OrderPage } from '../pages/OrderPage.js';
 import { DashboardPage } from '../pages/DashboardPage.js';
-import { TestData } from '../Data/testData.js';
+import { TestData } from '../Data/TestData.js';
 import { readCsv } from '../utils/readCsv.js';
 
 const csvData = readCsv('./Data/testData.csv');
@@ -54,7 +54,7 @@ test.describe('Place multiple orders', () => {
       });
 
       await test.step('Select skip & property', async () => {
-        await orderPage.selectSkip(row.SkipSize);
+        await orderPage.selectSkip(row.SkipSize,row.PlasterBoard,row.ToneBag,row.SelfDispose);
       });
 
       await test.step('Permit check', async () => {
