@@ -1,0 +1,164 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "mat mattwo@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12] [cursor=pointer]:
+          - paragraph [ref=e13] [cursor=pointer]: mat
+          - paragraph [ref=e14] [cursor=pointer]: mattwo@yopmail.com
+        - img [ref=e15] [cursor=pointer]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Postcode" [ref=e21] [cursor=pointer]:
+        - img [ref=e22] [cursor=pointer]
+        - generic [ref=e25] [cursor=pointer]: Postcode
+      - button "Waste Type" [ref=e27] [cursor=pointer]:
+        - img [ref=e28] [cursor=pointer]
+        - generic [ref=e31] [cursor=pointer]: Waste Type
+      - button "Select Skip" [ref=e33] [cursor=pointer]:
+        - img [ref=e34] [cursor=pointer]
+        - generic [ref=e39] [cursor=pointer]: Select Skip
+      - button "Permit Check" [disabled] [ref=e41]:
+        - img [ref=e42]
+        - generic [ref=e44]: Permit Check
+      - button "Choose Date" [disabled] [ref=e46]:
+        - img [ref=e47]
+        - generic [ref=e49]: Choose Date
+      - button "Payment" [disabled] [ref=e51]:
+        - img [ref=e52]
+        - generic [ref=e54]: Payment
+    - generic [ref=e55]:
+      - heading "Choose Your Skip Size" [level=2] [ref=e56]
+      - paragraph [ref=e57]: Select the skip size that best suits your needs
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - heading "Not sure what size skip you need?" [level=3] [ref=e64]
+            - img [ref=e65]
+          - paragraph [ref=e67]: Our Wrong Skip Guarantee covers the cost to redeliver / even after delivery
+        - generic [ref=e69]:
+          - button "See how it works" [ref=e70] [cursor=pointer]
+          - button "Dismiss banner" [ref=e71] [cursor=pointer]:
+            - img [ref=e72] [cursor=pointer]
+      - generic [ref=e75]:
+        - generic [ref=e76] [cursor=pointer]:
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e78] [cursor=pointer]
+            - generic [ref=e79] [cursor=pointer]: 4 Yards
+          - generic [ref=e81] [cursor=pointer]:
+            - heading "4 Yard Skip" [level=3] [ref=e82] [cursor=pointer]
+            - paragraph [ref=e83] [cursor=pointer]: 14 day hire period
+          - button "Select This Skip" [ref=e84] [cursor=pointer]:
+            - generic [ref=e85] [cursor=pointer]: Select This Skip
+            - img [ref=e86] [cursor=pointer]
+        - generic [ref=e88] [cursor=pointer]:
+          - generic [ref=e89] [cursor=pointer]:
+            - img [ref=e90] [cursor=pointer]
+            - generic [ref=e91] [cursor=pointer]: 6 Yards
+          - generic [ref=e93] [cursor=pointer]:
+            - heading "6 Yard Skip" [level=3] [ref=e94] [cursor=pointer]
+            - paragraph [ref=e95] [cursor=pointer]: 14 day hire period
+          - button "Select This Skip" [ref=e96] [cursor=pointer]:
+            - generic [ref=e97] [cursor=pointer]: Select This Skip
+            - img [ref=e98] [cursor=pointer]
+        - generic [ref=e100] [cursor=pointer]:
+          - generic [ref=e101] [cursor=pointer]:
+            - img [ref=e102] [cursor=pointer]
+            - generic [ref=e103] [cursor=pointer]: 8 Yards
+          - generic [ref=e105] [cursor=pointer]:
+            - heading "8 Yard Skip" [level=3] [ref=e106] [cursor=pointer]
+            - paragraph [ref=e107] [cursor=pointer]: 14 day hire period
+          - button "Select This Skip" [ref=e108] [cursor=pointer]:
+            - generic [ref=e109] [cursor=pointer]: Select This Skip
+            - img [ref=e110] [cursor=pointer]
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - img [ref=e114]
+            - generic [ref=e115]: 10 Yards
+          - generic [ref=e116]:
+            - generic [ref=e117]:
+              - heading "10 Yard Skip" [level=3] [ref=e118]
+              - paragraph [ref=e119]: 14 day hire period
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - img [ref=e122]
+                - generic [ref=e124]: Not Allowed On Road
+              - generic [ref=e125]:
+                - img [ref=e126]
+                - generic [ref=e128]: No Heavy Waste
+          - button "Select This Skip" [disabled] [ref=e129]:
+            - generic [ref=e130]: Select This Skip
+            - img [ref=e131]
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - img [ref=e135]
+            - generic [ref=e136]: 12 Yards
+          - generic [ref=e137]:
+            - generic [ref=e138]:
+              - heading "12 Yard Skip" [level=3] [ref=e139]
+              - paragraph [ref=e140]: 14 day hire period
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - img [ref=e143]
+                - generic [ref=e145]: Not Allowed On Road
+              - generic [ref=e146]:
+                - img [ref=e147]
+                - generic [ref=e149]: No Heavy Waste
+          - button "Select This Skip" [disabled] [ref=e150]:
+            - generic [ref=e151]: Select This Skip
+            - img [ref=e152]
+        - generic [ref=e154]:
+          - generic [ref=e155]:
+            - img [ref=e156]
+            - generic [ref=e157]: 14 Yards
+          - generic [ref=e158]:
+            - generic [ref=e159]:
+              - heading "14 Yard Skip" [level=3] [ref=e160]
+              - paragraph [ref=e161]: 14 day hire period
+            - generic [ref=e162]:
+              - generic [ref=e163]:
+                - img [ref=e164]
+                - generic [ref=e166]: Not Allowed On Road
+              - generic [ref=e167]:
+                - img [ref=e168]
+                - generic [ref=e170]: No Heavy Waste
+          - button "Select This Skip" [disabled] [ref=e171]:
+            - generic [ref=e172]: Select This Skip
+            - img [ref=e173]
+        - generic [ref=e175] [cursor=pointer]:
+          - generic [ref=e176] [cursor=pointer]:
+            - img [ref=e177] [cursor=pointer]
+            - generic [ref=e178] [cursor=pointer]: 20 Yards
+          - generic [ref=e179] [cursor=pointer]:
+            - generic [ref=e180] [cursor=pointer]:
+              - heading "20 Yard Skip" [level=3] [ref=e181] [cursor=pointer]
+              - paragraph [ref=e182] [cursor=pointer]: 14 day hire period
+            - generic [ref=e184] [cursor=pointer]:
+              - img [ref=e185] [cursor=pointer]
+              - generic [ref=e187] [cursor=pointer]: Not Allowed On Road
+          - button "Select This Skip" [ref=e188] [cursor=pointer]:
+            - generic [ref=e189] [cursor=pointer]: Select This Skip
+            - img [ref=e190] [cursor=pointer]
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - img [ref=e194]
+            - generic [ref=e195]: 40 Yards
+          - generic [ref=e196]:
+            - generic [ref=e197]:
+              - heading "40 Yard Skip" [level=3] [ref=e198]
+              - paragraph [ref=e199]: 14 day hire period
+            - generic [ref=e200]:
+              - generic [ref=e201]:
+                - img [ref=e202]
+                - generic [ref=e204]: Not Allowed On Road
+              - generic [ref=e205]:
+                - img [ref=e206]
+                - generic [ref=e208]: No Heavy Waste
+          - button "Select This Skip" [disabled] [ref=e209]:
+            - generic [ref=e210]: Select This Skip
+            - img [ref=e211]
+      - generic [ref=e213]: Imagery and information shown throughout this website may not reflect the exact shape or size specification, colours may vary, options and/or accessories may be featured at additional cost.
+```

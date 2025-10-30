@@ -1,0 +1,5 @@
+Postcodes,WasteType,HeavyWaste,PlasterBoard,ToneBag,SelfDispose,SkipSize,BookingDay,Placement
+LE10 2DD,Construction Waste,No,Yes,No,Yes,4,29,Private Property
+LE10 2FF,Commercial Waste,No,Yes,No,Yes,4,27,Not sure
+LE10 0UH,Household Waste,No,No,No,No,6,29,Public Property
+RG10 9FA,Garden Waste,No,No,No,No,8,28,Grass verge
