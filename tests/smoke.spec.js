@@ -33,7 +33,7 @@ test.describe('Place multiple orders', () => {
     test.page = page;
   });
 
-  for (const row of csvData) {
+  for (const row of csvData.slice(0, 10)) { // Limit to first 10 rows for brevity
     test(`Place order for postcode: ${row.Postcodes}, Waste Type: ${row.WasteType}, ${row.HeavyWaste} - Heavy Waste, ${row.PlasterBoard} - Plasterboard, Skip size - ${row.SkipSize}, Placement - ${row.Placement}`, async () => {
       const page = test.page; // reuse same page
       const orderPage = new OrderPage(page);

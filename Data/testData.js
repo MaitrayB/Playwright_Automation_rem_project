@@ -1,7 +1,7 @@
 export const TestData = {
   baseURL: 'https://develop.wewantwaste.co.uk/',
   credentials: {
-    username: 'mattwo@yopmail.com',
+    username: 'navin@yopmail.com',
     password: 'P@ssw0rd'
   },
   postcodes: [

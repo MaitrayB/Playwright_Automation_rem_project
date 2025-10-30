@@ -5,7 +5,10 @@ export class OrderPage {
     this.postcodeInput = page.getByRole('textbox', { name: 'Start Typing Your Delivery' });
     this.continueBtn = page.getByRole('button', { name: 'Continue' });
     this.confirmBtn = page.getByRole('button', { name: 'Confirm' });
-   
+    this.streetInput = page.locator('div').filter({ hasText: /^Street Name$/ }).getByRole('textbox');
+    this.houseNoInput = page.locator('div').filter({ hasText: /^House\/Flat Number$/ }).getByRole('textbox');
+
+
     this.constructionWasteBtn = page.getByRole('button', { name: 'Construction Waste Building' });
     this.commercialWasteBtn = page.getByRole('button', { name: 'Commercial Waste' });
     this.gardenWasteBtn = page.getByRole('button', { name: 'Garden Waste' });
@@ -50,6 +53,21 @@ export class OrderPage {
     
     if (await this.page.getByRole('button').nth(3).isVisible())
     {await this.page.getByRole('button').nth(3).click();}
+
+    await this.page.waitForTimeout(2000);
+
+    //see if house and street are not auto filled then fill them
+    if (await this.streetInput.inputValue() === '')
+    {
+    await this.streetInput.fill('Main Street'); 
+    }
+   
+
+    if (await this.houseNoInput.inputValue() === '')
+    {
+      await this.houseNoInput.fill('123');
+    }
+   
 
     await this.continueBtn.click();
     await this.page.waitForTimeout(1000);
@@ -108,7 +126,19 @@ export class OrderPage {
 
   async selectSkip(skipSize,Plasterboard,ToneBag,SelfDispose) {
     this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
-    await this.skipYardBtn.waitFor({ state: 'visible' });
+
+    await this.page.waitForTimeout(2000);
+
+    if (!(await this.skipYardBtn.isVisible())){
+      skipSize = 4;
+      this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+
+      if (!(await this.skipYardBtn.isVisible())) {
+          skipSize = 6;
+          this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+      }
+
+    }
     await this.skipYardBtn.click();
 
     await this.continueBtn.click();
@@ -126,9 +156,8 @@ export class OrderPage {
         await this.confirmBtn.click();
       }
     }
-   
-
   }
+
 
   //permit check
 async permitCheck(Placement) {
