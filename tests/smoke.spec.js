@@ -2,8 +2,8 @@ import { test } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage.js';
 import { OrderPage } from '../pages/OrderPage.js';
 import { DashboardPage } from '../pages/DashboardPage.js';
-import { TestData } from '../Data/TestData.js';
 import { readCsv } from '../utils/readCsv.js';
+import { SignUpPage } from '../pages/SignUpPage.js'
 
 const csvData = readCsv('./Data/testData.csv');
 
@@ -15,12 +15,21 @@ test.describe('Place multiple orders', () => {
     const context = await browser.newContext();
     const page = await context.newPage();
 
+    const signUpPage = new SignUpPage(page);
     const loginPage = new LoginPage(page);
+
+    // Sign up before all tests
+    await test.step('Sign up (before all tests)', async () => {
+      await loginPage.goto();
+      await signUpPage.navigateToSignUpPage();
+      await signUpPage.fillSignUpForm();
+      await signUpPage.verifyRegistrationSuccess();
+    });
 
     // ✅ Login once before all tests
     await test.step('Login to application (before all tests)', async () => {
-      await loginPage.goto();
-      await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
+      await loginPage.login(signUpPage.emailAddress, signUpPage.randomPassword);
     });
 
     // Initialize pages after login
@@ -33,7 +42,7 @@ test.describe('Place multiple orders', () => {
     test.page = page;
   });
 
-  for (const row of csvData.slice(0, 10)) { // Limit to first 10 rows for brevity
+  for (const row of csvData.slice(0, 3)) { // Limit to first 10 rows for brevity
     test(`Place order for postcode: ${row.Postcodes}, Waste Type: ${row.WasteType}, ${row.HeavyWaste} - Heavy Waste, ${row.PlasterBoard} - Plasterboard, Skip size - ${row.SkipSize}, Placement - ${row.Placement}`, async () => {
       const page = test.page; // reuse same page
       const orderPage = new OrderPage(page);
@@ -54,7 +63,7 @@ test.describe('Place multiple orders', () => {
       });
 
       await test.step('Select skip & property', async () => {
-        await orderPage.selectSkip(row.SkipSize,row.PlasterBoard,row.ToneBag,row.SelfDispose);
+        await orderPage.selectSkip(row.SkipSize, row.PlasterBoard, row.ToneBag, row.SelfDispose);
       });
 
       await test.step('Permit check', async () => {

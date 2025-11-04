@@ -39,6 +39,11 @@ export class OrderPage {
 
     this.calendarNextArrow = page.getByRole('button', { name: '→' })
 
+//Paymentform
+    this.cardNumberLocator = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-numberInput"]');
+    this.expiryDate = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-expiryInput"]');
+    this.cvc = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-cvcInput"]');
+
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
     
@@ -217,10 +222,20 @@ else {
     await this.noBtn.click();
     }
 
-    await this.page.waitForTimeout(4000);
+    await this.page.waitForTimeout(6000);
   }
 
   async completePayment() {
+    
+    if(await this.cardNumberLocator.isVisible())
+    {
+    
+    await this.cardNumberLocator.fill('4111 1111 1111 1111');
+    await this.expiryDate.fill('12/34');
+    await this.cvc.fill('123');
+    
+    }
+
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
     await this.completePaymentBtn.waitFor({ state: 'visible' });
