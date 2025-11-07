@@ -15,6 +15,7 @@ export class SignUpPage {
         this.signUpBtn = page.getByRole('button', { name: 'Sign up' });
         this.registrationSuccessMessage = page.locator("//p[@class='text-sm text-green-500']");
 
+
         //elements for guest user registration form
         this.confirmEmailInput = page.locator("//input[@id = 'confirmEmail']");
         this.continueBtn = page.locator("//div[@class='space-y-3']/button/span");
@@ -38,6 +39,7 @@ export class SignUpPage {
 
         //const randomPassword = faker.internet.password({ length: 7, symbols: true });
         const randomPassword = "P@ssw0rd";
+
         this.emailAddress = emailAddress;
         this.randomPassword = randomPassword;
 
@@ -82,10 +84,28 @@ export class SignUpPage {
         await this.passwordInput.waitFor({ state: 'visible' });
         await this.passwordInput.fill(randomPassword);
         await this.confirmPasswordInput.fill(randomPassword);
+
         await this.updatePasswordBtn.click();
 
         await this.passwordUpdatedSuccessMessage.waitFor({ state: 'visible' });
         await expect(this.passwordUpdatedSuccessMessage).toHaveText('Password updated successfully!');
+
+        await this.page.locator('#firstName').focus();
+        await this.firstNameInput.fill(firstName);
+        await this.lastNameInput.fill(lastName);
+        await this.emailInput.fill(emailAddress);
+        console.log("Generated Email Address: " + emailAddress);
+        await this.phoneInput.fill('+44 16977 2987');
+        await this.passwordInput.fill(randomPassword);
+        await this.confirmPasswordInput.fill(randomPassword);
+        console.log("Generated Password: " + randomPassword);
+
+        await this.signUpBtn.click();
+        await this.page.waitForTimeout(3000)
+
+        this.emailAddress = emailAddress;
+        this.randomPassword = randomPassword;
+
     }
 
     async verifyRegistrationSuccess() {

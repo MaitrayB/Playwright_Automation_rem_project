@@ -2,9 +2,9 @@ import { test } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage.js';
 import { OrderPage } from '../pages/OrderPage.js';
 import { DashboardPage } from '../pages/DashboardPage.js';
-//import { TestData } from '../Data/TestData.js';
+import { TestData } from '../Data/TestData.js';
 import { readCsv } from '../utils/readCsv.js';
-import { SignUpPage } from '../pages/SignUpPage.js'
+import { SignUpPage } from '../pages/SignUpPage.js';
 import { OrderDeliveryDetailsPage } from '../pages/OrderDeliveryDetailsPage.js';
 
 const csvData = readCsv('./Data/testData.csv');
@@ -20,7 +20,7 @@ test.describe('Place multiple orders', () => {
     const page = await context.newPage();
 
     const signUpPage = new SignUpPage(page);
-    const loginPage = new LoginPage(page);
+    //const loginPage = new LoginPage(page);
 
     // Initialize pages after login
     orderPage = new OrderPage(page);
@@ -72,6 +72,7 @@ test.describe('Place multiple orders', () => {
       });
 
       await test.step('Select skip & property', async () => {
+        await orderPage.selectSkip(row.SkipSize, row.PlasterBoard, row.ToneBag, row.SelfDispose);
         await orderPage.selectSkip(row.SkipSize, row.PlasterBoard, row.ToneBag, row.SelfDispose);
       });
 
