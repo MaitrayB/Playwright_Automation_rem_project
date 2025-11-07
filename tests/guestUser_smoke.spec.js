@@ -7,7 +7,7 @@ import { readCsv } from '../utils/readCsv.js';
 import { SignUpPage } from '../pages/SignUpPage.js'
 import { OrderDeliveryDetailsPage } from '../pages/OrderDeliveryDetailsPage.js';
 
-const csvData = readCsv('/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation3/REMAutomation3/Data/testData.csv');
+const csvData = readCsv('./Data/testData.csv');
 
 test.describe('Place multiple orders', () => {
     test.setTimeout(180000); // 3 minutes

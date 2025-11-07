@@ -200,7 +200,7 @@ export class OrderPage {
     else {
       await this.notsureBtn.click();
       await this.continueBtn.click();
-      await this.page.setInputFiles('input[type="file"]', '/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation3/REMAutomation3/Data/download.jpeg');
+      await this.page.setInputFiles('input[type="file"]', './Data/download.jpeg');
       await this.continueBtn.click();
     }
 
