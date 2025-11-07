@@ -1,6 +1,6 @@
 export class OrderPage {
   constructor(page) {
-   
+
     this.page = page;
     this.postcodeInput = page.getByRole('textbox', { name: 'Start Typing Your Delivery' });
     this.continueBtn = page.getByRole('button', { name: 'Continue' });
@@ -39,40 +39,38 @@ export class OrderPage {
 
     this.calendarNextArrow = page.getByRole('button', { name: '→' })
 
-//Paymentform
+    //Paymentform
     this.cardNumberLocator = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-numberInput"]');
     this.expiryDate = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-expiryInput"]');
     this.cvc = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-cvcInput"]');
 
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
-    
+
 
   }
 
   //Postcode selection
   async enterPostcode(postcode) {
-    await this.postcodeInput.waitFor({ state: 'visible' });
+    await this.page.waitForLoadState('networkidle');
+    await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
     await this.page.getByRole('button').nth(3).click();
-    
-    if (await this.page.getByRole('button').nth(3).isVisible())
-    {await this.page.getByRole('button').nth(3).click();}
+
+    if (await this.page.getByRole('button').nth(3).isVisible()) { await this.page.getByRole('button').nth(3).click(); }
 
     await this.page.waitForTimeout(2000);
 
     //see if house and street are not auto filled then fill them
-    if (await this.streetInput.inputValue() === '')
-    {
-    await this.streetInput.fill('Main Street'); 
+    if (await this.streetInput.inputValue() === '') {
+      await this.streetInput.fill('Main Street');
     }
-   
 
-    if (await this.houseNoInput.inputValue() === '')
-    {
+
+    if (await this.houseNoInput.inputValue() === '') {
       await this.houseNoInput.fill('123');
     }
-   
+
 
     await this.continueBtn.click();
     await this.page.waitForTimeout(1000);
@@ -80,25 +78,25 @@ export class OrderPage {
 
   //Waste type selection
   async selectWaste(wastetype) {
-    
-    if (wastetype === 'Construction Waste') { 
-    await this.constructionWasteBtn.waitFor({ state: 'visible' });
-    await this.constructionWasteBtn.click();
+
+    if (wastetype === 'Construction Waste') {
+      await this.constructionWasteBtn.waitFor({ state: 'visible' });
+      await this.constructionWasteBtn.click();
     }
 
-     if (wastetype === 'Garden Waste') { 
-    await this.gardenWasteBtn.waitFor({ state: 'visible' });
-    await this.gardenWasteBtn.click();
+    if (wastetype === 'Garden Waste') {
+      await this.gardenWasteBtn.waitFor({ state: 'visible' });
+      await this.gardenWasteBtn.click();
     }
 
-     if (wastetype === 'Commercial Waste') { 
-    await this.commercialWasteBtn.waitFor({ state: 'visible' });
-    await this.commercialWasteBtn.click();
+    if (wastetype === 'Commercial Waste') {
+      await this.commercialWasteBtn.waitFor({ state: 'visible' });
+      await this.commercialWasteBtn.click();
     }
 
-     if (wastetype === 'Household Waste') { 
-    await this.houseHoldWasteBtn.waitFor({ state: 'visible' });
-    await this.houseHoldWasteBtn.click();
+    if (wastetype === 'Household Waste') {
+      await this.houseHoldWasteBtn.waitFor({ state: 'visible' });
+      await this.houseHoldWasteBtn.click();
     }
   }
 
@@ -106,41 +104,45 @@ export class OrderPage {
     await this.continueBtn.click();
 
     if (HeavyWaste === 'Yes') {
-       await this.page.waitForTimeout(1000);
-      if(await this.heavyWasteYesbtn.isVisible()){
-      this.heavyWasteYesbtn.click();}
+      await this.page.waitForTimeout(1000);
+      if (await this.heavyWasteYesbtn.isVisible()) {
+        this.heavyWasteYesbtn.click();
+      }
     }
     else {
-      if(await this.heavyWasteNobtn.isVisible()){ 
-      this.heavyWasteNobtn.click();}
+      if (await this.heavyWasteNobtn.isVisible()) {
+        this.heavyWasteNobtn.click();
+      }
     }
     await this.page.waitForTimeout(1000);
 
     if (PlasterBoard === 'Yes') {
-      if(await this.plasterboardYesbtn.isVisible()){
-      this.plasterboardYesbtn.click();}
+      if (await this.plasterboardYesbtn.isVisible()) {
+        this.plasterboardYesbtn.click();
+      }
     }
     else {
-      if(await this.plasterboardNobtn.isVisible()){
-      this.plasterboardNobtn.click();}
+      if (await this.plasterboardNobtn.isVisible()) {
+        this.plasterboardNobtn.click();
+      }
     }
-   
+
     await this.continueBtn.click();
     await this.page.waitForTimeout(1000);
   }
 
-  async selectSkip(skipSize,Plasterboard,ToneBag,SelfDispose) {
+  async selectSkip(skipSize, Plasterboard, ToneBag, SelfDispose) {
     this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
 
     await this.page.waitForTimeout(2000);
 
-    if (!(await this.skipYardBtn.isVisible())){
+    if (!(await this.skipYardBtn.isVisible())) {
       skipSize = 4;
       this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
 
       if (!(await this.skipYardBtn.isVisible())) {
-          skipSize = 6;
-          this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+        skipSize = 6;
+        this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
       }
 
     }
@@ -152,7 +154,7 @@ export class OrderPage {
 
     if (Plasterboard === 'Yes') {
       if (ToneBag === 'Yes') {
-       
+
         await this.confirmBtn.click();
 
       }
@@ -165,52 +167,52 @@ export class OrderPage {
 
 
   //permit check
-async permitCheck(Placement) {
+  async permitCheck(Placement) {
 
-if (Placement === 'Private Property') {
+    if (Placement === 'Private Property') {
 
-    await this.privatePropertyBtn.click();
-    await this.continueBtn.click();
-    await this.skipCheckbox.waitFor({ state: 'visible' });
-    await this.skipCheckbox.click();
-    await this.continueBtn.click();
-}
-else if( Placement === 'Public Property') {
-  await this.publicPropertyBtn.click();
-  await this.continueBtn.click();
-  await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg'); //upload permit file
-  await this.continueBtn.click();
-}
-  else if( Placement === 'Grass verge') {
-    await this.grassVergeBtn.waitFor({ state: 'visible' });
-    await this.grassVergeBtn.click();
+      await this.privatePropertyBtn.click();
+      await this.continueBtn.click();
+      await this.skipCheckbox.waitFor({ state: 'visible' });
+      await this.skipCheckbox.click();
+      await this.continueBtn.click();
+    }
+    else if (Placement === 'Public Property') {
+      await this.publicPropertyBtn.click();
+      await this.continueBtn.click();
+      await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg'); //upload permit file
+      await this.continueBtn.click();
+    }
+    else if (Placement === 'Grass verge') {
+      await this.grassVergeBtn.waitFor({ state: 'visible' });
+      await this.grassVergeBtn.click();
 
-    await this.grassNoPermitBtn.waitFor({ state: 'visible' });
-    await this.grassNoPermitBtn.click();
-    await this.grassPopupContinueBtn.click();
-    await this.page.waitForTimeout(2000);
-    await this.continueBtn.click();
-    await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg');
-    await this.continueBtn.click();
+      await this.grassNoPermitBtn.waitFor({ state: 'visible' });
+      await this.grassNoPermitBtn.click();
+      await this.grassPopupContinueBtn.click();
+      await this.page.waitForTimeout(2000);
+      await this.continueBtn.click();
+      await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg');
+      await this.continueBtn.click();
 
-}
+    }
 
-else {
-  await this.notsureBtn.click();
-  await this.continueBtn.click();
-  await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg');
-  await this.continueBtn.click(); 
-}
+    else {
+      await this.notsureBtn.click();
+      await this.continueBtn.click();
+      await this.page.setInputFiles('input[type="file"]', './Data/download.jpeg');
+      await this.continueBtn.click();
+    }
 
 
-}
+  }
 
   async chooseDate(Day) {
-    
+
     await this.calendarNextArrow.click();
     this.dateBtn = this.page.getByRole('button', { name: Day });
-    if(await this.dateBtn.isDisabled()){
-    Day = Day - 2;
+    if (await this.dateBtn.isDisabled()) {
+      Day = Day - 2;
     }
     this.dateBtn = this.page.getByRole('button', { name: Day });
     await this.dateBtn.waitFor({ state: 'visible' });
@@ -218,28 +220,26 @@ else {
     await this.continueBtn.click();
 
     await this.page.waitForTimeout(3000);
-    if (await this.noBtn.isVisible()){
-    await this.noBtn.click();
+    if (await this.noBtn.isVisible()) {
+      await this.noBtn.click();
     }
 
-    await this.page.waitForTimeout(6000);
+    await this.page.waitForTimeout(5000);
+    //await this.page.waitForLoadState('networkidle');
   }
 
   async completePayment() {
-    
-    if(await this.cardNumberLocator.isVisible())
-    {
-    
+
+    await this.cardNumberLocator.waitFor({ state: 'visible' });
     await this.cardNumberLocator.fill('4111 1111 1111 1111');
     await this.expiryDate.fill('12/34');
     await this.cvc.fill('123');
-    
-    }
+    await this.page.waitForTimeout(2000);
 
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
     await this.completePaymentBtn.waitFor({ state: 'visible' });
+
     await this.completePaymentBtn.click();
-    await this.page.waitForTimeout(10000);
   }
 }
