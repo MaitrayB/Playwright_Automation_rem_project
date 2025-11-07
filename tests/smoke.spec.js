@@ -19,7 +19,6 @@ test.describe('Place multiple orders', () => {
     const page = await context.newPage();
 
     const signUpPage = new SignUpPage(page);
-    const signUpPage = new SignUpPage(page);
     const loginPage = new LoginPage(page);
 
     // Sign up before all tests
@@ -71,7 +70,7 @@ test.describe('Place multiple orders', () => {
 
       await test.step('Select skip & property', async () => {
         await orderPage.selectSkip(row.SkipSize, row.PlasterBoard, row.ToneBag, row.SelfDispose);
-        await orderPage.selectSkip(row.SkipSize, row.PlasterBoard, row.ToneBag, row.SelfDispose);
+        //await orderPage.selectSkip(row.SkipSize, row.PlasterBoard, row.ToneBag, row.SelfDispose);
       });
 
       await test.step('Permit check', async () => {

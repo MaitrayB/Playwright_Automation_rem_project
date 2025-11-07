@@ -5,6 +5,7 @@ export default defineConfig({
   timeout: 40 * 2000,
   use: {
     headless: false,
+    fullyParallel: false,
     browserName: 'chromium',
     launchOptions: {
       args: ['--start-maximized'],

@@ -1,0 +1,2 @@
+guest user
+Continue button is enabled
