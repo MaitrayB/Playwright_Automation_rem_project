@@ -7,6 +7,7 @@ export class LoginPage {
     this.emailInput = page.getByRole('textbox', { name: 'Email address' });
     this.passwordInput = page.getByRole('textbox', { name: 'Password' });
     this.signInBtn = page.getByRole('button', { name: 'Sign in' });
+    this.signOutBtn = page.getByRole('button', { name: 'Sign Out' });
   }
 
   async goto() {
@@ -29,6 +30,7 @@ export class LoginPage {
 
     await this.signInBtn.waitFor({ state: 'visible' });
     await this.signInBtn.click();
-    await this.page.waitForTimeout(1000);
+    //await this.page.waitForTimeout(1000);
+    await this.page.waitForLoadState('networkidle');
   }
 }

@@ -165,12 +165,10 @@ export class OrderPage {
     }
   }
 
-
   //permit check
   async permitCheck(Placement) {
 
     if (Placement === 'Private Property') {
-
       await this.privatePropertyBtn.click();
       await this.continueBtn.click();
       await this.skipCheckbox.waitFor({ state: 'visible' });
@@ -194,23 +192,20 @@ export class OrderPage {
       await this.continueBtn.click();
       await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg');
       await this.continueBtn.click();
-
     }
-
     else {
       await this.notsureBtn.click();
       await this.continueBtn.click();
       await this.page.setInputFiles('input[type="file"]', './Data/download.jpeg');
       await this.continueBtn.click();
     }
-
-
   }
 
   async chooseDate(Day) {
 
     await this.calendarNextArrow.click();
     this.dateBtn = this.page.getByRole('button', { name: Day });
+
     if (await this.dateBtn.isDisabled()) {
       Day = Day - 2;
     }
@@ -225,11 +220,9 @@ export class OrderPage {
     }
 
     await this.page.waitForTimeout(5000);
-    //await this.page.waitForLoadState('networkidle');
   }
 
   async completePayment() {
-
     await this.cardNumberLocator.waitFor({ state: 'visible' });
     await this.cardNumberLocator.fill('4111 1111 1111 1111');
     await this.expiryDate.fill('12/34');
@@ -238,8 +231,9 @@ export class OrderPage {
 
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
-    await this.completePaymentBtn.waitFor({ state: 'visible' });
 
+    await this.completePaymentBtn.waitFor({ state: 'visible' });
     await this.completePaymentBtn.click();
+
   }
 }
