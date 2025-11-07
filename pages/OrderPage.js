@@ -27,7 +27,7 @@ export class OrderPage {
     this.nextArrowIcon = page.locator('.p-2 > div:nth-child(2) > div > button')
     this.privatePropertyBtn = page.getByRole('button', { name: 'Private Property Driveway or' });
     this.dateBtn = page.getByRole('button', { name: '30' });
-    this.skipCheckbox = page.getByText('Skip this step to upload a');
+    this.skipCheckbox = page.getByText('Skip this step to upload a photo');
 
     this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
     this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
@@ -46,8 +46,6 @@ export class OrderPage {
 
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
-
-
   }
 
   //Postcode selection
@@ -146,8 +144,8 @@ export class OrderPage {
       }
 
     }
+    await this.skipYardBtn.waitFor({ state: 'visible' });
     await this.skipYardBtn.click();
-
     await this.continueBtn.click();
     await this.noSkipGauranteeBtn.click();
     await this.page.waitForTimeout(1000);
@@ -208,10 +206,15 @@ export class OrderPage {
 
     if (await this.dateBtn.isDisabled()) {
       Day = Day - 2;
+      this.dateBtn = this.page.getByRole('button', { name: Day });
+      await this.dateBtn.click();
     }
-    this.dateBtn = this.page.getByRole('button', { name: Day });
-    await this.dateBtn.waitFor({ state: 'visible' });
-    await this.dateBtn.click();
+    else {
+      await this.dateBtn.click();
+    }
+    // this.dateBtn = this.page.getByRole('button', { name: Day });
+    // await this.dateBtn.waitFor({ state: 'visible' });
+    // await this.dateBtn.click();
     await this.continueBtn.click();
 
     await this.page.waitForTimeout(3000);

@@ -1,0 +1,93 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "Emmy Emmy_Runolfsson@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Emmy
+          - paragraph [ref=e14]: Emmy_Runolfsson@yopmail.com
+        - img [ref=e15]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Postcode" [ref=e21] [cursor=pointer]:
+        - img [ref=e22]
+        - generic [ref=e25]: Postcode
+      - button "Waste Type" [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: Waste Type
+      - button "Select Skip" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e39]: Select Skip
+      - button "Permit Check" [ref=e41] [cursor=pointer]:
+        - img [ref=e42]
+        - generic [ref=e44]: Permit Check
+      - button "Choose Date" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+        - generic [ref=e49]: Choose Date
+      - button "Payment" [disabled] [ref=e51]:
+        - img [ref=e52]
+        - generic [ref=e54]: Payment
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - heading "Choose Your Delivery Date" [level=2] [ref=e58]
+        - paragraph [ref=e59]: Select your preferred skip delivery date. We'll aim to deliver between 7am and 6pm on your chosen day.
+      - generic [ref=e60]:
+        - heading "Delivery Date" [level=3] [ref=e61]
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - button "←" [ref=e64] [cursor=pointer]
+            - heading "December 2025" [level=2] [ref=e65]
+            - button "→" [active] [ref=e66] [cursor=pointer]
+          - generic [ref=e67]:
+            - generic [ref=e68]: Sun
+            - generic [ref=e69]: Mon
+            - generic [ref=e70]: Tue
+            - generic [ref=e71]: Wed
+            - generic [ref=e72]: Thu
+            - generic [ref=e73]: Fri
+            - generic [ref=e74]: Sat
+          - generic [ref=e75]:
+            - button "1" [ref=e77] [cursor=pointer]
+            - button "2" [ref=e78] [cursor=pointer]
+            - button "3" [ref=e79] [cursor=pointer]
+            - button "4" [ref=e80] [cursor=pointer]
+            - button "5" [ref=e81] [cursor=pointer]
+            - button "6" [disabled] [ref=e82]
+            - button "7" [disabled] [ref=e83]
+            - button "8" [ref=e84] [cursor=pointer]
+            - button "9" [ref=e85] [cursor=pointer]
+            - button "10" [ref=e86] [cursor=pointer]
+            - button "11" [ref=e87] [cursor=pointer]
+            - button "12" [ref=e88] [cursor=pointer]
+            - button "13" [disabled] [ref=e89]
+            - button "14" [disabled] [ref=e90]
+            - button "15" [ref=e91] [cursor=pointer]
+            - button "16" [ref=e92] [cursor=pointer]
+            - button "17" [ref=e93] [cursor=pointer]
+            - button "18" [ref=e94] [cursor=pointer]
+            - button "19" [ref=e95] [cursor=pointer]
+            - button "20" [disabled] [ref=e96]
+            - button "21" [disabled] [ref=e97]
+            - button "22" [ref=e98] [cursor=pointer]
+            - button "23" [ref=e99] [cursor=pointer]
+            - button "24" [ref=e100] [cursor=pointer]
+            - button "25" [ref=e101] [cursor=pointer]
+            - button "26" [ref=e102] [cursor=pointer]
+            - button "27" [disabled] [ref=e103]
+            - button "28" [disabled] [ref=e104]
+            - button "29" [ref=e105] [cursor=pointer]
+            - button "30" [ref=e106] [cursor=pointer]
+            - button "31" [ref=e107] [cursor=pointer]
+      - generic [ref=e110]:
+        - generic [ref=e111]:
+          - paragraph [ref=e113]: 8 Yard Skip
+          - paragraph [ref=e115]: 14 days
+        - generic [ref=e116]:
+          - button "Back" [ref=e117] [cursor=pointer]
+          - button "Continue" [disabled] [ref=e118]:
+            - text: Continue
+            - img [ref=e119]
+```

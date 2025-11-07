@@ -60,7 +60,6 @@ export class SignUpPage {
                 }
             }
             else {
-                console.log('registered user');
                 await this.page.locator('#firstName').focus();
                 await this.firstNameInput.fill(firstName);
                 await this.lastNameInput.fill(lastName);
@@ -84,28 +83,10 @@ export class SignUpPage {
         await this.passwordInput.waitFor({ state: 'visible' });
         await this.passwordInput.fill(randomPassword);
         await this.confirmPasswordInput.fill(randomPassword);
-
         await this.updatePasswordBtn.click();
 
         await this.passwordUpdatedSuccessMessage.waitFor({ state: 'visible' });
         await expect(this.passwordUpdatedSuccessMessage).toHaveText('Password updated successfully!');
-
-        await this.page.locator('#firstName').focus();
-        await this.firstNameInput.fill(firstName);
-        await this.lastNameInput.fill(lastName);
-        await this.emailInput.fill(emailAddress);
-        console.log("Generated Email Address: " + emailAddress);
-        await this.phoneInput.fill('+44 16977 2987');
-        await this.passwordInput.fill(randomPassword);
-        await this.confirmPasswordInput.fill(randomPassword);
-        console.log("Generated Password: " + randomPassword);
-
-        await this.signUpBtn.click();
-        await this.page.waitForTimeout(3000)
-
-        this.emailAddress = emailAddress;
-        this.randomPassword = randomPassword;
-
     }
 
     async verifyRegistrationSuccess() {

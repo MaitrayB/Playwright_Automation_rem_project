@@ -4,7 +4,7 @@ import { OrderPage } from '../pages/OrderPage.js';
 import { DashboardPage } from '../pages/DashboardPage.js';
 import { TestData } from '../Data/TestData.js';
 import { readCsv } from '../utils/readCsv.js';
-import { SignUpPage } from '../pages/SignUpPage.js'
+import { SignUpPage } from '../pages/SignUpPage.js';
 import { OrderDeliveryDetailsPage } from '../pages/OrderDeliveryDetailsPage.js';
 
 const csvData = readCsv('./Data/testData.csv');
@@ -22,7 +22,18 @@ test.describe('Place multiple orders', () => {
         const signUpPage = new SignUpPage(page);
         const loginPage = new LoginPage(page);
 
-        await loginPage.goto();
+        // Sign up before all tests
+        await test.step('Sign up before all tests)', async () => {
+            await loginPage.goto();
+            await signUpPage.navigateToSignUpPage();
+            await signUpPage.fillSignUpForm();
+            await signUpPage.verifyRegistrationSuccess();
+        });
+
+        // ✅ Login once before all tests
+        await test.step('Login to application (before all tests)', async () => {
+            await loginPage.login(signUpPage.emailAddress, signUpPage.randomPassword);
+        });
 
         // Initialize pages after login
         orderPage = new OrderPage(page);
@@ -35,17 +46,18 @@ test.describe('Place multiple orders', () => {
         test.page = page;
     });
 
-    for (const row of csvData.slice(0, 1)) { // Limit to first 10 rows for brevity
-        test(`Guest User Placing order for postcode: ${row.Postcodes}, Waste Type: ${row.WasteType}, ${row.HeavyWaste} - Heavy Waste, ${row.PlasterBoard} - Plasterboard, Skip size - ${row.SkipSize}, Placement - ${row.Placement}`, async () => {
+    for (const row of csvData.slice(0, 3)) { // Limit to first 10 rows for brevity
+        // --- Logged In User ---
+        test(`Multiple Orders for postcode: ${row.Postcodes}, Waste Type: ${row.WasteType}, ${row.HeavyWaste} - Heavy Waste, ${row.PlasterBoard} - Plasterboard, Skip size - ${row.SkipSize}, Placement - ${row.Placement}`, async () => {
             const page = test.page; // reuse same page
             const orderPage = new OrderPage(page);
             const dashboardPage = new DashboardPage(page);
             const loginPage = new LoginPage(page);
             const signUpPage = new SignUpPage(page);
-
             const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
 
             await test.step('Enter postcode', async () => {
+                // await loginPage.goto();
                 await orderPage.enterPostcode(row.Postcodes);
             });
 
@@ -73,17 +85,9 @@ test.describe('Place multiple orders', () => {
                 await orderPage.completePayment();
             });
 
-            await test.step('Guest registration', async () => {
-                await signUpPage.fillSignUpForm();
-            });
-
-            await test.step('Navigate to dashboard', async () => {
+            await test.step('Verify dashboard', async () => {
                 await dashboardPage.gotoSuccessPage();
-            });
-
-            await test.step(`Guest user's password creation`, async () => {
-                await signUpPage.guest_CreateNewPassword();
-
+                await dashboardPage.verifyDashboard();
             });
 
             await test.step('Verify Order Delivery Details', async () => {
@@ -92,7 +96,6 @@ test.describe('Place multiple orders', () => {
             });
         });
     }
-
 });
 
 test.afterEach(async () => {
