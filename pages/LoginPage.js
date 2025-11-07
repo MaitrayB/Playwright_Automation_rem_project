@@ -15,9 +15,9 @@ export class LoginPage {
   }
 
   async login(email, password) {
-    await this.loginBtn.waitFor({ state: 'visible' });
-    await this.loginBtn.click();
-    await this.page.waitForTimeout(1000);
+    //await this.loginBtn.waitFor({ state: 'visible' });
+    //await this.loginBtn.click();
+    //await this.page.waitForTimeout(1000);
 
     await this.emailInput.waitFor({ state: 'visible' });
     await this.emailInput.fill(email);
