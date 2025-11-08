@@ -1,4 +1,0 @@
-i am on My Order page
-true
-true
-{ x: 481.671875, y: 637.5, width: 146.9921875, height: 32 }

@@ -1,0 +1,2 @@
+🎯 Selected row index: 572 📦 Postcode: O9 7GL, WasteType: Garden Waste
+🧾 Running Guest flow for:  O9 7GL, Garden Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-12, Private Property

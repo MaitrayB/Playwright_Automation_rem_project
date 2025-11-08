@@ -1,2 +1,0 @@
-registered user
-logged in user found but login button is not visible

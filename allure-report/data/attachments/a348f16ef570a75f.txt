@@ -1,0 +1,2 @@
+🎯 Selected row index: 730 📦 Postcode: L9J 9OP, WasteType: Commercial Waste
+🧾 Running Guest flow for:  L9J 9OP, Commercial Waste, Heavywaste -Yes, Plasterboard -No, Skipsize-6, Grass verge

@@ -137,10 +137,10 @@ export class OrderPage {
     if (!(await this.skipYardBtn.isVisible())) {
       skipSize = 4;
       this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
-
+    
       if (!(await this.skipYardBtn.isVisible())) {
-        skipSize = 6;
-        this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+      skipSize = 6;
+      this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
       }
 
     }
