@@ -27,7 +27,7 @@ export class OrderPage {
     this.nextArrowIcon = page.locator('.p-2 > div:nth-child(2) > div > button')
     this.privatePropertyBtn = page.getByRole('button', { name: 'Private Property Driveway or' });
     this.dateBtn = page.getByRole('button', { name: '30' });
-    this.skipCheckbox = page.getByText('Skip this step to upload a');
+    this.skipCheckbox = page.getByText('Skip this step to upload a photo');
 
     this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
     this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
@@ -46,8 +46,6 @@ export class OrderPage {
 
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
-
-
   }
 
   //Postcode selection
@@ -139,15 +137,15 @@ export class OrderPage {
     if (!(await this.skipYardBtn.isVisible())) {
       skipSize = 4;
       this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
-
+    
       if (!(await this.skipYardBtn.isVisible())) {
-        skipSize = 6;
-        this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+      skipSize = 6;
+      this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
       }
 
     }
+    await this.skipYardBtn.waitFor({ state: 'visible' });
     await this.skipYardBtn.click();
-
     await this.continueBtn.click();
     await this.noSkipGauranteeBtn.click();
     await this.page.waitForTimeout(1000);
@@ -165,12 +163,10 @@ export class OrderPage {
     }
   }
 
-
   //permit check
   async permitCheck(Placement) {
 
     if (Placement === 'Private Property') {
-
       await this.privatePropertyBtn.click();
       await this.continueBtn.click();
       await this.skipCheckbox.waitFor({ state: 'visible' });
@@ -194,29 +190,31 @@ export class OrderPage {
       await this.continueBtn.click();
       await this.page.setInputFiles('input[type="file"]', 'Data/download.jpeg');
       await this.continueBtn.click();
-
     }
-
     else {
       await this.notsureBtn.click();
       await this.continueBtn.click();
       await this.page.setInputFiles('input[type="file"]', './Data/download.jpeg');
       await this.continueBtn.click();
     }
-
-
   }
 
   async chooseDate(Day) {
 
     await this.calendarNextArrow.click();
     this.dateBtn = this.page.getByRole('button', { name: Day });
+
     if (await this.dateBtn.isDisabled()) {
       Day = Day - 2;
+      this.dateBtn = this.page.getByRole('button', { name: Day });
+      await this.dateBtn.click();
     }
-    this.dateBtn = this.page.getByRole('button', { name: Day });
-    await this.dateBtn.waitFor({ state: 'visible' });
-    await this.dateBtn.click();
+    else {
+      await this.dateBtn.click();
+    }
+    // this.dateBtn = this.page.getByRole('button', { name: Day });
+    // await this.dateBtn.waitFor({ state: 'visible' });
+    // await this.dateBtn.click();
     await this.continueBtn.click();
 
     await this.page.waitForTimeout(3000);
@@ -225,11 +223,9 @@ export class OrderPage {
     }
 
     await this.page.waitForTimeout(5000);
-    //await this.page.waitForLoadState('networkidle');
   }
 
   async completePayment() {
-
     await this.cardNumberLocator.waitFor({ state: 'visible' });
     await this.cardNumberLocator.fill('4111 1111 1111 1111');
     await this.expiryDate.fill('12/34');
@@ -238,8 +234,9 @@ export class OrderPage {
 
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
-    await this.completePaymentBtn.waitFor({ state: 'visible' });
 
+    await this.completePaymentBtn.waitFor({ state: 'visible' });
     await this.completePaymentBtn.click();
+
   }
 }

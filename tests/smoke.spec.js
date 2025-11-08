@@ -2,102 +2,169 @@ import { test } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage.js';
 import { OrderPage } from '../pages/OrderPage.js';
 import { DashboardPage } from '../pages/DashboardPage.js';
-import { readCsv } from '../utils/readCsv.js';
-import { SignUpPage } from '../pages/SignUpPage.js'
+import { SignUpPage } from '../pages/SignUpPage.js';
 import { OrderDeliveryDetailsPage } from '../pages/OrderDeliveryDetailsPage.js';
+import { getRandomRow } from '../utils/getRandomRow.js';
 
-const csvData = readCsv('./Data/testData.csv');
+const csvPath = './Data/testData.csv';
 
-test.describe('Place multiple orders', () => {
+test.describe('Place an order as Guest User', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage;
-  let dashboardPage;
-  let orderDeliverDetailsPage
+  let orderPage, dashboardPage, orderDeliverDetailsPage;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    const signUpPage = new SignUpPage(page);
-    const signUpPage = new SignUpPage(page);
-    const loginPage = new LoginPage(page);
+    orderPage = new OrderPage(page);
+    dashboardPage = new DashboardPage(page);
+    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
 
-    // Sign up before all tests
-    await test.step('Sign up before all tests)', async () => {
+    test.context = context;
+    test.page = page;
+  });
+
+  test('Guest User Placing an order', async () => {
+    const page = test.page;
+    const orderPage = new OrderPage(page);
+    const dashboardPage = new DashboardPage(page);
+    const loginPage = new LoginPage(page);
+    const signUpPage = new SignUpPage(page);
+    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+
+    // ✅ Get random CSV row at runtime
+    const randomRow = getRandomRow(csvPath);
+
+
+    console.log(`🧾 Running Guest flow for:  ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
+
+    await loginPage.goto();
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(randomRow.Postcodes);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(randomRow.WasteType);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(randomRow.HeavyWaste, randomRow.PlasterBoard);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose);
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(randomRow.Placement);
+    });
+
+    await test.step('Choose date', async () => {
+      await orderPage.chooseDate(randomRow.BookingDay);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Guest registration', async () => {
+      await signUpPage.fillSignUpForm();
+    });
+
+    await test.step('Navigate to dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Guest user password creation', async () => {
+      await signUpPage.guest_CreateNewPassword();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+    });
+  });
+});
+
+
+test.describe('Place an order as Logged-in User', () => {
+  test.setTimeout(180000); // 3 minutes
+  let orderPage, dashboardPage, orderDeliverDetailsPage;
+
+  test.beforeEach(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    orderPage = new OrderPage(page);
+    dashboardPage = new DashboardPage(page);
+    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+
+    test.context = context;
+    test.page = page;
+  });
+
+  test('Logged-in User Placing an order', async () => {
+    const page = test.page;
+    const orderPage = new OrderPage(page);
+    const dashboardPage = new DashboardPage(page);
+    const loginPage = new LoginPage(page);
+    const signUpPage = new SignUpPage(page);
+    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+
+    // ✅ Get random CSV row at runtime
+    const randomRow = getRandomRow(csvPath);
+
+    await test.step('Sign up new user', async () => {
       await loginPage.goto();
       await signUpPage.navigateToSignUpPage();
       await signUpPage.fillSignUpForm();
       await signUpPage.verifyRegistrationSuccess();
     });
 
-    // ✅ Login once before all tests
-    await test.step('Login to application (before all tests)', async () => {
-      //await loginPage.goto();
-      //await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+    await test.step('Login to application', async () => {
       await loginPage.login(signUpPage.emailAddress, signUpPage.randomPassword);
+      console.log(`🧾 Running Logged-in flow for: ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
     });
 
-    // Initialize pages after login
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(randomRow.Postcodes);
+    });
 
-    // Save context for reuse
-    test.info().annotations.push({ type: 'context', description: 'Logged in context created' });
-    test.context = context;
-    test.page = page;
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(randomRow.WasteType);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(randomRow.HeavyWaste, randomRow.PlasterBoard);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose);
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(randomRow.Placement);
+    });
+
+    await test.step('Choose date', async () => {
+      await orderPage.chooseDate(randomRow.BookingDay);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Verify dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+      await dashboardPage.verifyDashboard();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+    });
   });
-
-  for (const row of csvData.slice(0, 1)) { // Limit to first 10 rows for brevity
-    test(`Place order for postcode: ${row.Postcodes}, Waste Type: ${row.WasteType}, ${row.HeavyWaste} - Heavy Waste, ${row.PlasterBoard} - Plasterboard, Skip size - ${row.SkipSize}, Placement - ${row.Placement}`, async () => {
-      const page = test.page; // reuse same page
-      const orderPage = new OrderPage(page);
-      const dashboardPage = new DashboardPage(page);
-      const loginPage = new LoginPage(page);
-      const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-
-      await test.step('Enter postcode', async () => {
-        // await loginPage.goto();
-        await orderPage.enterPostcode(row.Postcodes);
-      });
-
-      await test.step('Select waste type', async () => {
-        await orderPage.selectWaste(row.WasteType);
-      });
-
-      await test.step('Continue waste type', async () => {
-        await orderPage.continueWaste(row.HeavyWaste, row.PlasterBoard);
-      });
-
-      await test.step('Select skip & property', async () => {
-        await orderPage.selectSkip(row.SkipSize, row.PlasterBoard, row.ToneBag, row.SelfDispose);
-        await orderPage.selectSkip(row.SkipSize, row.PlasterBoard, row.ToneBag, row.SelfDispose);
-      });
-
-      await test.step('Permit check', async () => {
-        await orderPage.permitCheck(row.Placement);
-      });
-
-      await test.step('Choose date', async () => {
-        await orderPage.chooseDate(row.BookingDay);
-      });
-
-      await test.step('Complete payment', async () => {
-        await orderPage.completePayment();
-      });
-
-      await test.step('Verify dashboard', async () => {
-        await dashboardPage.gotoSuccessPage();
-        await dashboardPage.verifyDashboard();
-      });
-
-      await test.step('Verify Order Delivery Details', async () => {
-        await dashboardPage.navigateToViewOrderDetails();
-        await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
-      });
-    });
-  }
-
 });
 
 test.afterEach(async () => {

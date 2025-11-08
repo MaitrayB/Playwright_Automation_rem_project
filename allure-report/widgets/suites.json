@@ -1,1 +1,1 @@
-{"total":1,"items":[{"uid":"47151c4556efae7ce19cb0bfec851639","name":"smoke.spec.js","statistic":{"failed":4,"broken":0,"skipped":0,"passed":6,"unknown":0,"total":10}}]}
+{"total":1,"items":[{"uid":"6048743a40dfee4f3e17b301186c1e86","name":"sanity.spec.js","statistic":{"failed":0,"broken":1,"skipped":0,"passed":1,"unknown":0,"total":2}}]}

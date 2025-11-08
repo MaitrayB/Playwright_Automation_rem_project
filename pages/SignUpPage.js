@@ -14,13 +14,15 @@ export class SignUpPage {
         this.confirmPasswordInput = page.locator('#confirmPassword');
         this.signUpBtn = page.getByRole('button', { name: 'Sign up' });
         this.registrationSuccessMessage = page.locator("//p[@class='text-sm text-green-500']");
-<<<<<<< HEAD
 
-        //elements for guest user sign up form
+
+        //elements for guest user registration form
         this.confirmEmailInput = page.locator("//input[@id = 'confirmEmail']");
         this.continueBtn = page.locator("//div[@class='space-y-3']/button/span");
-=======
->>>>>>> bd432f5a6d65b1fab5acd726477fe2851de43e3f
+
+        //Elements on Create New Password page
+        this.updatePasswordBtn = page.getByRole('button', { name: 'Update Password' });
+        this.passwordUpdatedSuccessMessage = page.locator("//p[@class='text-green-500']");
     }
 
     async navigateToSignUpPage() {
@@ -37,14 +39,13 @@ export class SignUpPage {
 
         //const randomPassword = faker.internet.password({ length: 7, symbols: true });
         const randomPassword = "P@ssw0rd";
-<<<<<<< HEAD
+
         this.emailAddress = emailAddress;
         this.randomPassword = randomPassword;
 
-        // console.log("Generated Email Address: " + emailAddress);
         try {
             if (await this.loginBtn.isVisible()) {
-                console.log('guest user');
+                //console.log('guest user');
                 await this.page.locator('#firstName').focus();
                 await this.firstNameInput.fill(firstName);
                 await this.lastNameInput.fill(lastName);
@@ -52,14 +53,13 @@ export class SignUpPage {
                 await this.confirmEmailInput.fill(emailAddress);
                 await this.phoneInput.fill('+44 16977 2987');
                 if (await this.continueBtn.isEnabled()) {
-                    console.log('Continue button is enabled');
+                    //console.log('Continue button is enabled');
                     await this.continueBtn.click();
                 } else {
                     console.log('Continue button is disabled');
                 }
             }
             else {
-                console.log('registered user');
                 await this.page.locator('#firstName').focus();
                 await this.firstNameInput.fill(firstName);
                 await this.lastNameInput.fill(lastName);
@@ -68,7 +68,6 @@ export class SignUpPage {
 
                 await this.passwordInput.fill(randomPassword);
                 await this.confirmPasswordInput.fill(randomPassword);
-                // console.log("Generated Password: " + randomPassword);
 
                 await this.signUpBtn.click();
                 await this.page.waitForTimeout(3000)
@@ -81,34 +80,17 @@ export class SignUpPage {
 
     async guest_CreateNewPassword() {
         const randomPassword = "P@ssw0rd";
+        await this.passwordInput.waitFor({ state: 'visible' });
         await this.passwordInput.fill(randomPassword);
         await this.confirmPasswordInput.fill(randomPassword);
-=======
+        await this.updatePasswordBtn.click();
 
-        await this.page.locator('#firstName').focus();
-        await this.firstNameInput.fill(firstName);
-        await this.lastNameInput.fill(lastName);
-        await this.emailInput.fill(emailAddress);
-        console.log("Generated Email Address: " + emailAddress);
-        await this.phoneInput.fill('+44 16977 2987');
-        await this.passwordInput.fill(randomPassword);
-        await this.confirmPasswordInput.fill(randomPassword);
-        console.log("Generated Password: " + randomPassword);
-
-        await this.signUpBtn.click();
-        await this.page.waitForTimeout(3000)
-
-        this.emailAddress = emailAddress;
-        this.randomPassword = randomPassword;
->>>>>>> bd432f5a6d65b1fab5acd726477fe2851de43e3f
+        await this.passwordUpdatedSuccessMessage.waitFor({ state: 'visible' });
+        await expect(this.passwordUpdatedSuccessMessage).toHaveText('Password updated successfully!');
     }
 
     async verifyRegistrationSuccess() {
         await this.registrationSuccessMessage.waitFor({ state: 'visible' });
         await expect(this.registrationSuccessMessage).toHaveText('Registration successful!.');
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> bd432f5a6d65b1fab5acd726477fe2851de43e3f
 }

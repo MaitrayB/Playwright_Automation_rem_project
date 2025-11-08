@@ -1,0 +1,2 @@
+🎯 Selected row index: 809 📦 Postcode: XM9 4ED, WasteType: Commercial Waste
+🧾 Running Guest flow for:  XM9 4ED, Commercial Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-20, Public Property
