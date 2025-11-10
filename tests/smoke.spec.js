@@ -8,6 +8,83 @@ import { getRandomRow } from '../utils/getRandomRow.js';
 
 const csvPath = './Data/testData.csv';
 
+test.describe('Start order as guest and logs in with existing account', () => {
+  test.setTimeout(180000); // 3 minutes
+  let orderPage, dashboardPage, orderDeliverDetailsPage;
+
+  test.beforeEach(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    orderPage = new OrderPage(page);
+    dashboardPage = new DashboardPage(page);
+    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+
+    test.context = context;
+    test.page = page;
+  });
+
+  test('Start order as guest and logs in with existing account', async () => {
+    const page = test.page;
+    const orderPage = new OrderPage(page);
+    const dashboardPage = new DashboardPage(page);
+    const loginPage = new LoginPage(page);
+    const signUpPage = new SignUpPage(page);
+    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+
+    // ✅ Get random CSV row at runtime
+    const randomRow = getRandomRow(csvPath);
+    
+
+
+    console.log(`🧾 Running Guest flow for:  ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
+
+    await loginPage.goto();
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(randomRow.Postcodes);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(randomRow.WasteType);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(randomRow.HeavyWaste, randomRow.PlasterBoard);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose);
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(randomRow.Placement);
+    });
+
+    await test.step('Choose date', async () => {
+      await orderPage.chooseDate(randomRow.BookingDay);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Guest registration', async () => {
+      await signUpPage.fillSignUpFormExistingUser();
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate to dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+    });
+  });
+});
+
 test.describe('Place an order as Guest User', () => {
   test.setTimeout(180000); // 3 minutes
   let orderPage, dashboardPage, orderDeliverDetailsPage;
@@ -34,6 +111,7 @@ test.describe('Place an order as Guest User', () => {
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
+    
 
 
     console.log(`🧾 Running Guest flow for:  ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
