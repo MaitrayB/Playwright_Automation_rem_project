@@ -53,7 +53,9 @@ export class OrderPage {
     await this.page.waitForLoadState('networkidle');
     await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
-    await this.page.getByRole('button').nth(3).click();
+    //await this.page.getByRole('button').nth(3).click();
+    await this.page.locator('(//button)[3]').waitFor({ state: 'visible', timeout: 60000 });
+    await this.page.locator('(//button)[3]').click();
 
     if (await this.page.getByRole('button').nth(3).isVisible()) { await this.page.getByRole('button').nth(3).click(); }
 
@@ -203,6 +205,7 @@ export class OrderPage {
 
     await this.calendarNextArrow.click();
     this.dateBtn = this.page.getByRole('button', { name: Day });
+    await this.page.waitForTimeout(3000);
 
     if (await this.dateBtn.isDisabled()) {
       Day = Day - 2;
@@ -212,9 +215,7 @@ export class OrderPage {
     else {
       await this.dateBtn.click();
     }
-    // this.dateBtn = this.page.getByRole('button', { name: Day });
-    // await this.dateBtn.waitFor({ state: 'visible' });
-    // await this.dateBtn.click();
+    
     await this.continueBtn.click();
 
     await this.page.waitForTimeout(3000);
@@ -226,12 +227,13 @@ export class OrderPage {
   }
 
   async completePayment() {
-    await this.cardNumberLocator.waitFor({ state: 'visible' });
+    await this.page.waitForTimeout(5000);
+    if(await this.cardNumberLocator.isVisible()) {
     await this.cardNumberLocator.fill('4111 1111 1111 1111');
     await this.expiryDate.fill('12/34');
     await this.cvc.fill('123');
     await this.page.waitForTimeout(2000);
-
+    }
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
 

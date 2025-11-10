@@ -10,6 +10,7 @@ export function getRandomRow(csvPath) {
     : Math.floor(Math.random() * csvData.length);
 
   const randomRow = csvData[randomIndex];
+  //const randomRow = csvData[794];
   console.log(`🎯 Selected row index: ${randomIndex} 📦 Postcode: ${randomRow.Postcodes}, WasteType: ${randomRow.WasteType}`);
 
   return randomRow;

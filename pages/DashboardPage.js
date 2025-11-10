@@ -8,7 +8,7 @@ export class DashboardPage {
     this.myOrdersBtn = page.getByRole('button', { name: 'My Orders' });
     this.pastOrdersBtn = page.getByRole('button', { name: 'Past Orders' });
     this.activeOrdersBtn = page.getByRole('button', { name: 'Active Orders' });
-    this.viewOrderDetailsBtn = page.getByRole('button', { name: 'View Order Details' });
+    this.viewOrderDetailsBtn = page.locator('(//button[contains(.,"View Order Details")])[1]');
   }
 
   async gotoSuccessPage() {

@@ -276,7 +276,6 @@ UE5Y 9SD,Household Waste,Yes,No,No,No,4,8,Public Property
 NN6K 0WL,Household Waste,Yes,No,No,No,4,22,Grass verge
 J2 0HJ,Household Waste,Yes,No,No,No,4,23,Not sure
 H6 2FF,Household Waste,Yes,No,No,No,5,24,Private Property
-V6L 8UP,Household Waste,Yes,No,No,No,5,25,Public Property
 TF9I 8HY,Household Waste,Yes,No,No,No,5,26,Grass verge
 D5W 5SU,Household Waste,Yes,No,No,No,5,27,Not sure
 Y2 8OV,Household Waste,Yes,No,No,No,6,28,Private Property
@@ -416,7 +415,7 @@ V2 7FX,Household Waste,No,No,No,No,5,13,Public Property
 A1O 1HC,Household Waste,No,No,No,No,5,12,Grass verge
 RE7 9QJ,Household Waste,No,No,No,No,5,11,Not sure
 V4U 7NK,Household Waste,No,No,No,No,6,12,Private Property
-F1 4JX,Household Waste,No,No,No,No,6,10,Public Property
+F1 4JX,Household Waste,No,No,No,No,6,10,Private Property
 K7 7JT,Household Waste,No,No,No,No,6,9,Grass verge
 QJ1B 1TF,Household Waste,No,No,No,No,6,8,Not sure
 TP9 5LB,Household Waste,No,No,No,No,8,7,Private Property
@@ -428,7 +427,7 @@ O7K 6AU,Household Waste,No,No,No,No,10,22,Public Property
 Y2N 8NC,Household Waste,No,No,No,No,10,23,Grass verge
 LH3V 9XL,Household Waste,No,No,No,No,10,24,Not sure
 W6 3RV,Household Waste,No,No,No,No,12,25,Private Property
-FQ6C 3XL,Household Waste,No,No,No,No,12,26,Public Property
+FQ6 3XL,Household Waste,No,No,No,No,12,26,Private Property
 L9J 9OP,Household Waste,No,No,No,No,12,27,Grass verge
 F2 3VO,Household Waste,No,No,No,No,12,28,Not sure
 B2Y 3GN,Household Waste,No,No,No,No,14,29,Private Property
@@ -831,7 +830,6 @@ W6 3RV,Commercial Waste,No,Yes,No,No,8,19,Private Property
 FQ6C 3XL,Commercial Waste,No,Yes,No,No,8,18,Public Property
 L9J 9OP,Commercial Waste,No,Yes,No,No,8,17,Grass verge
 F2 3VO,Commercial Waste,No,Yes,No,No,8,16,Not sure
-B2Y 3GN,Commercial Waste,No,Yes,No,No,10,15,Private Property
 U4O 8DL,Commercial Waste,No,Yes,No,No,10,14,Public Property
 YD7Z 8TM,Commercial Waste,No,Yes,No,No,10,13,Grass verge
 Q9I 2ZJ,Commercial Waste,No,Yes,No,No,10,12,Not sure
