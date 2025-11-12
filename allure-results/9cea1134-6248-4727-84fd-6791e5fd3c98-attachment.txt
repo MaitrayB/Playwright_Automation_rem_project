@@ -1,2 +1,2 @@
-🎯 Selected row index: 393 📦 Postcode: W1L 1PG, WasteType: Household Waste
+🎯 Selected row index: 646 📦 Postcode: XF6B 7SB, WasteType: Garden Waste
 🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property

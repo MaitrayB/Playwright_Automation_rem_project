@@ -16,7 +16,7 @@ export class OrderDeliveryDetailsPage {
         this.addItemBtn = page.getByRole('button', { name: 'Add Item' });
         this.roadPermitBtn = page.locator("//button[contains(.,'Road Permit')]");
         this.addBtnPopup = page.locator("(//button[contains(.,'Add Item')])[last()]");
-        this.payBtn = page.locator("//button[contains(.,'Pay')]");
+        this.payBtn = page.locator("(//button[contains(.,'Pay')])[last()]");
         this.roadpermitFeeLbl = page.locator("//h3[contains(.,'Road Permit Fee')]");
     }
 

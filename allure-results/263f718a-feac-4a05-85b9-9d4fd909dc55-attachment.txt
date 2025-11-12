@@ -1,2 +1,0 @@
-🎯 Selected row index: 155 📦 Postcode: AG2N 1JK, WasteType: Construction Waste
-🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property

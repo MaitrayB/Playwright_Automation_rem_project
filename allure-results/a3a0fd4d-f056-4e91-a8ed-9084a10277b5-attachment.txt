@@ -1,2 +1,0 @@
-🎯 Selected row index: 381 📦 Postcode: W8 1HP, WasteType: Household Waste
-🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property

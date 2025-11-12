@@ -1,2 +1,0 @@
-🎯 Selected row index: 506 📦 Postcode: ZB2P 0CC, WasteType: Garden Waste
-🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property
