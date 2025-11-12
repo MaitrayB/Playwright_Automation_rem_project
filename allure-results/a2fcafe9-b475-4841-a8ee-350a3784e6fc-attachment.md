@@ -1,0 +1,156 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e7]
+      - button "navin shah navin@yopmail.com" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]:
+          - paragraph [ref=e11]: navin shah
+          - paragraph [ref=e12]: navin@yopmail.com
+        - img [ref=e13]
+  - main [ref=e15]:
+    - generic [ref=e16]:
+      - button "Back to Orders" [ref=e18] [cursor=pointer]:
+        - img [ref=e19]
+        - text: Back to Orders
+      - generic [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - img [ref=e26]
+            - generic [ref=e29]:
+              - 'heading "Order #1620" [level=1] [ref=e30]'
+              - generic [ref=e31]:
+                - img [ref=e32]
+                - generic [ref=e35]: 44 days until delivery
+          - generic [ref=e37]:
+            - generic [ref=e39]: Booked
+            - button [ref=e41] [cursor=pointer]:
+              - img [ref=e42]
+        - generic [ref=e47]:
+          - button "Delivery" [ref=e48] [cursor=pointer]:
+            - img [ref=e49]
+            - text: Delivery
+          - generic [ref=e52]:
+            - button "Exchange" [ref=e53] [cursor=pointer]:
+              - img [ref=e54]
+              - text: Exchange
+            - button "Collections" [ref=e57] [cursor=pointer]:
+              - img [ref=e58]
+              - text: Collections
+            - button "Payments" [ref=e60] [cursor=pointer]:
+              - img [ref=e61]
+              - text: Payments
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - heading "Delivery Details" [level=3] [ref=e66]
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - img [ref=e69]
+                - generic [ref=e72]:
+                  - generic [ref=e73]: Delivery Address
+                  - generic [ref=e74]: 10 Church Street, Hinckley
+                  - generic [ref=e75]: LE10 2DD
+              - generic [ref=e76]:
+                - img [ref=e77]
+                - generic [ref=e79]:
+                  - generic [ref=e80]: Delivery & Collection
+                  - generic [ref=e81]:
+                    - paragraph [ref=e82]: "Delivery: 26 Dec 2025"
+                    - paragraph [ref=e83]: "Collection: 9 Jan 2026"
+          - generic [ref=e84]:
+            - heading "Skip Details" [level=3] [ref=e86]
+            - generic [ref=e87]:
+              - generic [ref=e89]: 4 yarder skip
+              - generic [ref=e90]:
+                - heading "Waste Categories" [level=3] [ref=e91]
+                - generic [ref=e93]:
+                  - img [ref=e95]
+                  - generic [ref=e98]:
+                    - generic [ref=e99]: Construction Waste
+                    - generic [ref=e100]: Building materials and renovation debris.
+        - generic [ref=e101]:
+          - heading "Customer Information" [level=3] [ref=e102]
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - img [ref=e105]
+              - generic [ref=e108]:
+                - generic [ref=e109]: Email
+                - generic [ref=e110]: navin@yopmail.com
+            - generic [ref=e111]:
+              - img [ref=e112]
+              - generic [ref=e115]:
+                - generic [ref=e116]: Name
+                - generic [ref=e117]: navin shah
+            - generic [ref=e118]:
+              - img [ref=e119]
+              - generic [ref=e121]:
+                - generic [ref=e122]: Phone
+                - generic [ref=e123]: "1333444333"
+        - generic [ref=e124]:
+          - generic [ref=e125]:
+            - img [ref=e126]
+            - heading "Order Images" [level=3] [ref=e130]
+          - button "Add Images" [ref=e131] [cursor=pointer]:
+            - img [ref=e132]
+            - generic [ref=e133]: Add Images
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - heading "Order Items" [level=2] [ref=e137]
+            - button "Add Item" [ref=e138] [cursor=pointer]:
+              - img [ref=e139]
+              - generic [ref=e140]: Add Item
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - generic [ref=e143]:
+                - heading "4 Yard Skip" [level=3] [ref=e144]
+                - paragraph [ref=e145]: "Quantity: 1"
+              - generic [ref=e146]:
+                - paragraph [ref=e147]: £211.00
+                - paragraph [ref=e148]: £211.00 each
+                - button "Update Skip" [ref=e149] [cursor=pointer]
+            - generic [ref=e150]:
+              - generic [ref=e151]:
+                - generic [ref=e152]: Subtotal (excl. VAT)
+                - generic [ref=e153]: £211.00
+              - generic [ref=e154]:
+                - generic [ref=e155]: VAT (20%)
+                - generic [ref=e156]: £42.20
+              - generic [ref=e157]:
+                - generic [ref=e158]: Total
+                - generic [ref=e159]: £253.20
+          - generic [ref=e161]:
+            - generic [ref=e162]:
+              - heading "Additional Payment Required" [level=2] [ref=e163]
+              - button [ref=e164] [cursor=pointer]:
+                - img [ref=e165]
+            - generic [ref=e168]:
+              - generic [ref=e169]:
+                - heading "Payment Summary" [level=3] [ref=e170]
+                - generic [ref=e171]:
+                  - paragraph [ref=e172]: "Adding: Road Permit Fee"
+                  - generic [ref=e173]:
+                    - generic [ref=e174]: "Additional Cost:"
+                    - generic [ref=e175]: £84.00
+              - generic [ref=e176]:
+                - generic [ref=e177]:
+                  - generic [ref=e178]:
+                    - img [ref=e179]
+                    - heading "Payment Details" [level=3] [ref=e181]
+                  - generic [ref=e183]:
+                    - generic [ref=e184]:
+                      - generic [ref=e185]: Subtotal
+                      - generic [ref=e186]: £84.00
+                    - generic [ref=e187]:
+                      - generic [ref=e188]: VAT (20%)
+                      - generic [ref=e189]: £16.80
+                    - generic [ref=e190]:
+                      - generic [ref=e191]: Total
+                      - generic [ref=e192]: £100.80
+                  - img [ref=e194]
+                - button "Pay £100.80" [disabled] [ref=e196]:
+                  - generic [ref=e197]:
+                    - img [ref=e198]
+                    - text: Pay £100.80
+```

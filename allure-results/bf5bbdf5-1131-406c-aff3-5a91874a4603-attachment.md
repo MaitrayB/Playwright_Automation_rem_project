@@ -1,0 +1,123 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "navin navin@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: navin
+          - paragraph [ref=e14]: navin@yopmail.com
+        - img [ref=e15]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Postcode" [ref=e21] [cursor=pointer]:
+        - img [ref=e22]
+        - generic [ref=e25]: Postcode
+      - button "Waste Type" [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: Waste Type
+      - button "Select Skip" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e39]: Select Skip
+      - button "Permit Check" [ref=e41] [cursor=pointer]:
+        - img [ref=e42]
+        - generic [ref=e44]: Permit Check
+      - button "Choose Date" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+        - generic [ref=e49]: Choose Date
+      - button "Payment" [ref=e51] [cursor=pointer]:
+        - img [ref=e52]
+        - generic [ref=e54]: Payment
+    - generic [ref=e56]:
+      - generic [ref=e58]:
+        - heading "Order Summary" [level=2] [ref=e59]
+        - generic [ref=e61]:
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - heading "Delivery Address" [level=3] [ref=e65]
+              - button "Edit address" [ref=e66] [cursor=pointer]:
+                - img [ref=e67]
+            - paragraph [ref=e70]: 10 Church Street, Hinckley
+            - paragraph [ref=e71]: LE10 2DD
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e75]: Delivery & Collection
+              - button "Edit dates" [ref=e76] [cursor=pointer]:
+                - img [ref=e77]
+            - generic [ref=e80]:
+              - paragraph [ref=e81]: "Delivery: Friday 26 December 2025"
+              - paragraph [ref=e82]: "Collection: Friday 9 January 2026"
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - heading "4 Yard Skip" [level=3] [ref=e86]
+            - paragraph [ref=e87]: 14 day hire period
+            - generic [ref=e88]:
+              - generic [ref=e89]: "-24% OFF"
+              - generic [ref=e90]: Save £65
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]:
+                - paragraph [ref=e94]: £276
+                - paragraph [ref=e95]: £211
+              - paragraph [ref=e96]: + VAT £42.20
+            - button "Edit skip selection" [ref=e97] [cursor=pointer]:
+              - img [ref=e98]
+        - generic [ref=e101]:
+          - heading "Order Breakdown" [level=3] [ref=e102]
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e105]: Subtotal (excl. VAT)
+              - generic [ref=e106]: £211.00
+            - generic [ref=e107]:
+              - generic [ref=e108]: VAT (20%)
+              - generic [ref=e109]: £42.20
+        - generic [ref=e111]:
+          - generic [ref=e112]: "Total Payment:"
+          - generic [ref=e113]: £253.20
+      - generic [ref=e114]:
+        - generic [ref=e115]:
+          - generic [ref=e116]:
+            - generic [ref=e117]:
+              - img [ref=e118]
+              - heading "Payment Details" [level=3] [ref=e120]
+            - generic [ref=e121]:
+              - generic [ref=e122] [cursor=pointer]:
+                - generic [ref=e123]:
+                  - img [ref=e124]
+                  - generic [ref=e126]:
+                    - paragraph [ref=e127]: Visa •••• 1111
+                    - paragraph [ref=e128]: Expires 12/2034
+                - generic [ref=e129]: Default
+              - generic [ref=e131] [cursor=pointer]:
+                - img [ref=e132]
+                - generic [ref=e134]:
+                  - paragraph [ref=e135]: Visa •••• 1111
+                  - paragraph [ref=e136]: Expires 11/2027
+              - button "Add New Payment Method" [ref=e137] [cursor=pointer]:
+                - img [ref=e138]
+                - generic [ref=e139]: Add New Payment Method
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - img [ref=e143]
+              - heading "Billing Address" [level=3] [ref=e146]
+            - generic [ref=e148]:
+              - checkbox "Billing address is same as delivery address 10 Church Street Hinckley, LE10 2DD" [checked] [ref=e149]
+              - generic [ref=e150]:
+                - text: Billing address is same as delivery address
+                - generic [ref=e151]:
+                  - paragraph [ref=e152]: 10 Church Street
+                  - paragraph [ref=e153]: Hinckley, LE10 2DD
+          - generic [ref=e155]:
+            - checkbox "I agree to the terms and conditions . You must accept the terms to place your order." [active] [ref=e156]
+            - generic [ref=e157] [cursor=pointer]:
+              - text: I agree to the
+              - button "terms and conditions" [ref=e158]
+              - text: . You must accept the terms to place your order.
+          - button "Complete Payment" [disabled] [ref=e159]:
+            - generic [ref=e160]:
+              - img [ref=e161]
+              - text: Complete Payment
+        - button "Back" [ref=e163] [cursor=pointer]
+```

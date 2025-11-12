@@ -12,6 +12,12 @@ export class OrderDeliveryDetailsPage {
         this.skipDetailsSec = page.locator('h3:has-text("Skip Details")');
         this.customerInfoSec = page.locator('h3:has-text("Customer Information")');
         this.orderItemsSec = page.locator('h2:has-text("Order Items")');
+
+        this.addItemBtn = page.getByRole('button', { name: 'Add Item' });
+        this.roadPermitBtn = page.locator("//button[contains(.,'Road Permit')]");
+        this.addBtnPopup = page.locator("(//button[contains(.,'Add Item')])[last()]");
+        this.payBtn = page.locator("//button[contains(.,'Pay')]");
+        this.roadpermitFeeLbl = page.locator("//h3[contains(.,'Road Permit Fee')]");
     }
 
     async verifyOrderDeliveryDetails() {
@@ -24,5 +30,18 @@ export class OrderDeliveryDetailsPage {
         await expect(this.skipDetailsSec).toBeVisible();
         await expect(this.customerInfoSec).toBeVisible();
         await expect(this.orderItemsSec).toBeVisible();
+    }
+
+    async addRoadPermit() {
+        await this.page.waitForTimeout(2000);
+       await this.addItemBtn.click();
+       await this.page.waitForTimeout(2000);
+       await this.roadPermitBtn.waitFor({ state: 'visible' });
+       await this.roadPermitBtn.click();
+       await this.page.waitForTimeout(3000);
+       await this.addBtnPopup.click();
+       await this.page.waitForTimeout(2000);
+       await this.payBtn.click();
+       await expect(this.roadpermitFeeLbl).toBeVisible();
     }
 }

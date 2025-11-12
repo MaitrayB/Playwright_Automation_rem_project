@@ -5,8 +5,91 @@ import { DashboardPage } from '../pages/DashboardPage.js';
 import { SignUpPage } from '../pages/SignUpPage.js';
 import { OrderDeliveryDetailsPage } from '../pages/OrderDeliveryDetailsPage.js';
 import { getRandomRow } from '../utils/getRandomRow.js';
+import { TestData } from '../Data/TestData.js';
 
 const csvPath = './Data/testData.csv';
+
+test.describe('Place order and add Road permit', () => {
+  test.setTimeout(180000); // 3 minutes
+  let orderPage, dashboardPage, orderDeliverDetailsPage;
+
+  test.beforeEach(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    orderPage = new OrderPage(page);
+    dashboardPage = new DashboardPage(page);
+    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+
+    test.context = context;
+    test.page = page;
+  });
+
+  test('Place order and add road permit', async () => {
+    const page = test.page;
+    const orderPage = new OrderPage(page);
+    const dashboardPage = new DashboardPage(page);
+    const loginPage = new LoginPage(page);
+    const signUpPage = new SignUpPage(page);
+    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+
+    // ✅ Get random CSV row at runtime
+    const randomRow = getRandomRow(csvPath);
+    
+
+
+    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[0]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[0]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No");
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Choose date', async () => {
+      await orderPage.chooseDate(TestData.BookingDay[0]);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Guest registration', async () => {
+      await signUpPage.fillSignUpFormExistingUser();
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate to dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+    });
+
+    await test.step('Add road permit from order details', async () => {
+      await orderDeliverDetailsPage.addRoadPermit();
+    });
+
+  });
+});
 
 test.describe('Start order as guest and logs in with existing account', () => {
   test.setTimeout(180000); // 3 minutes
@@ -164,7 +247,6 @@ test.describe('Place an order as Guest User', () => {
     });
   });
 });
-
 
 test.describe('Place an order as Logged-in User', () => {
   test.setTimeout(180000); // 3 minutes
