@@ -46,6 +46,16 @@ export class OrderPage {
 
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
+
+    //billing address change locators
+    this.billingaddresschangeCheckbox = page.locator("//div[contains(.,'Billing address is same')]/preceding-sibling::input[@type='checkbox']");
+    this.billingaddressSpan = page.locator("//span[contains(.,'Select billing address')]");
+    this.postcodenewaddressInput = page.locator("//input[contains(@placeholder,'Start typing your postcode or address')]");
+    this.firstpostcodeOption = page.locator("(//label[contains(.,'Search for your address')]/../following-sibling::div/button)[1]");
+    this.usethisaddressBtn = page.getByRole('button', { name: 'Use this address' });
+    this.streetinputchangeaddressInput = page.getByPlaceholder('e.g. Main Street');
+    this.housenumberchangeaddressInput = page.getByPlaceholder('e.g. 123');
+
   }
 
   //Postcode selection
@@ -224,6 +234,39 @@ export class OrderPage {
     }
 
     await this.page.waitForTimeout(5000);
+  }
+
+  async changeBillingAddress() {
+    await this.page.waitForTimeout(3000);
+    await this.billingaddresschangeCheckbox.waitFor({ state: 'visible' });
+    await this.billingaddresschangeCheckbox.click();
+    await this.billingaddressSpan.waitFor({ state: 'visible' });
+    await this.billingaddressSpan.click();
+    await this.postcodenewaddressInput.waitFor({ state: 'visible' });
+    await this.postcodenewaddressInput.fill('RG10 1BB');
+    await this.page.waitForTimeout(2000);
+    await this.firstpostcodeOption.waitFor({ state: 'visible' });
+    await this.firstpostcodeOption.click();
+    await this.page.waitForTimeout(2000);
+    await this.firstpostcodeOption.waitFor({ state: 'visible' });
+    await this.firstpostcodeOption.click();
+    await this.page.waitForTimeout(2000);
+    await this.usethisaddressBtn.waitFor({ state: 'visible' });
+    
+    await this.page.waitForTimeout(2000); 
+
+    //see if house and street are not auto filled then fill them
+    if (await this.streetinputchangeaddressInput.inputValue() === '') {
+      await this.streetinputchangeaddressInput.fill('Main Street');
+    }
+
+
+    if (await this.housenumberchangeaddressInput.inputValue() === '') {
+      await this.housenumberchangeaddressInput.fill('123');
+    }
+
+    await this.usethisaddressBtn.click();
+
   }
 
   async completePayment() {

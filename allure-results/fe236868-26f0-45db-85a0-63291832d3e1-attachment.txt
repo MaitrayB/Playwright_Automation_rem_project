@@ -1,0 +1,2 @@
+🎯 Selected row index: 275 📦 Postcode: J2 0HJ, WasteType: Household Waste
+🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property
