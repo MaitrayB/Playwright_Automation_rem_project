@@ -1,2 +1,2 @@
-🎯 Selected row index: 771 📦 Postcode: O9 7GL, WasteType: Commercial Waste
+🎯 Selected row index: 95 📦 Postcode: L4 3NI, WasteType: Construction Waste
 🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property
