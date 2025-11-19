@@ -38,16 +38,16 @@ test.describe('Place order and add 2 Tonne bags', () => {
 
 
 
-    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
+    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[1]}`);
 
     await loginPage.goto();
 
     await test.step('Enter postcode', async () => {
-      await orderPage.enterPostcode(TestData.postcodes[0]);
+      await orderPage.enterPostcode(TestData.postcodes[1]);
     });
 
     await test.step('Select waste type', async () => {
-      await orderPage.selectWaste(TestData.WasteType[0]);
+      await orderPage.selectWaste(TestData.WasteType[1]);
     });
 
     await test.step('Continue waste type', async () => {
@@ -55,11 +55,11 @@ test.describe('Place order and add 2 Tonne bags', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
     });
 
     await test.step('Permit check', async () => {
-      await orderPage.permitCheck(TestData.Placement[0]);
+      await orderPage.permitCheck(TestData.Placement[1]);
     });
 
     await test.step('Choose date', async () => {
