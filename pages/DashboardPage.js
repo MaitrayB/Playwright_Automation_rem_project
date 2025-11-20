@@ -12,7 +12,6 @@ export class DashboardPage {
   }
 
   async gotoSuccessPage() {
-    
     await this.continueToDashboardBtn.waitFor({ state: 'visible', timeout: 60000 });
     await this.continueToDashboardBtn.click();
     await this.page.waitForTimeout(3000);

@@ -149,13 +149,13 @@ export class OrderPage {
     if (!(await this.skipYardBtn.isVisible())) {
       skipSize = 4;
       this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
-    
-      if (!(await this.skipYardBtn.isVisible())) {
-      skipSize = 6;
-      this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
-      }
 
+      if (!(await this.skipYardBtn.isVisible())) {
+        skipSize = 6;
+        this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+      }
     }
+
     await this.skipYardBtn.waitFor({ state: 'visible' });
     await this.skipYardBtn.click();
     await this.continueBtn.click();
@@ -173,6 +173,8 @@ export class OrderPage {
         await this.confirmBtn.click();
       }
     }
+    this.skipValue = skipSize;
+    return this.skipValue;
   }
 
   //permit check
@@ -225,7 +227,7 @@ export class OrderPage {
     else {
       await this.dateBtn.click();
     }
-    
+
     await this.continueBtn.click();
 
     await this.page.waitForTimeout(3000);
@@ -252,8 +254,8 @@ export class OrderPage {
     await this.firstpostcodeOption.click();
     await this.page.waitForTimeout(2000);
     await this.usethisaddressBtn.waitFor({ state: 'visible' });
-    
-    await this.page.waitForTimeout(2000); 
+
+    await this.page.waitForTimeout(2000);
 
     //see if house and street are not auto filled then fill them
     if (await this.streetinputchangeaddressInput.inputValue() === '') {
@@ -271,11 +273,11 @@ export class OrderPage {
 
   async completePayment() {
     await this.page.waitForTimeout(5000);
-    if(await this.cardNumberLocator.isVisible()) {
-    await this.cardNumberLocator.fill('4111 1111 1111 1111');
-    await this.expiryDate.fill('12/34');
-    await this.cvc.fill('123');
-    await this.page.waitForTimeout(2000);
+    if (await this.cardNumberLocator.isVisible()) {
+      await this.cardNumberLocator.fill('4111 1111 1111 1111');
+      await this.expiryDate.fill('12/34');
+      await this.cvc.fill('123');
+      await this.page.waitForTimeout(2000);
     }
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();

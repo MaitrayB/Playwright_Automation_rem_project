@@ -6,12 +6,13 @@ import { SignUpPage } from '../pages/SignUpPage.js';
 import { OrderDeliveryDetailsPage } from '../pages/OrderDeliveryDetailsPage.js';
 import { getRandomRow } from '../utils/getRandomRow.js';
 import { TestData } from '../Data/TestData.js';
+import { OrderPlacementEmailVerification } from '../pages/OrderPlacementEmailVerification.js';
 
 const csvPath = './Data/testData.csv';
 
 test.describe('Place order and add 2 Tonne bags', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage;
+  let orderPage, dashboardPage, orderDeliverDetailsPage, orderPlacementEmailVer, skipType;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -20,6 +21,7 @@ test.describe('Place order and add 2 Tonne bags', () => {
     orderPage = new OrderPage(page);
     dashboardPage = new DashboardPage(page);
     orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
 
     test.context = context;
     test.page = page;
@@ -32,11 +34,10 @@ test.describe('Place order and add 2 Tonne bags', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
-
-
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[1]}`);
 
@@ -88,12 +89,19 @@ test.describe('Place order and add 2 Tonne bags', () => {
       await orderDeliverDetailsPage.addTonneBag();
     });
 
+    await test.step('Order Placement Email Verification', async () => {
+      const emailId = TestData.credentials.username;
+     await orderPlacementEmailVer.goToYopmail();
+     await orderPlacementEmailVer.accessInbox(emailId);
+       await orderPlacementEmailVer.checkOrderEmailReceived(orderPage);
+     });
+
   });
 });
 
 test.describe('Change billing address and place order', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage;
+  let orderPage, dashboardPage, orderDeliverDetailsPage, orderPlacementEmailVer;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -102,6 +110,7 @@ test.describe('Change billing address and place order', () => {
     orderPage = new OrderPage(page);
     dashboardPage = new DashboardPage(page);
     orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
 
     test.context = context;
     test.page = page;
@@ -114,6 +123,7 @@ test.describe('Change billing address and place order', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -171,8 +181,12 @@ test.describe('Change billing address and place order', () => {
       await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
     });
 
-    await test.step('Add road permit from order details', async () => {
-      await orderDeliverDetailsPage.addRoadPermit();
+
+    await test.step('Order Placement Email Verification', async () => {
+      const emailId = TestData.credentials.username;
+      await orderPlacementEmailVer.goToYopmail();
+      await orderPlacementEmailVer.accessInbox(emailId);
+      await orderPlacementEmailVer.checkOrderEmailReceived(orderPage);
     });
 
   });
@@ -180,7 +194,7 @@ test.describe('Change billing address and place order', () => {
 
 test.describe('Place order and add Road permit', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage;
+  let orderPage, dashboardPage, orderDeliverDetailsPage, orderPlacementEmailVer;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -189,6 +203,7 @@ test.describe('Place order and add Road permit', () => {
     orderPage = new OrderPage(page);
     dashboardPage = new DashboardPage(page);
     orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
 
     test.context = context;
     test.page = page;
@@ -201,11 +216,10 @@ test.describe('Place order and add Road permit', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
-
-
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
 
@@ -257,6 +271,13 @@ test.describe('Place order and add Road permit', () => {
       await orderDeliverDetailsPage.addRoadPermit();
     });
 
+    await test.step('Order Placement Email Verification', async () => {
+      const emailId = TestData.credentials.username;
+      await orderPlacementEmailVer.goToYopmail();
+      await orderPlacementEmailVer.accessInbox(emailId);
+      await orderPlacementEmailVer.checkOrderEmailReceived(orderPage);
+    });
+
   });
 });
 
@@ -283,11 +304,10 @@ test.describe('Start order as guest and logs in with existing account', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
-
-
 
     console.log(`🧾 Running Guest flow for:  ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
 
@@ -334,12 +354,20 @@ test.describe('Start order as guest and logs in with existing account', () => {
       await dashboardPage.navigateToViewOrderDetails();
       await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
     });
+
+    await test.step('Order Placement Email Verification', async () => {
+      const emailId = await signUpPage.fillSignUpFormExistingUser();
+      console.log(`print email id from SignUp Class: ${emailId}`);
+      await orderPlacementEmailVer.goToYopmail();
+      await orderPlacementEmailVer.accessInbox(emailId);
+      await orderPlacementEmailVer.checkOrderEmailReceived(orderPage);
+    });
   });
 });
 
 test.describe('Place an order as Guest User', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage;
+  let orderPage, dashboardPage, orderDeliverDetailsPage, orderPlacementEmailVer;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -348,6 +376,7 @@ test.describe('Place an order as Guest User', () => {
     orderPage = new OrderPage(page);
     dashboardPage = new DashboardPage(page);
     orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
 
     test.context = context;
     test.page = page;
@@ -360,11 +389,10 @@ test.describe('Place an order as Guest User', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
-
-
 
     console.log(`🧾 Running Guest flow for:  ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
 

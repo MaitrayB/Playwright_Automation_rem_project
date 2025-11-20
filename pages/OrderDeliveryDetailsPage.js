@@ -57,10 +57,10 @@ export class OrderDeliveryDetailsPage {
         await this.page.waitForTimeout(2000);
         await this.tonneBagBtn.waitFor({ state: 'visible' });
         await this.tonneBagBtn.click();
-        await this.page.waitForTimeout(3000);
+        await this.page.waitForTimeout(1000);
         await this.addQuantity.click();
         await this.addBtnPopup.click();
-        await this.page.waitForTimeout(2000);
+        await this.page.waitForTimeout(1000);
         await this.payBtn.click();
         await expect(this.verifyTonneBagLabel).toBeVisible();
         await expect(this.verifyTotalQuantity).toBeVisible();

@@ -1,0 +1,3 @@
+🎯 Selected row index: 311 📦 Postcode: CV8W 9RK, WasteType: Household Waste
+🧾 Running Guest flow for:  LE11 2LL, Household Waste, Heavywaste -No, Plasterboard -No, Skipsize-6, Public Property
+skip name: 6

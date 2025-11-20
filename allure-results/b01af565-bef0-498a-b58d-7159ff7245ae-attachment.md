@@ -1,0 +1,136 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "navin navin@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: navin
+          - paragraph [ref=e14]: navin@yopmail.com
+        - img [ref=e15]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Postcode" [ref=e21] [cursor=pointer]:
+        - img [ref=e22]
+        - generic [ref=e25]: Postcode
+      - button "Waste Type" [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: Waste Type
+      - button "Select Skip" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e39]: Select Skip
+      - button "Permit Check" [ref=e41] [cursor=pointer]:
+        - img [ref=e42]
+        - generic [ref=e44]: Permit Check
+      - button "Choose Date" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+        - generic [ref=e49]: Choose Date
+      - button "Payment" [ref=e51] [cursor=pointer]:
+        - img [ref=e52]
+        - generic [ref=e54]: Payment
+    - generic [ref=e56]:
+      - generic [ref=e58]:
+        - heading "Order Summary" [level=2] [ref=e59]
+        - generic [ref=e61]:
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - heading "Delivery Address" [level=3] [ref=e65]
+              - button "Edit address" [ref=e66] [cursor=pointer]:
+                - img [ref=e67]
+            - paragraph [ref=e70]: 46 Griggs Road, Loughborough
+            - paragraph [ref=e71]: LE11 2LL
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e75]: Delivery & Collection
+              - button "Edit dates" [ref=e76] [cursor=pointer]:
+                - img [ref=e77]
+            - generic [ref=e80]:
+              - paragraph [ref=e81]: "Delivery: Friday 26 December 2025"
+              - paragraph [ref=e82]: "Collection: Friday 2 January 2026"
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - heading "6 Yard Skip" [level=3] [ref=e86]
+            - paragraph [ref=e87]: 7 day hire period
+            - generic [ref=e88]:
+              - generic [ref=e89]: "-20% OFF"
+              - generic [ref=e90]: Save £65
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]:
+                - paragraph [ref=e94]: £331
+                - paragraph [ref=e95]: £266
+              - paragraph [ref=e96]: + VAT £53.20
+            - button "Edit skip selection" [ref=e97] [cursor=pointer]:
+              - img [ref=e98]
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - heading "Road Permit Fee" [level=3] [ref=e104]
+            - paragraph [ref=e105]: Required for skip placement on public highway
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - paragraph [ref=e108]: £91.00
+              - paragraph [ref=e109]: + VAT £18.20
+            - generic [ref=e110]:
+              - button "Remove permit" [ref=e111] [cursor=pointer]:
+                - img [ref=e112]
+              - button "Edit permit" [ref=e115] [cursor=pointer]:
+                - img [ref=e116]
+        - generic [ref=e119]:
+          - heading "Order Breakdown" [level=3] [ref=e120]
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - generic [ref=e123]: Subtotal (excl. VAT)
+              - generic [ref=e124]: £357.00
+            - generic [ref=e125]:
+              - generic [ref=e126]: VAT (20%)
+              - generic [ref=e127]: £71.40
+        - generic [ref=e129]:
+          - generic [ref=e130]: "Total Payment:"
+          - generic [ref=e131]: £428.40
+      - generic [ref=e132]:
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - generic [ref=e135]:
+              - img [ref=e136]
+              - heading "Payment Details" [level=3] [ref=e138]
+            - generic [ref=e139]:
+              - generic [ref=e140] [cursor=pointer]:
+                - generic [ref=e141]:
+                  - img [ref=e142]
+                  - generic [ref=e144]:
+                    - paragraph [ref=e145]: Visa •••• 1111
+                    - paragraph [ref=e146]: Expires 12/2034
+                - generic [ref=e147]: Default
+              - generic [ref=e149] [cursor=pointer]:
+                - img [ref=e150]
+                - generic [ref=e152]:
+                  - paragraph [ref=e153]: Visa •••• 1111
+                  - paragraph [ref=e154]: Expires 11/2027
+              - button "Add New Payment Method" [ref=e155] [cursor=pointer]:
+                - img [ref=e156]
+                - generic [ref=e157]: Add New Payment Method
+          - generic [ref=e159]:
+            - generic [ref=e160]:
+              - img [ref=e161]
+              - heading "Billing Address" [level=3] [ref=e164]
+            - generic [ref=e166]:
+              - checkbox "Billing address is same as delivery address 46 Griggs Road Loughborough, LE11 2LL" [checked] [ref=e167]
+              - generic [ref=e168]:
+                - text: Billing address is same as delivery address
+                - generic [ref=e169]:
+                  - paragraph [ref=e170]: 46 Griggs Road
+                  - paragraph [ref=e171]: Loughborough, LE11 2LL
+          - generic [ref=e173]:
+            - checkbox "I agree to the terms and conditions . You must accept the terms to place your order." [checked] [active] [ref=e174]
+            - generic [ref=e175] [cursor=pointer]:
+              - text: I agree to the
+              - button "terms and conditions" [ref=e176]
+              - text: . You must accept the terms to place your order.
+          - button "Complete Payment" [ref=e177] [cursor=pointer]:
+            - generic [ref=e178]:
+              - img [ref=e179]
+              - text: Complete Payment
+        - button "Back" [ref=e181] [cursor=pointer]
+```

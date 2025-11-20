@@ -1,0 +1,2 @@
+🎯 Selected row index: 866 📦 Postcode: F5 5LP, WasteType: Commercial Waste
+🧾 Running Guest flow for:  LE11 2LL, Household Waste, Heavywaste -No, Plasterboard -No, Skipsize-6, Public Property
