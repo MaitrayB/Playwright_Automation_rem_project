@@ -1,3 +1,5 @@
+import { expect } from '@playwright/test';
+
 export class OrderPage {
   constructor(page) {
 
@@ -21,6 +23,13 @@ export class OrderPage {
 
     const skipSize = 6;
     this.skipYardBtn = page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+    this.howItWorksBtn = page.getByRole('button', { name: 'See how it works' });
+    this.popUpHeading = page.locator('h2:has-text("Not sure what size skip you need?")');
+    this.wrongSkipPopUp = page.locator("//h3[contains(., 'Wrong Skip Guarantee')]");
+    this.dontAddWrongSkipBtn = page.getByRole('button', { name: `No, don't add` });
+    this.addWrongSkipGuaranteeBtn = page.locator("//button[contains(.,'Yes, add Wrong Skip Guarantee')]");
+    this.modifyGuaranteeBtn = page.locator("//div[@class='hidden md:flex items-center space-x-2']/button[contains(.,'Modify Guarantee')]");
+    this.paymentPageWrongSkipGuaranteeSection = page.locator("//h3[contains(.,'Wrong Skip Guarantee')]");
 
     this.noSkipGauranteeBtn = page.getByRole('button', { name: 'No, continue without' });
     this.toneBagtile = page.locator('(//div[contains(.,"Use Tonne Bags")])[last()]');
@@ -149,17 +158,23 @@ export class OrderPage {
     if (!(await this.skipYardBtn.isVisible())) {
       skipSize = 4;
       this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
-    
-      if (!(await this.skipYardBtn.isVisible())) {
-      skipSize = 6;
-      this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
-      }
 
+      if (!(await this.skipYardBtn.isVisible())) {
+        skipSize = 6;
+        this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+      }
     }
     await this.skipYardBtn.waitFor({ state: 'visible' });
     await this.skipYardBtn.click();
-    await this.continueBtn.click();
-    await this.noSkipGauranteeBtn.click();
+
+    if (!(await this.modifyGuaranteeBtn.isVisible())) {
+      await this.continueBtn.click();
+      await this.noSkipGauranteeBtn.click();
+    }
+    else {
+      await this.continueBtn.click();
+    }
+
     await this.page.waitForTimeout(1000);
 
     if (Plasterboard === 'Yes') {
@@ -173,6 +188,20 @@ export class OrderPage {
         await this.confirmBtn.click();
       }
     }
+    this.skipValue = skipSize;
+    return this.skipValue;
+  }
+
+  async wrongSkipSelection() {
+    await this.howItWorksBtn.waitFor({ state: 'visible' });
+    await this.howItWorksBtn.click();
+    await this.page.waitForTimeout(2000);
+    await expect(this.popUpHeading).toHaveText('Not sure what size skip you need?');
+    await expect(this.wrongSkipPopUp).toContainText('Wrong Skip Guarantee');
+    await this.dontAddWrongSkipBtn.click();
+    await this.howItWorksBtn.click();
+    await this.page.waitForTimeout(2000);
+    await this.addWrongSkipGuaranteeBtn.click();
   }
 
   //permit check
@@ -225,7 +254,7 @@ export class OrderPage {
     else {
       await this.dateBtn.click();
     }
-    
+
     await this.continueBtn.click();
 
     await this.page.waitForTimeout(3000);
@@ -252,8 +281,8 @@ export class OrderPage {
     await this.firstpostcodeOption.click();
     await this.page.waitForTimeout(2000);
     await this.usethisaddressBtn.waitFor({ state: 'visible' });
-    
-    await this.page.waitForTimeout(2000); 
+
+    await this.page.waitForTimeout(2000);
 
     //see if house and street are not auto filled then fill them
     if (await this.streetinputchangeaddressInput.inputValue() === '') {
@@ -271,11 +300,11 @@ export class OrderPage {
 
   async completePayment() {
     await this.page.waitForTimeout(5000);
-    if(await this.cardNumberLocator.isVisible()) {
-    await this.cardNumberLocator.fill('4111 1111 1111 1111');
-    await this.expiryDate.fill('12/34');
-    await this.cvc.fill('123');
-    await this.page.waitForTimeout(2000);
+    if (await this.cardNumberLocator.isVisible()) {
+      await this.cardNumberLocator.fill('4111 1111 1111 1111');
+      await this.expiryDate.fill('12/34');
+      await this.cvc.fill('123');
+      await this.page.waitForTimeout(2000);
     }
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();

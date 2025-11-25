@@ -7,7 +7,7 @@ import { LoginPage } from "./LoginPage";
 export class SignUpPage {
     constructor(page) {
         this.page = page;
-        
+
         this.loginBtn = page.getByRole('button', { name: 'Login' });
         this.signUpLink = page.locator("//a[@href='/register']");
         this.firstNameInput = page.locator('#firstName');
@@ -42,7 +42,7 @@ export class SignUpPage {
         const lastName = faker.person.lastName();
         const emailAddress = `${firstName}_${lastName}@yopmail.com`;
 
-        
+
         const randomPassword = "P@ssw0rd";
 
         this.emailAddress = emailAddress;
@@ -84,26 +84,26 @@ export class SignUpPage {
     }
 
     async fillSignUpFormExistingUser() {
-      
-                const loginPage = new LoginPage(this.page);
 
-                await this.page.locator('#firstName').focus();
-                await this.firstNameInput.fill("Navin");
-                await this.lastNameInput.fill("Shah");
-                await this.emailInput.fill(TestData.credentials.username);
-                await this.confirmEmailInput.fill(TestData.credentials.username);
-                await this.phoneInput.fill('+44 16977 2987');
-                if (await this.continueBtn.isEnabled()) {
-                    //console.log('Continue button is enabled');
-                    await this.continueBtn.click();
-                } else {
-                    console.log('Continue button is disabled');
-                }
-                await this.page.waitForTimeout(3000);
+        const loginPage = new LoginPage(this.page);
 
-                await this.signInContinueBtn.click();
-                await loginPage.login(TestData.credentials.username, TestData.credentials.password);
-                await this.page.waitForTimeout(3000);
+        await this.page.locator('#firstName').focus();
+        await this.firstNameInput.fill("Navin");
+        await this.lastNameInput.fill("Shah");
+        await this.emailInput.fill(TestData.credentials.username);
+        await this.confirmEmailInput.fill(TestData.credentials.username);
+        await this.phoneInput.fill('+44 16977 2987');
+        if (await this.continueBtn.isEnabled()) {
+            //console.log('Continue button is enabled');
+            await this.continueBtn.click();
+        } else {
+            console.log('Continue button is disabled');
+        }
+        await this.page.waitForTimeout(3000);
+
+        await this.signInContinueBtn.click();
+        await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+        await this.page.waitForTimeout(3000);
     }
 
     async guest_CreateNewPassword() {

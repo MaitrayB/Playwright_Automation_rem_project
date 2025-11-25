@@ -15,9 +15,16 @@ export class OrderDeliveryDetailsPage {
 
         this.addItemBtn = page.getByRole('button', { name: 'Add Item' });
         this.roadPermitBtn = page.locator("//button[contains(.,'Road Permit')]");
+
+        this.tonneBagBtn = page.locator("//button[contains(.,'Tonne Bag')]");
+        this.addQuantity = page.locator("//div[@class='flex items-center space-x-4']/button[2]");
+        this.verifyTonneBagLabel = page.locator('h3:has-text("Tonne Bag")');
+        this.verifyTotalQuantity = page.locator("//p[contains(.,'Quantity: 2')]");
+
         this.addBtnPopup = page.locator("(//button[contains(.,'Add Item')])[last()]");
         this.payBtn = page.locator("(//button[contains(.,'Pay')])[last()]");
         this.roadpermitFeeLbl = page.locator("//h3[contains(.,'Road Permit Fee')]");
+        this.verifyWrongSkipGuaranteeLabel = page.locator("//span[contains(., 'Wrong Skip Guarantee')]");
     }
 
     async verifyOrderDeliveryDetails() {
@@ -34,14 +41,29 @@ export class OrderDeliveryDetailsPage {
 
     async addRoadPermit() {
         await this.page.waitForTimeout(2000);
-       await this.addItemBtn.click();
-       await this.page.waitForTimeout(2000);
-       await this.roadPermitBtn.waitFor({ state: 'visible' });
-       await this.roadPermitBtn.click();
-       await this.page.waitForTimeout(3000);
-       await this.addBtnPopup.click();
-       await this.page.waitForTimeout(2000);
-       await this.payBtn.click();
-       await expect(this.roadpermitFeeLbl).toBeVisible();
+        await this.addItemBtn.click();
+        await this.page.waitForTimeout(2000);
+        await this.roadPermitBtn.waitFor({ state: 'visible' });
+        await this.roadPermitBtn.click();
+        await this.page.waitForTimeout(3000);
+        await this.addBtnPopup.click();
+        await this.page.waitForTimeout(2000);
+        await this.payBtn.click();
+        await expect(this.roadpermitFeeLbl).toBeVisible();
+    }
+
+    async addTonneBag() {
+        await this.page.waitForTimeout(2000);
+        await this.addItemBtn.click();
+        await this.page.waitForTimeout(2000);
+        await this.tonneBagBtn.waitFor({ state: 'visible' });
+        await this.tonneBagBtn.click();
+        await this.page.waitForTimeout(1000);
+        await this.addQuantity.click();
+        await this.addBtnPopup.click();
+        await this.page.waitForTimeout(1000);
+        await this.payBtn.click();
+        await expect(this.verifyTonneBagLabel).toBeVisible();
+        await expect(this.verifyTotalQuantity).toBeVisible();
     }
 }
