@@ -26,7 +26,7 @@ export const TestData = {
     'Yes'
   ],
   SkipSize: [
-    '4','6','8','16','20','40'
+    '4', '6', '8', '16', '20', '40'
   ],
   BookingDay: [
     '28'
@@ -37,5 +37,4 @@ export const TestData = {
     'Grass verge',
     'Not sure'
   ]
-
 };

@@ -1,3 +1,0 @@
-🎯 Selected row index: 247 📦 Postcode: XF6B 7SB, WasteType: Household Waste
-🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property
-skip name: 4

@@ -30,7 +30,7 @@ export class OrderPlacementEmailVerification {
         await this.inboxFrame.getByText(emailSubject).click();
 
         const skip = orderPage.skipValue;
-        console.log(`skip name: ${skip}`);
+        //console.log(`skip name: ${skip}`);
 
         await expect(this.inboxFrame.getByText('You did it…  Here’s your booking details for your skip with ')).toBeVisible();
         await expect(this.inboxFrame.getByText(`Skip Type: ${skip} yarder skip`)).toBeVisible({ timeout: 3000 });
