@@ -30,7 +30,7 @@ export class LoginPage {
 
     await this.signInBtn.waitFor({ state: 'visible' });
     await this.signInBtn.click();
-    //await this.page.waitForTimeout(1000);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(3000);
+   
   }
 }

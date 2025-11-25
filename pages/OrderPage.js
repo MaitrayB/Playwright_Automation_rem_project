@@ -195,10 +195,12 @@ export class OrderPage {
   async wrongSkipSelection() {
     await this.howItWorksBtn.waitFor({ state: 'visible' });
     await this.howItWorksBtn.click();
+    await this.page.waitForTimeout(2000);
     await expect(this.popUpHeading).toHaveText('Not sure what size skip you need?');
     await expect(this.wrongSkipPopUp).toContainText('Wrong Skip Guarantee');
     await this.dontAddWrongSkipBtn.click();
     await this.howItWorksBtn.click();
+    await this.page.waitForTimeout(2000);
     await this.addWrongSkipGuaranteeBtn.click();
   }
 
