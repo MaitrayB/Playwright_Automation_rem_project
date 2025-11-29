@@ -1,0 +1,2 @@
+🎯 Selected row index: 831 📦 Postcode: U4O 8DL, WasteType: Commercial Waste
+🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property

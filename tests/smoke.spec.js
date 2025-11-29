@@ -6,13 +6,29 @@ import { SignUpPage } from '../pages/SignUpPage.js';
 import { OrderDeliveryDetailsPage } from '../pages/OrderDeliveryDetailsPage.js';
 import { getRandomRow } from '../utils/getRandomRow.js';
 import { TestData } from '../Data/TestData.js';
-import { OrderPlacementEmailVerification } from '../pages/OrderPlacementEmailVerification.js';
+import { genericFunctions } from '../utils/genericFunctions.js';
 
 const csvPath = './Data/testData.csv';
 
+test.describe('Edit User Profile', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test.beforeEach(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    test.context = context;
+    test.page = page;
+  });
+
+  test('Edit profile settings', async () => {
+
+  })
+})
+
 test.describe('Place an order for Wrong Skip Guarantee', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, orderPlacementEmailVer, skipType;
+  let orderPage, dashboardPage, orderDeliverDetailsPage, skipType, genFunctions;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -21,7 +37,7 @@ test.describe('Place an order for Wrong Skip Guarantee', () => {
     orderPage = new OrderPage(page);
     dashboardPage = new DashboardPage(page);
     orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    genFunctions = new genericFunctions(page);
 
     test.context = context;
     test.page = page;
@@ -34,7 +50,7 @@ test.describe('Place an order for Wrong Skip Guarantee', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -95,9 +111,9 @@ test.describe('Place an order for Wrong Skip Guarantee', () => {
 
     await test.step('Order Placement Email Verification', async () => {
       const emailId = TestData.credentials.username;
-      await orderPlacementEmailVer.goToYopmail();
-      await orderPlacementEmailVer.accessInbox(emailId);
-      await orderPlacementEmailVer.checkOrderEmailReceived(orderPage);
+      await genFunctions.goToYopmail();
+      await genFunctions.accessInbox(emailId);
+      await genFunctions.checkOrderEmailReceived(orderPage);
     });
 
   });
@@ -105,7 +121,7 @@ test.describe('Place an order for Wrong Skip Guarantee', () => {
 
 test.describe('Place order and add 2 Tonne bags', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, orderPlacementEmailVer, skipType;
+  let orderPage, dashboardPage, orderDeliverDetailsPage, genFunctions, skipType;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -114,7 +130,7 @@ test.describe('Place order and add 2 Tonne bags', () => {
     orderPage = new OrderPage(page);
     dashboardPage = new DashboardPage(page);
     orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    genFunctions = new genericFunctions(page);
 
     test.context = context;
     test.page = page;
@@ -127,7 +143,7 @@ test.describe('Place order and add 2 Tonne bags', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -184,9 +200,9 @@ test.describe('Place order and add 2 Tonne bags', () => {
 
     await test.step('Order Placement Email Verification', async () => {
       const emailId = TestData.credentials.username;
-      await orderPlacementEmailVer.goToYopmail();
-      await orderPlacementEmailVer.accessInbox(emailId);
-      await orderPlacementEmailVer.checkOrderEmailReceived(orderPage);
+      await genFunctions.goToYopmail();
+      await genFunctions.accessInbox(emailId);
+      await genFunctions.checkOrderEmailReceived(orderPage);
     });
 
   });
@@ -194,7 +210,7 @@ test.describe('Place order and add 2 Tonne bags', () => {
 
 test.describe('Change billing address and place order', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, orderPlacementEmailVer;
+  let orderPage, dashboardPage, orderDeliverDetailsPage, genFunctions;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -203,7 +219,7 @@ test.describe('Change billing address and place order', () => {
     orderPage = new OrderPage(page);
     dashboardPage = new DashboardPage(page);
     orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    genFunctions = new genericFunctions(page);
 
     test.context = context;
     test.page = page;
@@ -216,7 +232,7 @@ test.describe('Change billing address and place order', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -275,9 +291,9 @@ test.describe('Change billing address and place order', () => {
 
     await test.step('Order Placement Email Verification', async () => {
       const emailId = TestData.credentials.username;
-      await orderPlacementEmailVer.goToYopmail();
-      await orderPlacementEmailVer.accessInbox(emailId);
-      await orderPlacementEmailVer.checkOrderEmailReceived(orderPage);
+      await genFunctions.goToYopmail();
+      await genFunctions.accessInbox(emailId);
+      await genFunctions.checkOrderEmailReceived(orderPage);
     });
 
   });
@@ -285,7 +301,7 @@ test.describe('Change billing address and place order', () => {
 
 test.describe('Place order and add Road permit', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, orderPlacementEmailVer;
+  let orderPage, dashboardPage, orderDeliverDetailsPage, genFunctions;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -294,7 +310,7 @@ test.describe('Place order and add Road permit', () => {
     orderPage = new OrderPage(page);
     dashboardPage = new DashboardPage(page);
     orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    genFunctions = new genericFunctions(page);
 
     test.context = context;
     test.page = page;
@@ -307,7 +323,7 @@ test.describe('Place order and add Road permit', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -364,9 +380,9 @@ test.describe('Place order and add Road permit', () => {
 
     await test.step('Order Placement Email Verification', async () => {
       const emailId = TestData.credentials.username;
-      await orderPlacementEmailVer.goToYopmail();
-      await orderPlacementEmailVer.accessInbox(emailId);
-      await orderPlacementEmailVer.checkOrderEmailReceived(orderPage);
+      await genFunctions.goToYopmail();
+      await genFunctions.accessInbox(emailId);
+      await genFunctions.checkOrderEmailReceived(orderPage);
     });
 
   });
@@ -458,7 +474,7 @@ test.describe('Start order as guest and logs in with existing account', () => {
 
 test.describe('Place an order as Guest User', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, orderPlacementEmailVer;
+  let orderPage, dashboardPage, orderDeliverDetailsPage, genFunctions;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -467,7 +483,7 @@ test.describe('Place an order as Guest User', () => {
     orderPage = new OrderPage(page);
     dashboardPage = new DashboardPage(page);
     orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    genFunctions = new genericFunctions(page);
 
     test.context = context;
     test.page = page;
@@ -480,7 +496,7 @@ test.describe('Place an order as Guest User', () => {
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);

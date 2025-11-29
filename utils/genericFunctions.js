@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-export class OrderPlacementEmailVerification {
+export class genericFunctions {
     constructor(page) {
         this.page = page;
         this.inputEmail = page.locator("//input[@class='ycptinput']");
