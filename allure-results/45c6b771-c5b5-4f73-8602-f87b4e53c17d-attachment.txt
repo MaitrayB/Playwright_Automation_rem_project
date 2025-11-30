@@ -1,0 +1,2 @@
+🎯 Selected row index: 364 📦 Postcode: W2V 7MB, WasteType: Household Waste
+🧾 Running Guest flow for:  W2V 7MB, Household Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-40, Public Property

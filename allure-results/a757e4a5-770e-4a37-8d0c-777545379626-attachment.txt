@@ -1,0 +1,2 @@
+🎯 Selected row index: 338 📦 Postcode: M4T 3LK, WasteType: Household Waste
+🧾 Running Guest flow for:  M4T 3LK, Household Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-6, Not sure

@@ -7,11 +7,15 @@ import { OrderDeliveryDetailsPage } from '../pages/OrderDeliveryDetailsPage.js';
 import { getRandomRow } from '../utils/getRandomRow.js';
 import { TestData } from '../Data/TestData.js';
 import { genericFunctions } from '../utils/genericFunctions.js';
+import { ProfileSettingsPage } from '../pages/ProfileSettingsPage.js';
+import { log } from 'console';
 
 const csvPath = './Data/testData.csv';
 
-test.describe('Edit User Profile', () => {
+test.describe('Edit User Profile', async () => {
   test.setTimeout(180000); // 3 minutes
+
+  let profilesettingpage, loginpage;
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -19,10 +23,25 @@ test.describe('Edit User Profile', () => {
 
     test.context = context;
     test.page = page;
+    loginpage = new LoginPage(page);
+    profilesettingpage = new ProfileSettingsPage(page);
+
   });
+
 
   test('Edit profile settings', async () => {
 
+
+    await test.step('Go to profile settings', async () => {
+      await loginpage.goto();
+      await loginpage.login(TestData.credentials.username, TestData.credentials.password);
+      await profilesettingpage.goToProfileSettingsPage();
+    });
+
+    await test.step('Edit profile details', async () => {
+      await profilesettingpage.editProfileSettings("Maitray", "Bhatt", "1333444355");
+    });
+    
   })
 })
 

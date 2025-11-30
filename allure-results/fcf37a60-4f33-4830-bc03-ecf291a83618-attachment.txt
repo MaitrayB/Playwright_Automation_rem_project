@@ -1,0 +1,2 @@
+🎯 Selected row index: 45 📦 Postcode: NY4J 5WK, WasteType: Construction Waste
+🧾 Running Guest flow for:  NY4J 5WK, Construction Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-8, Public Property
