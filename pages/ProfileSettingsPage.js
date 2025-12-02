@@ -18,15 +18,14 @@ export class ProfileSettingsPage {
         await this.profileDropdown.click();
         await this.dashboardOption.waitFor({ state: 'visible' });
         await this.dashboardOption.click();
+    }
 
+    async editProfileSettings(newFirstName, newLastName, newPhone) {
         await this.profileDropdown.waitFor({ state: 'visible' });
         await this.profileDropdown.click();
         await this.profileSettingsOption.waitFor({ state: 'visible' });
         await this.profileSettingsOption.click();
-        await this.page.waitForTimeout(2000);   
-    }
-
-    async editProfileSettings(newFirstName, newLastName, newPhone) {
+        await this.page.waitForTimeout(2000);
         await this.firstnameInput.fill(newFirstName);
         await this.lastnameInput.fill(newLastName);
         await this.phoneInput.fill(newPhone);

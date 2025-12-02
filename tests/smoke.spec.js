@@ -12,6 +12,40 @@ import { log } from 'console';
 
 const csvPath = './Data/testData.csv';
 
+test.describe('Downgrade skip', async () => {
+  test.setTimeout(180000); // 3 minutes
+
+  let profilesettingpage, loginpage, dashboardPage, orderDeliveryDetailsPage;
+
+  test.beforeEach(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    test.context = context;
+    test.page = page;
+    loginpage = new LoginPage(page);
+    profilesettingpage = new ProfileSettingsPage(page);
+    dashboardPage = new DashboardPage(page);
+    orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
+  });
+
+  test('Downgrading skip for logged-in user', async () => {
+    const page = test.page;
+    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    await test.step('Go to profile settings', async () => {
+      await loginpage.goto();
+      await loginpage.login(TestData.credentials.username, TestData.credentials.password);
+      await profilesettingpage.goToProfileSettingsPage();
+    });
+
+    await test.step('Navigate and Downgrade skip', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliverDetailsPage.downgradeSkip();
+    });
+  })
+
+});
+
 test.describe('Edit User Profile', async () => {
   test.setTimeout(180000); // 3 minutes
 
@@ -28,9 +62,7 @@ test.describe('Edit User Profile', async () => {
 
   });
 
-
   test('Edit profile settings', async () => {
-
 
     await test.step('Go to profile settings', async () => {
       await loginpage.goto();
@@ -41,9 +73,9 @@ test.describe('Edit User Profile', async () => {
     await test.step('Edit profile details', async () => {
       await profilesettingpage.editProfileSettings("Maitray", "Bhatt", "1333444355");
     });
-    
+
   })
-})
+});
 
 test.describe('Place an order for Wrong Skip Guarantee', () => {
   test.setTimeout(180000); // 3 minutes

@@ -156,11 +156,10 @@ export class OrderPage {
 
   async selectSkip(skipSize, Plasterboard, ToneBag, SelfDispose) {
 
-//skip current test if skip is not available for selection
+    //skip current test if skip is not available for selection
     if (await this.noskipMsg.isVisible()) {
-    test.skip('No skip available for this selection — skipping test.');
-}
-
+      test.skip('No skip available for this selection — skipping test.');
+    }
 
     this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
 

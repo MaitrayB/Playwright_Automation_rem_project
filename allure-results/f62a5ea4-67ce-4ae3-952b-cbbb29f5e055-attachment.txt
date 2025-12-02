@@ -1,2 +1,0 @@
-🎯 Selected row index: 23 📦 Postcode: L2S 5NL, WasteType: Construction Waste
-🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property

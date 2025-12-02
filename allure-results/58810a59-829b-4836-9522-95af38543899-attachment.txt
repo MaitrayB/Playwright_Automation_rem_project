@@ -1,2 +1,0 @@
-🎯 Selected row index: 545 📦 Postcode: CC5 9MT, WasteType: Garden Waste
-🧾 Running Guest flow for:  CC5 9MT, Garden Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-20, Grass verge

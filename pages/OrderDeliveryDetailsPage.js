@@ -25,6 +25,15 @@ export class OrderDeliveryDetailsPage {
         this.payBtn = page.locator("(//button[contains(.,'Pay')])[last()]");
         this.roadpermitFeeLbl = page.locator("//h3[contains(.,'Road Permit Fee')]");
         this.verifyWrongSkipGuaranteeLabel = page.locator("//span[contains(., 'Wrong Skip Guarantee')]");
+        this.updateSkipBtn = page.getByRole('button', { name: 'Update Skip' });
+        this.checkPrecedingSkipAvailability = page.locator("(//button[contains(.,'Currently Selected')]/../preceding-sibling::div)");
+        this.nextSkipBtn = page.locator("(//button[contains(.,'Currently Selected')]/../following-sibling::div)[1]");
+        this.previousSkipBtn = page.locator("(//button[contains(.,'Currently Selected')]/../preceding-sibling::div)[1]");
+        this.changeSkipBtn = page.getByRole('button', { name: 'Change Skip' });
+        this.confirmChangeBtn = page.getByText("Confirm Change");
+        this.payExtraBtn = page.locator("//span[contains(.,'Pay £')]");
+        this.skipChangeSuccessMsg = page.getByText("Skip Changed Successfully");
+        this.refundRequestMsg = page.getByText("Refund Request Created");
     }
 
     async verifyOrderDeliveryDetails() {
@@ -65,5 +74,35 @@ export class OrderDeliveryDetailsPage {
         await this.payBtn.click();
         await expect(this.verifyTonneBagLabel).toBeVisible();
         await expect(this.verifyTotalQuantity).toBeVisible();
+    }
+
+    async downgradeSkip() {
+        await this.page.waitForTimeout(2000);
+        await this.updateSkipBtn.click();
+        // (//button[contains(.,'Currently Selected')]/../preceding-sibling::div)[1]
+        const precedingSkipCount = await this.checkPrecedingSkipAvailability.count();
+        console.log(precedingSkipCount);
+        if (precedingSkipCount === 0) {
+            await this.nextSkipBtn.click();
+            await this.changeSkipBtn.click();
+            await this.payExtraBtn.waitFor({ state: 'visible' });
+            await this.payExtraBtn.click();
+            await this.page.waitForTimeout(2000);
+            await this.updateSkipBtn.click();
+            await this.page.waitForTimeout(2000);
+            await this.perfromPreviousSkipActions();
+        }
+        else {
+            await this.perfromPreviousSkipActions();
+        }
+    }
+
+    async perfromPreviousSkipActions() {
+        await this.previousSkipBtn.click();
+        await this.changeSkipBtn.click();
+        await this.confirmChangeBtn.waitFor({ state: 'visible' });
+        await this.confirmChangeBtn.click();
+        await expect(this.skipChangeSuccessMsg).toBeVisible();
+        await expect(this.refundRequestMsg).toBeVisible();
     }
 }
