@@ -12,10 +12,40 @@ import { log } from 'console';
 
 const csvPath = './Data/testData.csv';
 
-test.describe('Downgrade skip', async () => {
+test.describe('Upgrade skip', async () => {
   test.setTimeout(180000); // 3 minutes
 
-  let profilesettingpage, loginpage, dashboardPage, orderDeliveryDetailsPage;
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    test.context = context;
+    test.page = page;
+  });
+
+  test('Upgrading skip for logged-in user', async () => {
+    const page = test.page;
+    const loginpage = new LoginPage(page);
+    const profilesettingpage = new ProfileSettingsPage(page);
+    const dashboardPage = new DashboardPage(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
+
+    await test.step('Go to profile settings', async () => {
+      await loginpage.goto();
+      await loginpage.login(TestData.credentials.username, TestData.credentials.password);
+      await profilesettingpage.goToProfileSettingsPage();
+    });
+
+    await test.step('Navigate and Downgrade skip', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.upgradeSkip();
+    });
+  })
+
+});
+
+test.describe('Downgrade skip', async () => {
+  test.setTimeout(180000); // 3 minutes
 
   test.beforeEach(async ({ browser }) => {
     const context = await browser.newContext();
@@ -23,14 +53,13 @@ test.describe('Downgrade skip', async () => {
 
     test.context = context;
     test.page = page;
-    loginpage = new LoginPage(page);
-    profilesettingpage = new ProfileSettingsPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
   });
 
   test('Downgrading skip for logged-in user', async () => {
     const page = test.page;
+    const loginpage = new LoginPage(page);
+    const profilesettingpage = new ProfileSettingsPage(page);
+    const dashboardPage = new DashboardPage(page);
     const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
     await test.step('Go to profile settings', async () => {
       await loginpage.goto();
@@ -43,7 +72,6 @@ test.describe('Downgrade skip', async () => {
       await orderDeliverDetailsPage.downgradeSkip();
     });
   })
-
 });
 
 test.describe('Edit User Profile', async () => {

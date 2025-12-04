@@ -52,6 +52,8 @@ export class DashboardPage {
   }
   async navigateToViewOrderDetails() {
     await this.viewOrderDetailsBtn.waitFor({ state: 'visible' });
+    await this.page.waitForTimeout(2000);
     await this.viewOrderDetailsBtn.click();
+    await this.page.waitForTimeout(2000);
   }
 }
