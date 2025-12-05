@@ -65,6 +65,10 @@ export class OrderPage {
     this.streetinputchangeaddressInput = page.getByPlaceholder('e.g. Main Street');
     this.housenumberchangeaddressInput = page.getByPlaceholder('e.g. 123');
 
+    this.noskipMsg = page.locator("//p[contains(.,'No skips available')]");
+    this.roadplacementNoticeMsg = page.locator("//h4[contains(.,'Road Placement Not Available')]");
+
+
   }
 
   //Postcode selection
@@ -151,6 +155,12 @@ export class OrderPage {
   }
 
   async selectSkip(skipSize, Plasterboard, ToneBag, SelfDispose) {
+
+    //skip current test if skip is not available for selection
+    if (await this.noskipMsg.isVisible()) {
+      test.skip('No skip available for this selection — skipping test.');
+    }
+
     this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
 
     await this.page.waitForTimeout(2000);
@@ -206,6 +216,11 @@ export class OrderPage {
 
   //permit check
   async permitCheck(Placement) {
+
+    //if road placement notice is shown then set placement to private property
+    if (await this.roadplacementNoticeMsg.isVisible()) {
+      Placement = 'Private Property';
+    }
 
     if (Placement === 'Private Property') {
       await this.privatePropertyBtn.click();
