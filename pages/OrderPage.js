@@ -73,7 +73,7 @@ export class OrderPage {
 
   //Postcode selection
   async enterPostcode(postcode) {
-    await this.page.waitForLoadState('networkidle');
+    //await this.page.waitForLoadState('networkidle');
     await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
     //await this.page.getByRole('button').nth(3).click();
@@ -269,6 +269,26 @@ export class OrderPage {
     else {
       await this.dateBtn.click();
     }
+
+    await this.continueBtn.click();
+
+    await this.page.waitForTimeout(3000);
+    if (await this.noBtn.isVisible()) {
+      await this.noBtn.click();
+    }
+
+    await this.page.waitForTimeout(5000);
+  }
+
+
+  async chooseStaticDate(Day) {
+
+    this.dateBtn = this.page.getByRole('button', { name: Day });
+    await this.page.waitForTimeout(3000);
+
+    
+      await this.dateBtn.click();
+    
 
     await this.continueBtn.click();
 

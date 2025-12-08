@@ -36,6 +36,12 @@ export class OrderDeliveryDetailsPage {
         this.skipChangeSuccessMsg = page.getByText("Skip Changed Successfully");
         this.refundRequestMsg = page.getByText("Refund Request Created");
         this.doneBtn = page.getByRole('button', { name: 'Done' });
+
+        this.collectionBtn = page.getByRole('button', { name: 'Collections' });
+        this.manageCollectionLabel = page.getByRole('heading', { name: 'Manage Your Collection Date' });
+        this.nextdeliveryDateFree = page.locator("(//button[contains(concat(' ', normalize-space(@class), ' '), ' bg-[#0037C1] ')])[1]/following-sibling::button[1]");
+        this.agreeCheckbox = page.getByLabel('I agree to ensure the skip meets all collection requirements');
+        this.setCollectionDateBtn = page.getByRole('button', { name: 'Set Collection Date' });
     }
 
     async verifyOrderDeliveryDetails() {
@@ -105,7 +111,7 @@ export class OrderDeliveryDetailsPage {
         await expect(this.skipChangeSuccessMsg).toBeVisible();
         await expect(this.refundRequestMsg).toBeVisible();
         await this.doneBtn.click();
-        await this.page.waitForTimeout(2000);
+        await this.page.waitForTimeout(5000);
     }
 
     async performNextSkipActions() {
@@ -115,13 +121,14 @@ export class OrderDeliveryDetailsPage {
         await this.changeSkipBtn.click();
         await this.payExtraBtn.waitFor({ state: 'visible' });
         await this.payExtraBtn.click();
-        await this.page.waitForTimeout(3000);
+        await this.page.waitForTimeout(5000);
     }
 
     async upgradeSkip() {
         await this.page.waitForTimeout(2000);
         await this.updateSkipBtn.focus();
         await this.updateSkipBtn.click();
+        await this.page.waitForTimeout(2000);
         const nextSkipCount = await this.nextSkipAvailibility.count();
         if (nextSkipCount === 0) {
             await this.performPreviousSkipActions();
@@ -133,5 +140,18 @@ export class OrderDeliveryDetailsPage {
             await this.performNextSkipActions();
             await this.page.waitForTimeout(3000);
         }
+    }
+
+    async requestCollection() {
+        await this.page.waitForTimeout(2000);
+        await this.collectionBtn.click();
+        await expect(this.manageCollectionLabel).toBeVisible();
+        await this.nextdeliveryDateFree.click();
+        await this.page.waitForTimeout(2000);
+        await this.agreeCheckbox.click();
+        await this.setCollectionDateBtn.waitFor({ state: 'visible' });
+        await this.setCollectionDateBtn.click();
+        await this.page.waitForTimeout(3000);
+        
     }
 }
