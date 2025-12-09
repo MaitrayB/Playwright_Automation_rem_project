@@ -13,7 +13,7 @@ import { log } from 'console';
 const csvPath = './Data/testData.csv';
 
 
-test.describe('Request collection', () => {
+test.describe('Request collection outside 3 days free limit and pay for difference', () => {
   test.setTimeout(180000); // 3 minutes
   let orderPage, dashboardPage, orderDeliverDetailsPage;
 
@@ -29,7 +29,7 @@ test.describe('Request collection', () => {
     test.page = page;
   });
 
-  test('Request collection scenario', async () => {
+  test('Request collection outside 3 days free limit and pay for difference', async () => {
     const page = test.page;
     const orderPage = new OrderPage(page);
     const dashboardPage = new DashboardPage(page);
@@ -81,13 +81,86 @@ test.describe('Request collection', () => {
     });
 
     await test.step('Request collection', async () => {
-      await orderDeliverDetailsPage.requestCollection();
+      await orderDeliverDetailsPage.requestCollection({ freelimit: "no" });
     });
 
   });
 });
 
 
+test.describe('Request collection within 3 days free limit', () => {
+  test.setTimeout(180000); // 3 minutes
+  let orderPage, dashboardPage, orderDeliverDetailsPage;
+
+  test.beforeEach(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    orderPage = new OrderPage(page);
+    dashboardPage = new DashboardPage(page);
+    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+
+    test.context = context;
+    test.page = page;
+  });
+
+  test('Request collection within 3 days free limit', async () => {
+    const page = test.page;
+    const orderPage = new OrderPage(page);
+    const dashboardPage = new DashboardPage(page);
+    const loginPage = new LoginPage(page);
+    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+
+
+    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Choose date', async () => {
+      const dayNumber = new Date().getDate();
+      console.log(`Today's day number is: ${dayNumber}`);
+      await orderPage.chooseStaticDate(dayNumber);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate and verify dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step('Request collection', async () => {
+      await orderDeliverDetailsPage.requestCollection({ freelimit: "yes" });
+    });
+
+  });
+});
 
 test.describe('Upgrade skip', async () => {
   test.setTimeout(180000); // 3 minutes

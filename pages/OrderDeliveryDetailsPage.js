@@ -37,11 +37,18 @@ export class OrderDeliveryDetailsPage {
         this.refundRequestMsg = page.getByText("Refund Request Created");
         this.doneBtn = page.getByRole('button', { name: 'Done' });
 
-        this.collectionBtn = page.getByRole('button', { name: 'Collections' });
+        this.collectionBtn = page.locator("//button[contains(.,'Set Collection Date')]");
         this.manageCollectionLabel = page.getByRole('heading', { name: 'Manage Your Collection Date' });
         this.nextdeliveryDateFree = page.locator("(//button[contains(concat(' ', normalize-space(@class), ' '), ' bg-[#0037C1] ')])[1]/following-sibling::button[1]");
+        this.nextdeliveyChargedBtn = page.locator("((//button[contains(concat(' ', normalize-space(@class), ' '), ' bg-[#0037C1] ')])[1]/following-sibling::button[contains(@class,'hover:bg-[#2A2A2A]')])[last()]");
         this.agreeCheckbox = page.getByLabel('I agree to ensure the skip meets all collection requirements');
         this.setCollectionDateBtn = page.getByRole('button', { name: 'Set Collection Date' });
+        this.freeExtensionDayUsedLbl = page.getByText('Free extension days used: 0/3');
+        this.freeExtensionRemainingLbl = page.getByText('Free extension days remaining: 3');
+        this.dateexendedLlb = page.locator("//p[contains(.,'Collection date extended from')]");
+        this.manageCollectionBtn = page.locator("//button[contains(.,'Manage Collection')]");
+        this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
+        this.payBtn = page.locator("//button[contains(.,'Pay ')]");
     }
 
     async verifyOrderDeliveryDetails() {
@@ -142,16 +149,35 @@ export class OrderDeliveryDetailsPage {
         }
     }
 
-    async requestCollection() {
+    async requestCollection(freelimit) {
+        await this.page.waitForTimeout(2000);
+        await this.manageCollectionBtn.click();
         await this.page.waitForTimeout(2000);
         await this.collectionBtn.click();
-        await expect(this.manageCollectionLabel).toBeVisible();
+
+        if(freelimit==='yes'){
         await this.nextdeliveryDateFree.click();
         await this.page.waitForTimeout(2000);
         await this.agreeCheckbox.click();
         await this.setCollectionDateBtn.waitFor({ state: 'visible' });
         await this.setCollectionDateBtn.click();
         await this.page.waitForTimeout(3000);
+        }
+
+        else{
+        await this.nextdeliveyChargedBtn.click();
+        await this.page.waitForTimeout(2000);
+        await this.agreeCheckbox.click();
+        await this.completePaymentBtn.waitFor({ state: 'visible' });
+        await this.completePaymentBtn.click();
+        await this.page.waitForTimeout(3000);
+        await this.payBtn.waitFor({ state: 'visible' });
+        await this.payBtn.click();
+        await this.page.waitForTimeout(6000);
+        await expect(this.dateexendedLlb).toBeVisible();
         
+
+        }
+
     }
 }
