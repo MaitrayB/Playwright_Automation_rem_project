@@ -81,6 +81,7 @@ test.describe('Confirm Delivery', () => {
 
     await test.step(`Confirm and verify today's delivery`, async () => {
       await orderDeliveryDetailsPage.confirmTodaysDelivery();
+      await expect(orderDeliveryDetailsPage.verifyConfirmDeliveryLabel).toBeVisible();
     });
 
   });
