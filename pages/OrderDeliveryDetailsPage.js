@@ -55,7 +55,6 @@ export class OrderDeliveryDetailsPage {
         this.textArea = page.getByPlaceholder('Add a message about this event...');
         this.submitBtn = page.getByRole('button', { name: 'Submit' });
         this.eventSuccessMsg = page.locator("//p[contains(.,'Event submitted successfully')]");
-        this.orderHistorySection = page.locator('h3:has-text("Order History")');
         this.verifyConfirmDeliveryLabel = page.locator('span:has-text("Delivery Confirmed")');
     }
 
@@ -209,11 +208,6 @@ export class OrderDeliveryDetailsPage {
         await this.submitBtn.click();
         await this.page.waitForTimeout(2000);
         expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
-        await this.page.waitForTimeout(2000);
-        // Bring the page to the front to ensure it has focus
-        await this.page.bringToFront();
-        await this.orderHistorySection.focus();
-        await this.verifyConfirmDeliveryLabel.focus();
         await this.page.waitForTimeout(2000);
     }
 }
