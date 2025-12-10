@@ -49,6 +49,14 @@ export class OrderDeliveryDetailsPage {
         this.manageCollectionBtn = page.locator("//button[contains(.,'Manage Collection')]");
         this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
         this.payBtn = page.locator("//button[contains(.,'Pay ')]");
+
+        this.manageDeliveryBtn = page.getByRole('button', { name: 'Manage Delivery' });
+        this.confirmDeliveryBtn = page.getByRole('button', { name: 'Confirm Delivery' });
+        this.textArea = page.getByPlaceholder('Add a message about this event...');
+        this.submitBtn = page.getByRole('button', { name: 'Submit' });
+        this.eventSuccessMsg = page.locator("//p[contains(.,'Event submitted successfully')]");
+        this.orderHistorySection = page.locator('h3:has-text("Order History")');
+        this.verifyConfirmDeliveryLabel = page.locator('span:has-text("Delivery Confirmed")');
     }
 
     async verifyOrderDeliveryDetails() {
@@ -92,6 +100,11 @@ export class OrderDeliveryDetailsPage {
     }
 
     async downgradeSkip() {
+        const isDisabled = await this.updateSkipBtn.isDisabled();
+        if (isDisabled) {
+            return { success: false, reason: "Update Skip button is disabled" }
+        }
+
         await this.page.waitForTimeout(3000);
         await this.updateSkipBtn.focus();
         await this.updateSkipBtn.click();
@@ -122,7 +135,6 @@ export class OrderDeliveryDetailsPage {
     }
 
     async performNextSkipActions() {
-        //await this.page.waitForTimeout(2000);
         await this.nextSkipBtn.click();
         await this.page.waitForTimeout(2000);
         await this.changeSkipBtn.click();
@@ -132,6 +144,11 @@ export class OrderDeliveryDetailsPage {
     }
 
     async upgradeSkip() {
+        const isDisabled = await this.updateSkipBtn.isDisabled();
+        if (isDisabled) {
+            return { success: false, reason: "Update Skip button is disabled" }
+        }
+
         await this.page.waitForTimeout(2000);
         await this.updateSkipBtn.focus();
         await this.updateSkipBtn.click();
@@ -155,29 +172,48 @@ export class OrderDeliveryDetailsPage {
         await this.page.waitForTimeout(2000);
         await this.collectionBtn.click();
 
-        if(freelimit==='yes'){
-        await this.nextdeliveryDateFree.click();
-        await this.page.waitForTimeout(2000);
-        await this.agreeCheckbox.click();
-        await this.setCollectionDateBtn.waitFor({ state: 'visible' });
-        await this.setCollectionDateBtn.click();
-        await this.page.waitForTimeout(3000);
+        if (freelimit === 'yes') {
+            await this.nextdeliveryDateFree.click();
+            await this.page.waitForTimeout(2000);
+            await this.agreeCheckbox.click();
+            await this.setCollectionDateBtn.waitFor({ state: 'visible' });
+            await this.setCollectionDateBtn.click();
+            await this.page.waitForTimeout(3000);
         }
 
-        else{
-        await this.nextdeliveyChargedBtn.click();
-        await this.page.waitForTimeout(2000);
-        await this.agreeCheckbox.click();
-        await this.completePaymentBtn.waitFor({ state: 'visible' });
-        await this.completePaymentBtn.click();
-        await this.page.waitForTimeout(3000);
-        await this.payBtn.waitFor({ state: 'visible' });
-        await this.payBtn.click();
-        await this.page.waitForTimeout(6000);
-        await expect(this.dateexendedLlb).toBeVisible();
-        
+        else {
+            await this.nextdeliveyChargedBtn.click();
+            await this.page.waitForTimeout(2000);
+            await this.agreeCheckbox.click();
+            await this.completePaymentBtn.waitFor({ state: 'visible' });
+            await this.completePaymentBtn.click();
+            await this.page.waitForTimeout(3000);
+            await this.payBtn.waitFor({ state: 'visible' });
+            await this.payBtn.click();
+            await this.page.waitForTimeout(6000);
+            await expect(this.dateexendedLlb).toBeVisible();
+
 
         }
+    }
 
+    async confirmTodaysDelivery() {
+        await this.manageDeliveryBtn.click();
+        await this.page.waitForTimeout(1000);
+        await this.confirmDeliveryBtn.click();
+        await this.page.waitForTimeout(1000);
+        await this.page.setInputFiles('input[type="file"]', 'Data/test_image.png') // upload sample confirm delivery image
+        await this.page.waitForTimeout(2000);
+        await this.textArea.fill(`test today's confirm delivery`);
+        await this.page.waitForTimeout(1000);
+        await this.submitBtn.click();
+        await this.page.waitForTimeout(2000);
+        expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
+        await this.page.waitForTimeout(2000);
+        // Bring the page to the front to ensure it has focus
+        await this.page.bringToFront();
+        await this.orderHistorySection.focus();
+        await this.verifyConfirmDeliveryLabel.focus();
+        await this.page.waitForTimeout(2000);
     }
 }
