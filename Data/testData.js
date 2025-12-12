@@ -1,5 +1,9 @@
 export const TestData = {
   baseURL: 'https://develop.wewantwaste.co.uk/',
+  authCredentials: {
+    authUserName: 'developer',
+    authPassword: 'Wewantwaste11dec'
+  },
   credentials: {
     username: 'navin@yopmail.com',
     password: 'P@ssw0rd'

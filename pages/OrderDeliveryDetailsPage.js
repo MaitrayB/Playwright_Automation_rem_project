@@ -56,6 +56,9 @@ export class OrderDeliveryDetailsPage {
         this.submitBtn = page.getByRole('button', { name: 'Submit' });
         this.eventSuccessMsg = page.locator("//p[contains(.,'Event submitted successfully')]");
         this.verifyConfirmDeliveryLabel = page.locator('span:has-text("Delivery Confirmed")');
+
+        this.missedDeliveryBtn = page.getByRole('button', { name: 'Missed Delivery' });
+        this.verifyMissedDeliveryLabel = page.locator('span:has-text("Missed Delivery")');
     }
 
     async verifyOrderDeliveryDetails() {
@@ -191,8 +194,6 @@ export class OrderDeliveryDetailsPage {
             await this.payBtn.click();
             await this.page.waitForTimeout(6000);
             await expect(this.dateexendedLlb).toBeVisible();
-
-
         }
     }
 
@@ -201,13 +202,22 @@ export class OrderDeliveryDetailsPage {
         await this.page.waitForTimeout(1000);
         await this.confirmDeliveryBtn.click();
         await this.page.waitForTimeout(1000);
-        await this.page.setInputFiles('input[type="file"]', 'Data/test_image.png') // upload sample confirm delivery image
+        await this.page.setInputFiles('input[type="file"]', 'Data/test_image.png') // upload confirm delivery image
         await this.page.waitForTimeout(2000);
-        await this.textArea.fill(`test today's confirm delivery`);
+        await this.textArea.fill(`Today's delivery confirmed`);
         await this.page.waitForTimeout(1000);
         await this.submitBtn.click();
         await this.page.waitForTimeout(2000);
         expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
         await this.page.waitForTimeout(2000);
+    }
+
+    async missedDelivery() {
+        await this.manageDeliveryBtn.click();
+        await this.missedDeliveryBtn.click();
+        await this.page.setInputFiles('input[type="file"]', 'Data/missed_delivery.png')// upload missed delivery image
+        await this.textArea.fill('Missed Delivery');
+        await this.submitBtn.click();
+        expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
     }
 }

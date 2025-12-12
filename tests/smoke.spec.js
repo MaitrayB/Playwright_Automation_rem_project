@@ -12,17 +12,98 @@ import { log } from 'console';
 
 const csvPath = './Data/testData.csv';
 
-test.describe('Confirm Delivery', () => {
+test.describe('Missed Delivery', () => {
   test.setTimeout(180000); // 3 minutes
-  //let orderPage, dashboardPage, orderDeliverDetailsPage;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
+
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      }
+    });
+
     const page = await context.newPage();
 
-    // orderPage = new OrderPage(page);
-    // dashboardPage = new DashboardPage(page);
-    // orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    test.context = context;
+    test.page = page;
+  });
+
+  test(`Missed Delivery for today's date`, async () => {
+    const page = test.page;
+    const orderPage = new OrderPage(page);
+    const dashboardPage = new DashboardPage(page);
+    const loginPage = new LoginPage(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
+
+
+    console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Choose date', async () => {
+      const dayNumber = new Date().getDate();
+      console.log(`Today's day number is: ${dayNumber}`);
+      await orderPage.chooseStaticDate(dayNumber);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate and verify dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step(`Confirm and verify today's delivery`, async () => {
+      await orderDeliveryDetailsPage.missedDelivery();
+      await orderDeliveryDetailsPage.verifyMissedDeliveryLabel.scrollIntoViewIfNeeded();
+      await expect(orderDeliveryDetailsPage.verifyMissedDeliveryLabel).toBeVisible();
+    });
+
+  });
+});
+
+test.describe('Confirm Delivery', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test.beforeEach(async ({ browser }) => {
+
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true //If organization uses advanced NTLM/Kerberos
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -36,7 +117,7 @@ test.describe('Confirm Delivery', () => {
     const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
 
 
-    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+    console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto();
     await loginPage.login(TestData.credentials.username, TestData.credentials.password);
@@ -81,6 +162,7 @@ test.describe('Confirm Delivery', () => {
 
     await test.step(`Confirm and verify today's delivery`, async () => {
       await orderDeliveryDetailsPage.confirmTodaysDelivery();
+      await orderDeliveryDetailsPage.verifyConfirmDeliveryLabel.scrollIntoViewIfNeeded();
       await expect(orderDeliveryDetailsPage.verifyConfirmDeliveryLabel).toBeVisible();
     });
 
@@ -89,15 +171,18 @@ test.describe('Confirm Delivery', () => {
 
 test.describe('Request collection outside 3 days free limit and pay for difference', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -108,7 +193,7 @@ test.describe('Request collection outside 3 days free limit and pay for differen
     const orderPage = new OrderPage(page);
     const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
-    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
 
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
@@ -155,7 +240,7 @@ test.describe('Request collection outside 3 days free limit and pay for differen
     });
 
     await test.step('Request collection', async () => {
-      await orderDeliverDetailsPage.requestCollection({ freelimit: "no" });
+      await orderDeliveryDetailsPage.requestCollection({ freelimit: "no" });
     });
 
   });
@@ -163,15 +248,18 @@ test.describe('Request collection outside 3 days free limit and pay for differen
 
 test.describe('Request collection within 3 days free limit', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -182,7 +270,7 @@ test.describe('Request collection within 3 days free limit', () => {
     const orderPage = new OrderPage(page);
     const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
-    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
 
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
@@ -229,7 +317,7 @@ test.describe('Request collection within 3 days free limit', () => {
     });
 
     await test.step('Request collection', async () => {
-      await orderDeliverDetailsPage.requestCollection({ freelimit: "yes" });
+      await orderDeliveryDetailsPage.requestCollection({ freelimit: "yes" });
     });
 
   });
@@ -239,7 +327,15 @@ test.describe('Upgrade skip', async () => {
   test.setTimeout(180000); // 3 minutes
 
   test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
+
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
     const page = await context.newPage();
 
     test.context = context;
@@ -275,7 +371,15 @@ test.describe('Downgrade skip', async () => {
   test.setTimeout(180000); // 3 minutes
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
+
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
     const page = await context.newPage();
 
     test.context = context;
@@ -288,6 +392,7 @@ test.describe('Downgrade skip', async () => {
     const profilesettingpage = new ProfileSettingsPage(page);
     const dashboardPage = new DashboardPage(page);
     const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
+
     await test.step('Go to profile settings', async () => {
       await loginpage.goto();
       await loginpage.login(TestData.credentials.username, TestData.credentials.password);
@@ -308,20 +413,27 @@ test.describe('Downgrade skip', async () => {
 test.describe('Edit User Profile', async () => {
   test.setTimeout(180000); // 3 minutes
 
-  let profilesettingpage, loginpage;
+
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
+
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
     const page = await context.newPage();
 
     test.context = context;
     test.page = page;
-    loginpage = new LoginPage(page);
-    profilesettingpage = new ProfileSettingsPage(page);
-
   });
 
   test('Edit profile settings', async () => {
+    const loginpage = new LoginPage(page);
+    const profilesettingpage = new ProfileSettingsPage(page);
 
     await test.step('Go to profile settings', async () => {
       await loginpage.goto();
@@ -338,16 +450,18 @@ test.describe('Edit User Profile', async () => {
 
 test.describe('Place an order for Wrong Skip Guarantee', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, skipType, genFunctions;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    genFunctions = new genericFunctions(page);
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -359,7 +473,7 @@ test.describe('Place an order for Wrong Skip Guarantee', () => {
     const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
-    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
     const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
@@ -411,12 +525,12 @@ test.describe('Place an order for Wrong Skip Guarantee', () => {
 
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
-      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
-      await expect(orderDeliverDetailsPage.verifyWrongSkipGuaranteeLabel).toBeVisible();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+      await expect(orderDeliveryDetailsPage.verifyWrongSkipGuaranteeLabel).toBeVisible();
     });
 
     await test.step('Add 2 Tonne Bags from order details', async () => {
-      await orderDeliverDetailsPage.addTonneBag();
+      await orderDeliveryDetailsPage.addTonneBag();
     });
 
     await test.step('Order Placement Email Verification', async () => {
@@ -431,16 +545,18 @@ test.describe('Place an order for Wrong Skip Guarantee', () => {
 
 test.describe('Place order and add 2 Tonne bags', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, genFunctions, skipType;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    genFunctions = new genericFunctions(page);
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -452,7 +568,7 @@ test.describe('Place order and add 2 Tonne bags', () => {
     const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
-    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
     const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
@@ -501,11 +617,11 @@ test.describe('Place order and add 2 Tonne bags', () => {
 
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
-      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
 
     await test.step('Add 2 Tonne Bags from order details', async () => {
-      await orderDeliverDetailsPage.addTonneBag();
+      await orderDeliveryDetailsPage.addTonneBag();
     });
 
     await test.step('Order Placement Email Verification', async () => {
@@ -520,16 +636,18 @@ test.describe('Place order and add 2 Tonne bags', () => {
 
 test.describe('Change billing address and place order', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, genFunctions;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    genFunctions = new genericFunctions(page);
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -541,7 +659,7 @@ test.describe('Change billing address and place order', () => {
     const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
-    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
     const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
@@ -595,7 +713,7 @@ test.describe('Change billing address and place order', () => {
 
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
-      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
 
 
@@ -611,16 +729,18 @@ test.describe('Change billing address and place order', () => {
 
 test.describe('Place order and add Road permit', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, genFunctions;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    genFunctions = new genericFunctions(page);
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -632,7 +752,7 @@ test.describe('Place order and add Road permit', () => {
     const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
-    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
     const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
@@ -681,11 +801,11 @@ test.describe('Place order and add Road permit', () => {
 
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
-      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
 
     await test.step('Add road permit from order details', async () => {
-      await orderDeliverDetailsPage.addRoadPermit();
+      await orderDeliveryDetailsPage.addRoadPermit();
     });
 
     await test.step('Order Placement Email Verification', async () => {
@@ -700,15 +820,18 @@ test.describe('Place order and add Road permit', () => {
 
 test.describe('Start order as guest and logs in with existing account', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -720,8 +843,8 @@ test.describe('Start order as guest and logs in with existing account', () => {
     const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
-    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    const orderPlacementEmailVer = new OrderPlacementEmailVerification(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
+    const genFunctions = new genericFunctions(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -769,31 +892,33 @@ test.describe('Start order as guest and logs in with existing account', () => {
 
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
-      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
 
     await test.step('Order Placement Email Verification', async () => {
       const emailId = await signUpPage.fillSignUpFormExistingUser();
       console.log(`print email id from SignUp Class: ${emailId}`);
-      await orderPlacementEmailVer.goToYopmail();
-      await orderPlacementEmailVer.accessInbox(emailId);
-      await orderPlacementEmailVer.checkOrderEmailReceived(orderPage);
+      await genFunctions.goToYopmail();
+      await genFunctions.accessInbox(emailId);
+      await genFunctions.checkOrderEmailReceived(orderPage);
     });
   });
 });
 
 test.describe('Place an order as Guest User', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage, genFunctions;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    genFunctions = new genericFunctions(page);
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -805,8 +930,7 @@ test.describe('Place an order as Guest User', () => {
     const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
-    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
-    const genFunctions = new genericFunctions(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -857,22 +981,25 @@ test.describe('Place an order as Guest User', () => {
 
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
-      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
   });
 });
 
 test.describe('Place an order as Logged-in User', () => {
   test.setTimeout(180000); // 3 minutes
-  let orderPage, dashboardPage, orderDeliverDetailsPage;
 
   test.beforeEach(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    orderPage = new OrderPage(page);
-    dashboardPage = new DashboardPage(page);
-    orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const context = await browser.newContext({
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+
+    const page = await context.newPage();
 
     test.context = context;
     test.page = page;
@@ -884,7 +1011,7 @@ test.describe('Place an order as Logged-in User', () => {
     const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
     const signUpPage = new SignUpPage(page);
-    const orderDeliverDetailsPage = new OrderDeliveryDetailsPage(page);
+    const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -936,7 +1063,7 @@ test.describe('Place an order as Logged-in User', () => {
 
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
-      await orderDeliverDetailsPage.verifyOrderDeliveryDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
   });
 });
