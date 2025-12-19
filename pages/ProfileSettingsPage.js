@@ -1,6 +1,18 @@
 import { expect } from "allure-playwright";
+/*
+Below 2 TYPEDEF lines you need for:
+✔ VS Code IntelliSense
+✔ Cmd + Click navigation
+✔ Proper type inference for page
+✔ Method autocomplete in test files
+*/
+/** 
+ * @typedef {import('@playwright/test').Page} Page
+ * @typedef {import('@playwright/test').Locator} Locator 
+ */
 
 export class ProfileSettingsPage {
+    /** @param {Page} page */
     constructor(page) {
         this.page = page;
         this.profileDropdown = page.locator("//div[@class='relative']//button");

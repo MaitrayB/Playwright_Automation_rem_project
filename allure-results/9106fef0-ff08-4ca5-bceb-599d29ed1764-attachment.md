@@ -1,0 +1,179 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e6]:
+    - generic [ref=e8]:
+      - img "We Want Waste" [ref=e9]
+      - button "Navin Shah navin@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Navin Shah
+          - paragraph [ref=e14]: navin@yopmail.com
+        - img [ref=e15]
+  - main [ref=e17]:
+    - generic [ref=e18]:
+      - button "Back to Orders" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Back to Orders
+      - generic [ref=e23]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - img [ref=e28]
+            - generic [ref=e31]:
+              - generic [ref=e32]:
+                - 'heading "Order #1915" [level=1] [ref=e33]'
+                - button "Send Message" [ref=e34] [cursor=pointer]:
+                  - img [ref=e35]
+                  - generic [ref=e38]: Send Message
+              - generic [ref=e39]:
+                - img [ref=e40]
+                - generic [ref=e43]: Delivering today
+          - generic [ref=e45]:
+            - generic [ref=e47]: Booked
+            - button [ref=e49] [cursor=pointer]:
+              - img [ref=e50]
+        - generic [ref=e56]:
+          - button "Manage Delivery" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+            - generic [ref=e63]: Manage Delivery
+          - button "Manage Collection" [ref=e64] [cursor=pointer]:
+            - img [ref=e65]
+            - generic [ref=e68]: Manage Collection
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - heading "Delivery Details" [level=3] [ref=e72]
+            - generic [ref=e73]:
+              - generic [ref=e74]:
+                - img [ref=e75]
+                - generic [ref=e78]:
+                  - generic [ref=e79]: Delivery Address
+                  - generic [ref=e80]: 46 Griggs Road, Loughborough
+                  - generic [ref=e81]: LE11 2LL
+              - generic [ref=e82]:
+                - img [ref=e83]
+                - generic [ref=e85]:
+                  - generic [ref=e86]: Delivery & Collection
+                  - generic [ref=e87]:
+                    - paragraph [ref=e88]: "Delivery: 19 Dec 2025"
+                    - paragraph [ref=e89]: "Collection: 26 Dec 2025"
+          - generic [ref=e90]:
+            - heading "Skip Details" [level=3] [ref=e92]
+            - generic [ref=e93]:
+              - generic [ref=e95]: 6 yarder skip
+              - generic [ref=e96]:
+                - heading "Waste Categories" [level=3] [ref=e97]
+                - generic [ref=e99]:
+                  - img [ref=e101]
+                  - generic [ref=e104]:
+                    - generic [ref=e105]: Household Waste
+                    - generic [ref=e106]: General household items and furniture
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - heading "Customer Information" [level=3] [ref=e109]
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - img [ref=e112]
+                - generic [ref=e115]:
+                  - generic [ref=e116]: Name
+                  - generic [ref=e117]: Navin Shah
+              - generic [ref=e118]:
+                - img [ref=e119]
+                - generic [ref=e122]:
+                  - generic [ref=e123]: Email
+                  - generic [ref=e124]: navin@yopmail.com
+              - generic [ref=e125]:
+                - img [ref=e126]
+                - generic [ref=e128]:
+                  - generic [ref=e129]: Phone
+                  - generic [ref=e130]: "1333444333"
+          - generic [ref=e131]:
+            - heading "Site Contact" [level=3] [ref=e132]
+            - generic [ref=e133]:
+              - img [ref=e134]
+              - generic [ref=e136]:
+                - generic [ref=e137]: Same as Customer
+                - generic [ref=e138]: Site contact information is the same as customer information
+        - generic [ref=e139]:
+          - generic [ref=e140]:
+            - img [ref=e141]
+            - heading "Order Images" [level=3] [ref=e145]
+          - button "Add Images" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+            - generic [ref=e148]: Add Images
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - heading "Order Items" [level=2] [ref=e152]
+            - button "Add Item" [disabled] [ref=e153]:
+              - img [ref=e154]
+              - generic [ref=e155]: Add Item
+          - paragraph [ref=e157]: Order editing is only available 24 hours before delivery. Your skip will be delivered on 12/19/2025.
+          - generic [ref=e158]:
+            - generic [ref=e159]:
+              - generic [ref=e160]:
+                - heading "6 Yard Skip" [level=3] [ref=e161]
+                - paragraph [ref=e162]: "Quantity: 1"
+              - generic [ref=e163]:
+                - paragraph [ref=e164]: £266.00
+                - paragraph [ref=e165]: £266.00 each
+                - button "Update Skip" [disabled] [ref=e166]
+            - generic [ref=e167]:
+              - generic [ref=e168]:
+                - generic [ref=e169]: Subtotal (excl. VAT)
+                - generic [ref=e170]: £266.00
+              - generic [ref=e171]:
+                - generic [ref=e172]: VAT (20%)
+                - generic [ref=e173]: £53.20
+              - generic [ref=e174]:
+                - generic [ref=e175]: Total
+                - generic [ref=e176]: £319.20
+        - generic [ref=e177]:
+          - generic [ref=e178]:
+            - img [ref=e179]
+            - heading "Order History" [level=3] [ref=e182]
+          - generic [ref=e183]:
+            - generic [ref=e186]:
+              - button "All events" [ref=e187] [cursor=pointer]:
+                - img [ref=e188]
+                - generic [ref=e191]: All events
+              - button "Messages" [ref=e192] [cursor=pointer]:
+                - img [ref=e193]
+                - generic [ref=e196]: Messages
+            - generic [ref=e198]:
+              - img [ref=e200]
+              - generic [ref=e203]:
+                - generic [ref=e204]:
+                  - generic [ref=e205]:
+                    - generic [ref=e206]:
+                      - generic [ref=e207]: Collection Confirmed
+                      - generic [ref=e208]:
+                        - text: by Customer
+                        - generic [ref=e209]: (navin@yopmail.com)
+                    - paragraph [ref=e210]: Skip has been collected successfully!
+                  - generic [ref=e211]: 19 Dec 2025, 20:43
+                - generic [ref=e213]:
+                  - img [ref=e214]
+                  - generic [ref=e218]: skip_collected.png
+                  - generic [ref=e219]:
+                    - button "Preview in modal" [ref=e220] [cursor=pointer]:
+                      - img [ref=e221]
+                    - button "Open in new window" [ref=e224] [cursor=pointer]:
+                      - img [ref=e225]
+                    - button "Download document" [ref=e229] [cursor=pointer]:
+                      - img [ref=e230]
+            - generic [ref=e234]:
+              - img [ref=e236]
+              - generic [ref=e240]:
+                - generic [ref=e241]:
+                  - generic [ref=e242]:
+                    - generic [ref=e243]: Order Confirmed
+                    - generic [ref=e244]:
+                      - text: by Customer
+                      - generic [ref=e245]: (navin@yopmail.com)
+                  - paragraph [ref=e246]: Order created by customer, paid and confirmed
+                - generic [ref=e247]: 19 Dec 2025, 20:43
+        - generic [ref=e249]:
+          - img [ref=e252]
+          - paragraph [ref=e254]: Event submitted successfully
+          - button [ref=e256] [cursor=pointer]:
+            - img [ref=e257]
+```

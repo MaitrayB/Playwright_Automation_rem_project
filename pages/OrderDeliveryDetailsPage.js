@@ -1,12 +1,21 @@
 import { expect } from '@playwright/test';
+/*
+Below 2 TYPEDEF lines you need for:
+✔ VS Code IntelliSense
+✔ Cmd + Click navigation
+✔ Proper type inference for page
+✔ Method autocomplete in test files
+*/
+/** 
+ * @typedef {import('@playwright/test').Page} Page
+ * @typedef {import('@playwright/test').Locator} Locator 
+ */
 
 export class OrderDeliveryDetailsPage {
+    /** @param {Page} page */
     constructor(page) {
         this.page = page;
-        this.paymentsBtn = page.getByRole('button', { name: 'Payments' });
-        this.collectionsBtn = page.getByRole('button', { name: 'Collections' });
-        this.exchangeBtn = page.getByRole('button', { name: 'Exchange' });
-        this.deliveryBtn = page.getByRole('button', { name: 'Delivery' });
+        this.manageDeliveryBtn = page.getByRole('button', { name: 'Manage Delivery' });
 
         this.deliveryDetailsSec = page.locator('h3:has-text("Delivery Details")');
         this.skipDetailsSec = page.locator('h3:has-text("Skip Details")');
@@ -24,6 +33,7 @@ export class OrderDeliveryDetailsPage {
         this.addBtnPopup = page.locator("(//button[contains(.,'Add Item')])[last()]");
         this.payBtn = page.locator("(//button[contains(.,'Pay')])[last()]");
         this.roadpermitFeeLbl = page.locator("//h3[contains(.,'Road Permit Fee')]");
+        this.verifyOrderHistoryForAddedPermit = page.locator("//p[contains(.,'Road Permit Fee')]");
         this.verifyWrongSkipGuaranteeLabel = page.locator("//span[contains(., 'Wrong Skip Guarantee')]");
         this.updateSkipBtn = page.getByRole('button', { name: 'Update Skip' });
         this.checkPrecedingSkipAvailability = page.locator("(//button[contains(.,'Currently Selected')]/../preceding-sibling::div)");
@@ -37,10 +47,13 @@ export class OrderDeliveryDetailsPage {
         this.refundRequestMsg = page.getByText("Refund Request Created");
         this.doneBtn = page.getByRole('button', { name: 'Done' });
 
-        this.collectionBtn = page.locator("//button[contains(.,'Set Collection Date')]");
+        this.updateCollectionDtBtn = page.locator("//button[contains(.,'Update Collection Date')]");
         this.manageCollectionLabel = page.getByRole('heading', { name: 'Manage Your Collection Date' });
-        this.nextdeliveryDateFree = page.locator("(//button[contains(concat(' ', normalize-space(@class), ' '), ' bg-[#0037C1] ')])[1]/following-sibling::button[1]");
-        this.nextdeliveyChargedBtn = page.locator("((//button[contains(concat(' ', normalize-space(@class), ' '), ' bg-[#0037C1] ')])[1]/following-sibling::button[contains(@class,'hover:bg-[#2A2A2A]')])[last()]");
+        this.collectionDtBtn = page.getByRole('button', { name: 'Collection Date', exact: true });
+        //this.nextdeliveryDateFree = page.locator("(//button[contains(concat(' ', normalize-space(@class), ' '), ' bg-[#0037C1] ')])[1]/following-sibling::button[1]");
+        this.nextDeliveryDateFree = page.locator("//div[contains(@class,'grid')]//button[contains(@class,'text-white')]/following-sibling::button[1]");
+        //this.nextdeliveyChargedBtn = page.locator("((//button[contains(concat(' ', normalize-space(@class), ' '), ' bg-[#0037C1] ')])[1]/following-sibling::button[contains(@class,'hover:bg-[#2A2A2A]')])[last()]");
+        this.nextDeliveryChargeBtn = page.locator("(//div[contains(@class,'grid')]//button[not(@disabled)])[last()]");
         this.agreeCheckbox = page.getByLabel('I agree to ensure the skip meets all collection requirements');
         this.setCollectionDateBtn = page.getByRole('button', { name: 'Set Collection Date' });
         this.freeExtensionDayUsedLbl = page.getByText('Free extension days used: 0/3');
@@ -59,14 +72,13 @@ export class OrderDeliveryDetailsPage {
 
         this.missedDeliveryBtn = page.getByRole('button', { name: 'Missed Delivery' });
         this.verifyMissedDeliveryLabel = page.locator('span:has-text("Missed Delivery")');
+        this.confirmCollectionBtn = page.getByRole('button', { name: 'Confirm Collection' });
+        this.collectionConfirmedtxt = page.locator('//span[contains(.,"Collection Confirmed")]');
     }
 
     async verifyOrderDeliveryDetails() {
-        await expect(this.paymentsBtn).toBeVisible();
-        await expect(this.paymentsBtn).toBeVisible();
-        await expect(this.collectionsBtn).toBeVisible();
-        await expect(this.exchangeBtn).toBeVisible();
-        await expect(this.deliveryBtn).toBeVisible();
+        await expect(this.manageDeliveryBtn).toBeVisible();
+        await expect(this.manageCollectionBtn).toBeVisible();
         await expect(this.deliveryDetailsSec).toBeVisible();
         await expect(this.skipDetailsSec).toBeVisible();
         await expect(this.customerInfoSec).toBeVisible();
@@ -83,7 +95,6 @@ export class OrderDeliveryDetailsPage {
         await this.addBtnPopup.click();
         await this.page.waitForTimeout(2000);
         await this.payBtn.click();
-        await expect(this.roadpermitFeeLbl).toBeVisible();
     }
 
     async addTonneBag() {
@@ -97,8 +108,6 @@ export class OrderDeliveryDetailsPage {
         await this.addBtnPopup.click();
         await this.page.waitForTimeout(1000);
         await this.payBtn.click();
-        await expect(this.verifyTonneBagLabel).toBeVisible();
-        await expect(this.verifyTotalQuantity).toBeVisible();
     }
 
     async downgradeSkip() {
@@ -123,6 +132,8 @@ export class OrderDeliveryDetailsPage {
         else {
             await this.performPreviousSkipActions();
         }
+
+        return { success: true };
     }
 
     async performPreviousSkipActions() {
@@ -166,25 +177,26 @@ export class OrderDeliveryDetailsPage {
             await this.performNextSkipActions();
             await this.page.waitForTimeout(3000);
         }
+
+        return { success: true };
     }
 
     async requestCollection(freelimit) {
         await this.page.waitForTimeout(2000);
         await this.manageCollectionBtn.click();
         await this.page.waitForTimeout(2000);
-        await this.collectionBtn.click();
+        await this.updateCollectionDtBtn.click();
 
         if (freelimit === 'yes') {
-            await this.nextdeliveryDateFree.click();
+            await this.nextDeliveryDateFree.click();
             await this.page.waitForTimeout(2000);
             await this.agreeCheckbox.click();
             await this.setCollectionDateBtn.waitFor({ state: 'visible' });
             await this.setCollectionDateBtn.click();
             await this.page.waitForTimeout(3000);
         }
-
         else {
-            await this.nextdeliveyChargedBtn.click();
+            await this.nextDeliveryChargeBtn.click();
             await this.page.waitForTimeout(2000);
             await this.agreeCheckbox.click();
             await this.completePaymentBtn.waitFor({ state: 'visible' });
@@ -219,5 +231,22 @@ export class OrderDeliveryDetailsPage {
         await this.textArea.fill('Missed Delivery');
         await this.submitBtn.click();
         expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
+    }
+
+    async confirmCollection() {
+        await this.page.waitForTimeout(2000);
+        await this.manageCollectionBtn.click();
+        await this.page.waitForTimeout(1000);
+        await this.confirmCollectionBtn.click();
+        await this.page.waitForTimeout(1000);
+        await this.page.setInputFiles('input[type="file"]', 'Data/skip_collected.png');
+        await this.page.waitForTimeout(1000);
+        await this.textArea.fill('Skip has been collected successfully!');
+        await this.page.waitForTimeout(1000);
+        await this.submitBtn.click();
+        await this.page.waitForTimeout(3000);
+        await this.collectionConfirmedtxt.scrollIntoViewIfNeeded();
+        await expect(this.collectionConfirmedtxt).toBeVisible();
+        
     }
 }

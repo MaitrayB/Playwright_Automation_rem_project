@@ -11,11 +11,11 @@ export class genericFunctions {
     async goToYopmail() {
         await this.page.waitForTimeout(3000);
         await this.page.goto("https://yopmail.com/en/");
-        await this.page.waitForTimeout(2000);
+        // await this.page.waitForLoadState("networkidle");
     }
 
     async accessInbox(emailId) {
-        await this.inputEmail.waitFor({ state: 'visible', timeout: 4000 });
+        await this.page.waitForSelector('.ycptinput', { state: 'visible' });
         await this.inputEmail.click();
         await this.inputEmail.fill(emailId);
         await this.inboxBtn.click();

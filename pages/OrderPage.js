@@ -1,6 +1,19 @@
 import { expect } from '@playwright/test';
+import { stat } from 'fs';
+/*
+Below 2 TYPEDEF lines you need for:
+✔ VS Code IntelliSense
+✔ Cmd + Click navigation
+✔ Proper type inference for page
+✔ Method autocomplete in test files
+*/
+/** 
+ * @typedef {import('@playwright/test').Page} Page
+ * @typedef {import('@playwright/test').Locator} Locator 
+ */
 
 export class OrderPage {
+  /** @param {Page} page */
   constructor(page) {
 
     this.page = page;
@@ -35,7 +48,7 @@ export class OrderPage {
     this.toneBagtile = page.locator('(//div[contains(.,"Use Tonne Bags")])[last()]');
     this.nextArrowIcon = page.locator('.p-2 > div:nth-child(2) > div > button')
     this.privatePropertyBtn = page.getByRole('button', { name: 'Private Property Driveway or' });
-    this.dateBtn = page.getByRole('button', { name: '30' });
+    this.dateBtn = page.getByRole('button', { name: '30', exact: true });
     this.skipCheckbox = page.getByText('Skip this step to upload a photo');
 
     this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
@@ -54,6 +67,7 @@ export class OrderPage {
     this.cvc = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-cvcInput"]');
 
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
+    this.placeOrderBtn = page.getByRole('button', { name: 'Place Order' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
 
     //billing address change locators
@@ -67,13 +81,10 @@ export class OrderPage {
 
     this.noskipMsg = page.locator("//p[contains(.,'No skips available')]");
     this.roadplacementNoticeMsg = page.locator("//h4[contains(.,'Road Placement Not Available')]");
-
-
   }
 
   //Postcode selection
   async enterPostcode(postcode) {
-    //await this.page.waitForLoadState('networkidle');
     await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
     //await this.page.getByRole('button').nth(3).click();
@@ -89,11 +100,9 @@ export class OrderPage {
       await this.streetInput.fill('Main Street');
     }
 
-
     if (await this.houseNoInput.inputValue() === '') {
       await this.houseNoInput.fill('123');
     }
-
 
     await this.continueBtn.click();
     await this.page.waitForTimeout(1000);
@@ -157,8 +166,9 @@ export class OrderPage {
   async selectSkip(skipSize, Plasterboard, ToneBag, SelfDispose) {
 
     //skip current test if skip is not available for selection
-    if (await this.noskipMsg.isVisible()) {
-      test.skip('No skip available for this selection — skipping test.');
+    const isVisible = await this.noskipMsg.isVisible();
+    if (isVisible) {
+      return { success: false, reason: "No skip available for the selection" }
     }
 
     this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
@@ -199,7 +209,7 @@ export class OrderPage {
       }
     }
     this.skipValue = skipSize;
-    return this.skipValue;
+    return [this.skipValue, { success: true }];
   }
 
   async wrongSkipSelection() {
@@ -258,7 +268,7 @@ export class OrderPage {
   async chooseDate(Day) {
 
     await this.calendarNextArrow.click();
-    this.dateBtn = this.page.getByRole('button', { name: Day });
+    this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
     await this.page.waitForTimeout(3000);
 
     if (await this.dateBtn.isDisabled()) {
@@ -286,9 +296,9 @@ export class OrderPage {
     this.dateBtn = this.page.getByRole('button', { name: Day });
     await this.page.waitForTimeout(3000);
 
-    
-      await this.dateBtn.click();
-    
+
+    await this.dateBtn.click();
+
 
     await this.continueBtn.click();
 
@@ -334,7 +344,7 @@ export class OrderPage {
   }
 
   async completePayment() {
-    await this.page.waitForTimeout(5000);
+    await this.page.waitForTimeout(2000);
     if (await this.cardNumberLocator.isVisible()) {
       await this.cardNumberLocator.fill('4111 1111 1111 1111');
       await this.expiryDate.fill('12/34');
@@ -343,6 +353,10 @@ export class OrderPage {
     }
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
+
+    if (await this.placeOrderBtn.isVisible()) {
+      await this.placeOrderBtn.click();
+    }
 
     await this.completePaymentBtn.waitFor({ state: 'visible' });
     await this.completePaymentBtn.click();

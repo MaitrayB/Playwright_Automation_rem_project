@@ -3,8 +3,20 @@ import { faker, Faker } from "@faker-js/faker";
 import { TestData } from "../Data/TestData";
 import { log } from "console";
 import { LoginPage } from "./LoginPage";
+/*
+Below 2 TYPEDEF lines you need for:
+✔ VS Code IntelliSense
+✔ Cmd + Click navigation
+✔ Proper type inference for page
+✔ Method autocomplete in test files
+*/
+/** 
+ * @typedef {import('@playwright/test').Page} Page
+ * @typedef {import('@playwright/test').Locator} Locator 
+ */
 
 export class SignUpPage {
+    /** @param {Page} page */
     constructor(page) {
         this.page = page;
 
