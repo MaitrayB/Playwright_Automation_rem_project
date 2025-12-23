@@ -58,6 +58,7 @@ export class OrderPage {
     this.notsureBtn = page.getByRole('button', { name: 'Unsure We will check for you We\'ll determine if a permit is needed' });
 
     this.noBtn = page.locator('//button[contains(.,"No")]');
+    this.upholsteredFurnitureNoBtn = page.locator("//h3[contains(.,'Do you have any')]/../..//button[contains(.,'No')]");
 
     this.calendarNextArrow = page.getByRole('button', { name: '→' })
 
@@ -299,12 +300,11 @@ export class OrderPage {
 
     await this.dateBtn.click();
 
-
     await this.continueBtn.click();
 
     await this.page.waitForTimeout(3000);
-    if (await this.noBtn.isVisible()) {
-      await this.noBtn.click();
+    if (await this.upholsteredFurnitureNoBtn.isVisible()) {
+      await this.upholsteredFurnitureNoBtn.click();
     }
 
     await this.page.waitForTimeout(5000);

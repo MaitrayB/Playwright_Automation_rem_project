@@ -74,6 +74,13 @@ export class OrderDeliveryDetailsPage {
         this.verifyMissedDeliveryLabel = page.locator('span:has-text("Missed Delivery")');
         this.confirmCollectionBtn = page.getByRole('button', { name: 'Confirm Collection' });
         this.collectionConfirmedtxt = page.locator('//span[contains(.,"Collection Confirmed")]');
+
+        //missed collection object
+        this.confirmCollectionBtn = page.getByRole('button', { name: 'Confirm Collection' });
+        this.collectionConfirmedtxt = page.locator('//span[contains(.,"Collection Confirmed")]');
+        this.missedCollectionBtn = page.getByRole('button', { name: 'Missed Collection' });
+        this.verifyMissedCollectionLabel = page.locator('span:has-text("Missed Collection")');
+
     }
 
     async verifyOrderDeliveryDetails() {
@@ -249,4 +256,18 @@ export class OrderDeliveryDetailsPage {
         await expect(this.collectionConfirmedtxt).toBeVisible();
         
     }
+
+    async missedCollection() {
+        await this.page.waitForTimeout(2000);
+        await this.manageCollectionBtn.click();
+        await this.page.waitForTimeout(1000);
+        await this.missedCollectionBtn.click();
+        await this.page.waitForTimeout(1000);
+        await this.page.setInputFiles('input[type="file"]', 'Data/missed_delivery.png'); // upload missed collection image
+        await this.textArea.fill('Missed Collection');
+        await this.submitBtn.click();
+        await this.page.waitForTimeout(2000);
+        expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
+    }
+
 }

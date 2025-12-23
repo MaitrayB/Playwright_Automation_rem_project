@@ -47,6 +47,64 @@ test.beforeEach(async ({ browser }, testInfo) => {
   testInfo.page = page;
 });
 
+
+test.describe('Missed Collection', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test(`Missed Collection for today's date`, async () => {
+
+    console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Choose date', async () => {
+      const dayNumber = new Date().getDate();
+      console.log(`Today's day number is: ${dayNumber}`);
+      await orderPage.chooseStaticDate(dayNumber);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate and verify dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step(`Confirm and verify missed collection`, async () => {
+      await orderDeliveryDetailsPage.missedCollection();
+      await orderDeliveryDetailsPage.verifyMissedCollectionLabel.scrollIntoViewIfNeeded();
+      await expect(orderDeliveryDetailsPage.verifyMissedCollectionLabel).toBeVisible();
+    });
+
+  });
+});
+
 test.describe('Confirm Collection', () => {
   test.setTimeout(180000); // 3 minutes
 
@@ -109,7 +167,6 @@ test.describe('Confirm Collection', () => {
 
   });
 });
-
 
 test.describe('Missed Delivery', () => {
   test.setTimeout(180000); // 3 minutes
