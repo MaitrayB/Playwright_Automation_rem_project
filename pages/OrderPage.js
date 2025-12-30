@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test';
+import { faker, Faker } from "@faker-js/faker";
 import { stat } from 'fs';
 /*
 Below 2 TYPEDEF lines you need for:
@@ -67,9 +68,23 @@ export class OrderPage {
     this.expiryDate = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-expiryInput"]');
     this.cvc = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-cvcInput"]');
 
+    // Site contact
+    this.siteContactLblOnPymtForm = page.getByText('Site Contact', { exact: true });
+    this.textBelowSiteContactLbl = page.getByText('Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?');
+    this.yesSiteContactBtn = page.getByRole('button', { name: 'Yes' });
+    this.contactListDropDown = page.locator("//button[contains(@class,'text-white flex items-center')]");
+    this.dropDownTextforYesBtn = page.getByText('Add other site contact');
+    this.addNameInput = page.getByPlaceholder('Enter site contact name');
+    this.addPhoneInput = page.getByPlaceholder('Enter site contact phone');
+    this.addEmailInput = page.getByPlaceholder('Enter site contact email');
+
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.placeOrderBtn = page.getByRole('button', { name: 'Place Order' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
+    this.firstName;
+    this.phoneNum;
+    this.emailAdd;
+    this.userNameAndPhone;
 
     //billing address change locators
     this.billingaddresschangeCheckbox = page.locator("//div[contains(.,'Billing address is same')]/preceding-sibling::input[@type='checkbox']");
@@ -291,12 +306,9 @@ export class OrderPage {
     await this.page.waitForTimeout(5000);
   }
 
-
   async chooseStaticDate(Day) {
-
     this.dateBtn = this.page.getByRole('button', { name: Day });
     await this.page.waitForTimeout(3000);
-
 
     await this.dateBtn.click();
 
@@ -306,8 +318,7 @@ export class OrderPage {
     if (await this.upholsteredFurnitureNoBtn.isVisible()) {
       await this.upholsteredFurnitureNoBtn.click();
     }
-
-    await this.page.waitForTimeout(5000);
+    await this.page.waitForTimeout(3000);
   }
 
   async changeBillingAddress() {
@@ -351,15 +362,28 @@ export class OrderPage {
       await this.cvc.fill('123');
       await this.page.waitForTimeout(2000);
     }
+    // Site Contact code
+    if (await this.dropDownTextforYesBtn.isVisible()) {
+      await this.dropDownTextforYesBtn.click();
+      this.phoneNum = "1888999393";
+      await this.addNameInput.fill(faker.person.firstName());
+      this.firstName = await this.addNameInput.inputValue();
+      await this.addPhoneInput.fill(this.phoneNum);
+      await this.addEmailInput.fill(`${this.firstName}_${this.phoneNum}@yopmail.com`);
+      this.emailAdd = await this.addEmailInput.inputValue();
+    }
+    else {
+      this.userNameAndPhone = await this.contactListDropDown.textContent();
+      this.firstName = this.userNameAndPhone.split(" • ");
+    }
+    //
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
 
     if (await this.placeOrderBtn.isVisible()) {
       await this.placeOrderBtn.click();
     }
-
     await this.completePaymentBtn.waitFor({ state: 'visible' });
     await this.completePaymentBtn.click();
-
   }
 }

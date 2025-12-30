@@ -1,2 +1,0 @@
-🎯 Selected row index: 186 📦 Postcode: U5 9DJ, WasteType: Construction Waste
-🧾 Running Guest flow for:  U5 9DJ, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Grass verge

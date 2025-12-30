@@ -75,11 +75,17 @@ export class OrderDeliveryDetailsPage {
         this.confirmCollectionBtn = page.getByRole('button', { name: 'Confirm Collection' });
         this.collectionConfirmedtxt = page.locator('//span[contains(.,"Collection Confirmed")]');
 
-        //missed collection object
+        //missed collection objects
         this.confirmCollectionBtn = page.getByRole('button', { name: 'Confirm Collection' });
-        this.collectionConfirmedtxt = page.locator('//span[contains(.,"Collection Confirmed")]');
+        //this.collectionConfirmedtxt = page.locator('//span[contains(.,"Collection Confirmed")]');
         this.missedCollectionBtn = page.getByRole('button', { name: 'Missed Collection' });
         this.verifyMissedCollectionLabel = page.locator('span:has-text("Missed Collection")');
+
+        // Site Contact elements
+        this.siteContactCard = page.getByRole('heading', { name: 'Site Contact' });
+        this.newContactName = this.siteContactCard.locator('..').getByText('Name', { exact: true }).locator('..').locator('.text-gray-400');
+        this.newContactEmail = this.siteContactCard.locator('..').getByText('Email', { exact: true }).locator('..').locator('.text-gray-400');
+        this.newContactPhone = this.siteContactCard.locator('..').getByText('Phone', { exact: true }).locator('..').locator('.text-gray-400');
 
     }
 
@@ -254,7 +260,7 @@ export class OrderDeliveryDetailsPage {
         await this.page.waitForTimeout(3000);
         await this.collectionConfirmedtxt.scrollIntoViewIfNeeded();
         await expect(this.collectionConfirmedtxt).toBeVisible();
-        
+
     }
 
     async missedCollection() {
@@ -269,5 +275,4 @@ export class OrderDeliveryDetailsPage {
         await this.page.waitForTimeout(2000);
         expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
     }
-
 }

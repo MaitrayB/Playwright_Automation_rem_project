@@ -1,2 +1,0 @@
-🎯 Selected row index: 689 📦 Postcode: Y1X 8CJ, WasteType: Commercial Waste
-🧾 Running Guest flow for:  Y1X 8CJ, Commercial Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-4, Public Property

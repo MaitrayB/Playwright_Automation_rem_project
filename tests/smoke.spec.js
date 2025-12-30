@@ -47,6 +47,127 @@ test.beforeEach(async ({ browser }, testInfo) => {
   testInfo.page = page;
 });
 
+test.describe('Add site contact while placing an order', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test('Add site contact', async () => {
+
+    console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Choose date', async () => {
+      const dayNumber = new Date().getDate();
+      await orderPage.chooseStaticDate(dayNumber);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
+      await orderPage.yesSiteContactBtn.click();
+      await orderPage.contactListDropDown.click();
+      await expect(orderPage.siteContactLblOnPymtForm).toBeVisible();
+      await expect(orderPage.textBelowSiteContactLbl).toBeVisible();
+
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate to dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Navigate to View Order Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step('Verify new contact details', async () => {
+      expect(await orderDeliveryDetailsPage.siteContactCard.innerText()).toEqual("Site Contact");
+      expect(await orderDeliveryDetailsPage.newContactName.innerText()).toEqual(orderPage.firstName);
+      expect(await orderDeliveryDetailsPage.newContactEmail.innerText()).toEqual(orderPage.emailAdd)
+      expect(await orderDeliveryDetailsPage.newContactPhone.innerText()).toEqual(orderPage.phoneNum);
+    });
+  });
+});
+
+test.describe('Select existing site contact while placing an order', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test('Select site contact', async () => {
+
+    console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Choose date', async () => {
+      const dayNumber = new Date().getDate();
+      await orderPage.chooseStaticDate(dayNumber);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
+      await orderPage.yesSiteContactBtn.click();
+      await expect(orderPage.siteContactLblOnPymtForm).toBeVisible();
+      await expect(orderPage.textBelowSiteContactLbl).toBeVisible();
+
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate to dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Navigate to View Order Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step('Verify new contact details', async () => {
+      expect(await orderDeliveryDetailsPage.siteContactCard.innerText()).toEqual("Site Contact");
+      expect(await orderDeliveryDetailsPage.newContactName.innerText()).toEqual(orderPage.firstName[0]);
+      expect(await orderDeliveryDetailsPage.newContactPhone.innerText()).toEqual(orderPage.firstName[1]);
+    });
+  });
+});
 
 test.describe('Missed Collection', () => {
   test.setTimeout(180000); // 3 minutes
@@ -110,12 +231,6 @@ test.describe('Confirm Collection', () => {
 
 
   test('Confirm skip collection', async () => {
-    //const page = test.page;
-    //const orderPage = new OrderPage(page);
-    //const dashboardPage = new DashboardPage(page);
-    //const loginPage = new LoginPage(page);
-    //const orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
-
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -162,7 +277,7 @@ test.describe('Confirm Collection', () => {
 
     await test.step(`Confirm and verify today's delivery`, async () => {
       await orderDeliveryDetailsPage.confirmCollection();
-      
+
     });
 
   });
@@ -199,7 +314,7 @@ test.describe('Missed Delivery', () => {
     });
 
     await test.step('Choose date', async () => {
-      const dayNumber = new Date().getDate();
+
       console.log(`Today's day number is: ${dayNumber}`);
       await orderPage.chooseStaticDate(dayNumber);
     });

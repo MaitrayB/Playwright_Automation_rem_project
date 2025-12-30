@@ -1,2 +1,0 @@
-🎯 Selected row index: 488 📦 Postcode: A8B 1XQ, WasteType: Garden Waste
-🧾 Running Logged-in flow for: A8B 1XQ, Garden Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-6, Private Property

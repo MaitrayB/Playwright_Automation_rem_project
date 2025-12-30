@@ -34,6 +34,18 @@ export class genericFunctions {
 
         await expect(this.inboxFrame.getByText('You did it…  Here’s your booking details for your skip with ')).toBeVisible();
         await expect(this.inboxFrame.getByText(`Skip Type: ${skip} yarder skip`)).toBeVisible({ timeout: 3000 });
+    }
 
+    async getFutureDay(daysToAdd) {
+        // Create a Date object for the current date and time
+        const today = new Date();
+        // Create a new variable for the future date to avoid modifying 'today' directly
+        const futureDate = new Date(today);
+        // Use setDate() to modify the day of the month.
+        // The Date object automatically handles month and year rollovers.
+        futureDate.setDate(today.getDate() + daysToAdd);
+        // Get day from the date with time value
+        const futureDay = futureDate.getDate();
+        return futureDay;
     }
 }
