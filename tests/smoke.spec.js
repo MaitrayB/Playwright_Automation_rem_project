@@ -21,7 +21,7 @@ const csvPath = './Data/testData.csv';
 /** @type {OrderDeliveryDetailsPage} */ let orderDeliveryDetailsPage;
 /** @type {genericFunctions} */ let genFunctions;
 
-let page, context;
+let page, context, contact;
 
 // BEFORE EACH TEST 
 test.beforeEach(async ({ browser }, testInfo) => {
@@ -45,6 +45,70 @@ test.beforeEach(async ({ browser }, testInfo) => {
 
   // Store the page in testInfo so individual tests can access it
   testInfo.page = page;
+});
+
+test.describe('Guest User places order & add new site contact while registration', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test('Guest User Placing an order', async () => {
+
+    // ✅ Get random CSV row at runtime
+    const randomRow = getRandomRow(csvPath);
+
+    //console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
+    console.log(`🧾 Running Guest flow for:  ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
+
+    await loginPage.goto();
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(randomRow.Postcodes);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(randomRow.WasteType);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(randomRow.HeavyWaste, randomRow.PlasterBoard);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose);
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(randomRow.Placement);
+    });
+
+    await test.step('Choose date', async () => {
+      await orderPage.chooseDate(randomRow.BookingDay);
+    });
+
+    await test.step('Complete payment', async () => {
+      contact = await orderPage.completePayment({ contactAction: 'Add New Contact' });
+    });
+
+    await test.step('Guest registration', async () => {
+      await signUpPage.fillSignUpForm();
+    });
+
+    await test.step('Navigate to dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Guest user password creation', async () => {
+      await signUpPage.guest_CreateNewPassword();
+    });
+
+    await test.step('Navigate to View Order Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step('Verify new contact details', async () => {
+      await orderDeliveryDetailsPage.verifySiteContactDetails(contact);
+    });
+
+  });
 });
 
 test.describe('Add site contact while placing an order', () => {
@@ -83,13 +147,7 @@ test.describe('Add site contact while placing an order', () => {
     });
 
     await test.step('Complete payment', async () => {
-      await orderPage.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
-      await orderPage.yesSiteContactBtn.click();
-      await orderPage.contactListDropDown.click();
-      await expect(orderPage.siteContactLblOnPymtForm).toBeVisible();
-      await expect(orderPage.textBelowSiteContactLbl).toBeVisible();
-
-      await orderPage.completePayment();
+      contact = await orderPage.completePayment({ contactAction: 'Add New Contact' });
     });
 
     await test.step('Navigate to dashboard', async () => {
@@ -101,11 +159,9 @@ test.describe('Add site contact while placing an order', () => {
     });
 
     await test.step('Verify new contact details', async () => {
-      expect(await orderDeliveryDetailsPage.siteContactCard.innerText()).toEqual("Site Contact");
-      expect(await orderDeliveryDetailsPage.newContactName.innerText()).toEqual(orderPage.firstName);
-      expect(await orderDeliveryDetailsPage.newContactEmail.innerText()).toEqual(orderPage.emailAdd)
-      expect(await orderDeliveryDetailsPage.newContactPhone.innerText()).toEqual(orderPage.phoneNum);
+      await orderDeliveryDetailsPage.verifySiteContactDetails(contact);
     });
+
   });
 });
 
@@ -145,12 +201,7 @@ test.describe('Select existing site contact while placing an order', () => {
     });
 
     await test.step('Complete payment', async () => {
-      await orderPage.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
-      await orderPage.yesSiteContactBtn.click();
-      await expect(orderPage.siteContactLblOnPymtForm).toBeVisible();
-      await expect(orderPage.textBelowSiteContactLbl).toBeVisible();
-
-      await orderPage.completePayment();
+      contact = await orderPage.completePayment({ contactAction: 'Verify Existing Contact' });
     });
 
     await test.step('Navigate to dashboard', async () => {
@@ -162,10 +213,9 @@ test.describe('Select existing site contact while placing an order', () => {
     });
 
     await test.step('Verify new contact details', async () => {
-      expect(await orderDeliveryDetailsPage.siteContactCard.innerText()).toEqual("Site Contact");
-      expect(await orderDeliveryDetailsPage.newContactName.innerText()).toEqual(orderPage.firstName[0]);
-      expect(await orderDeliveryDetailsPage.newContactPhone.innerText()).toEqual(orderPage.firstName[1]);
+      await orderDeliveryDetailsPage.verifySiteContactDetails(contact);
     });
+
   });
 });
 

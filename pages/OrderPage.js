@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { faker, Faker } from "@faker-js/faker";
 import { stat } from 'fs';
+import { genericFunctions } from '../utils/genericFunctions.js';
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -72,8 +72,8 @@ export class OrderPage {
     this.siteContactLblOnPymtForm = page.getByText('Site Contact', { exact: true });
     this.textBelowSiteContactLbl = page.getByText('Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?');
     this.yesSiteContactBtn = page.getByRole('button', { name: 'Yes' });
-    this.contactListDropDown = page.locator("//button[contains(@class,'text-white flex items-center')]");
-    this.dropDownTextforYesBtn = page.getByText('Add other site contact');
+    this.defaultSiteContactInDropDown = page.locator("//button[contains(@class,'text-white flex items-center')]");
+    this.addOtherSiteContactOption = page.getByText('Add other site contact');
     this.addNameInput = page.getByPlaceholder('Enter site contact name');
     this.addPhoneInput = page.getByPlaceholder('Enter site contact phone');
     this.addEmailInput = page.getByPlaceholder('Enter site contact email');
@@ -81,10 +81,6 @@ export class OrderPage {
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.placeOrderBtn = page.getByRole('button', { name: 'Place Order' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
-    this.firstName;
-    this.phoneNum;
-    this.emailAdd;
-    this.userNameAndPhone;
 
     //billing address change locators
     this.billingaddresschangeCheckbox = page.locator("//div[contains(.,'Billing address is same')]/preceding-sibling::input[@type='checkbox']");
@@ -345,16 +341,18 @@ export class OrderPage {
       await this.streetinputchangeaddressInput.fill('Main Street');
     }
 
-
     if (await this.housenumberchangeaddressInput.inputValue() === '') {
       await this.housenumberchangeaddressInput.fill('123');
     }
 
     await this.usethisaddressBtn.click();
-
   }
 
-  async completePayment() {
+  async completePayment({ contactAction }) {
+    const genfunc = new genericFunctions(this.page);
+    const contact = await genfunc.getSiteContactDetails();
+    let cname, phone, email;
+
     await this.page.waitForTimeout(2000);
     if (await this.cardNumberLocator.isVisible()) {
       await this.cardNumberLocator.fill('4111 1111 1111 1111');
@@ -362,21 +360,34 @@ export class OrderPage {
       await this.cvc.fill('123');
       await this.page.waitForTimeout(2000);
     }
-    // Site Contact code
-    if (await this.dropDownTextforYesBtn.isVisible()) {
-      await this.dropDownTextforYesBtn.click();
-      this.phoneNum = "1888999393";
-      await this.addNameInput.fill(faker.person.firstName());
-      this.firstName = await this.addNameInput.inputValue();
-      await this.addPhoneInput.fill(this.phoneNum);
-      await this.addEmailInput.fill(`${this.firstName}_${this.phoneNum}@yopmail.com`);
-      this.emailAdd = await this.addEmailInput.inputValue();
+    // Site Contact section
+    if (this.siteContactLblOnPymtForm.isVisible()) {
+      await this.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
+      await this.yesSiteContactBtn.click();
+      await expect(this.siteContactLblOnPymtForm).toBeVisible();
+      await expect(this.textBelowSiteContactLbl).toBeVisible();
+    }
+    // “Behavior Injection” or “Strategy via explicit Parameters” - A method should never guess what scenario to run. The test must tell it what to do.
+    if (contactAction === 'Add New Contact') {
+      await this.defaultSiteContactInDropDown.click();
+      await this.addOtherSiteContactOption.click();
+      await this.addNameInput.fill(contact.name);
+      await this.addPhoneInput.fill(contact.phone);
+      await this.addEmailInput.fill(contact.email);
+
+      cname = contact.name;
+      phone = contact.phone;
+      email = contact.email;
+    }
+    else if (contactAction === 'Verify Existing Contact') {
+      const text = await this.defaultSiteContactInDropDown.textContent();
+      [cname, phone] = text.split(" • ").map(v => v.trim());
+      email = `${cname}_${phone}@yopmail.com`;
     }
     else {
-      this.userNameAndPhone = await this.contactListDropDown.textContent();
-      this.firstName = this.userNameAndPhone.split(" • ");
+      throw new Error(`Invalid Contact Action, ${contactAction}`);
     }
-    //
+
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
 
@@ -385,5 +396,7 @@ export class OrderPage {
     }
     await this.completePaymentBtn.waitFor({ state: 'visible' });
     await this.completePaymentBtn.click();
+
+    return { cname, phone, email };
   }
 }

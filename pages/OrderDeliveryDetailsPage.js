@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test';
+import { OrderPage } from '../pages/OrderPage.js';
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -15,6 +16,7 @@ export class OrderDeliveryDetailsPage {
     /** @param {Page} page */
     constructor(page) {
         this.page = page;
+
         this.manageDeliveryBtn = page.getByRole('button', { name: 'Manage Delivery' });
 
         this.deliveryDetailsSec = page.locator('h3:has-text("Delivery Details")');
@@ -84,9 +86,8 @@ export class OrderDeliveryDetailsPage {
         // Site Contact elements
         this.siteContactCard = page.getByRole('heading', { name: 'Site Contact' });
         this.newContactName = this.siteContactCard.locator('..').getByText('Name', { exact: true }).locator('..').locator('.text-gray-400');
-        this.newContactEmail = this.siteContactCard.locator('..').getByText('Email', { exact: true }).locator('..').locator('.text-gray-400');
         this.newContactPhone = this.siteContactCard.locator('..').getByText('Phone', { exact: true }).locator('..').locator('.text-gray-400');
-
+        this.newContactEmail = this.siteContactCard.locator('..').getByText('Email', { exact: true }).locator('..').locator('.text-gray-400');
     }
 
     async verifyOrderDeliveryDetails() {
@@ -274,5 +275,12 @@ export class OrderDeliveryDetailsPage {
         await this.submitBtn.click();
         await this.page.waitForTimeout(2000);
         expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
+    }
+
+    async verifySiteContactDetails({ cname, phone, email }) {
+        await expect(this.siteContactCard).toHaveText("Site Contact");
+        await expect(this.newContactName).toHaveText(cname);
+        await expect(this.newContactPhone).toHaveText(phone);
+        await expect(this.newContactEmail).toHaveText(email);
     }
 }

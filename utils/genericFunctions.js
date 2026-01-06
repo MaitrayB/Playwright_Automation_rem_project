@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test';
+import { faker, Faker } from "@faker-js/faker";
 
 export class genericFunctions {
     constructor(page) {
@@ -34,7 +35,7 @@ export class genericFunctions {
 
         await expect(this.inboxFrame.getByText('You did it…  Here’s your booking details for your skip with ')).toBeVisible();
         await expect(this.inboxFrame.getByText(`Skip Type: ${skip} yarder skip`)).toBeVisible({ timeout: 3000 });
-    }
+    };
 
     async getFutureDay(daysToAdd) {
         // Create a Date object for the current date and time
@@ -47,5 +48,14 @@ export class genericFunctions {
         // Get day from the date with time value
         const futureDay = futureDate.getDate();
         return futureDay;
+    };
+
+    async getSiteContactDetails() {
+        const phone = "1888999393";
+        const name = faker.person.firstName();
+        const email = `${name}_${phone}@yopmail.com`;
+        return {
+            phone, name, email
+        };
     }
 }
