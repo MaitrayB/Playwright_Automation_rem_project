@@ -47,6 +47,69 @@ test.beforeEach(async ({ browser }, testInfo) => {
   testInfo.page = page;
 });
 
+
+test.describe('Add site contact while placing an order as guest user', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test('Add site contact while placing an order as guest user', async () => {
+    let contact;
+
+    // ✅ Get random CSV row at runtime
+    const randomRow = getRandomRow(csvPath);
+
+    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Choose date', async () => {
+      await orderPage.chooseDate(TestData.BookingDay[0]);
+    });
+
+    await test.step('Complete payment and add site contact', async () => {
+      contact = await orderPage.completePayment();
+    });
+
+    await test.step('Guest registration', async () => {
+      await signUpPage.fillSignUpForm();
+    });
+
+    await test.step('Navigate to dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Guest user password creation', async () => {
+      await signUpPage.guest_CreateNewPassword();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+    });
+
+  });
+});
+
+
 test.describe('Add site contact while placing an order', () => {
   test.setTimeout(180000); // 3 minutes
 

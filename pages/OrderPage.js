@@ -362,7 +362,7 @@ export class OrderPage {
     }
     // Site Contact section
     const labelVisible = this.siteContactLblOnPymtForm.isVisible()
-    console.log(labelVisible);
+    //console.log(labelVisible);
     if (labelVisible === 'True') {
       await this.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
       await this.yesSiteContactBtn.click();

@@ -4,6 +4,7 @@ import { TestData } from "../Data/TestData";
 import { log } from "console";
 import { LoginPage } from "./LoginPage";
 import { OrderPage } from "./OrderPage";
+import { genericFunctions } from '../utils/genericFunctions.js';
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -32,6 +33,11 @@ export class SignUpPage {
         this.signUpBtn = page.getByRole('button', { name: 'Sign up' });
         this.registrationSuccessMessage = page.locator("//p[@class='text-sm text-green-500']");
         this.signInContinueBtn = page.locator('//button[contains(.,"Sign In to Continue")]');
+        this.sitecontactYesBtn = page.getByRole('button', { name: 'Yes' });
+        this.sitecontactName = page.getByPlaceholder('Enter site contact name');
+        this.sitecontactPhone = page.getByPlaceholder('Enter site contact phone');
+        this.sitecontactEmail = page.getByPlaceholder('Enter site contact email');
+        this.continueBtn = page.getByRole('button', { name: 'Continue' })
 
 
         //elements for guest user registration form
@@ -54,11 +60,13 @@ export class SignUpPage {
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
         const emailAddress = `${firstName}_${lastName}@yopmail.com`;
-
         const randomPassword = "P@ssw0rd";
 
         this.emailAddress = emailAddress;
         this.randomPassword = randomPassword;
+
+        const genfunc = new genericFunctions(this.page);
+        const contact = await genfunc.getSiteContactDetails();
 
         try {
             if (await this.loginBtn.isVisible()) {
@@ -69,6 +77,17 @@ export class SignUpPage {
                 await this.emailInput.fill(emailAddress);
                 await this.confirmEmailInput.fill(emailAddress);
                 await this.phoneInput.fill('+44 16977 2987');
+
+                await this.sitecontactYesBtn.click();
+                await this.sitecontactName.fill(contact.name);
+                await this.sitecontactPhone.fill(contact.phone);
+                await this.sitecontactEmail.fill(contact.email);
+
+                await this.page.waitForTimeout(3000);
+
+                //await this.continueBtn.click();
+                //await this.page.waitForTimeout(3000);
+
                 if (await this.continueBtn.isEnabled()) {
                     //console.log('Continue button is enabled');
                     await this.continueBtn.click();

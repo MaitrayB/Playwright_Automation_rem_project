@@ -1,0 +1,24 @@
+Promise {
+  <pending>,
+  [Symbol(async_id_symbol)]: 35838,
+  [Symbol(trigger_async_id_symbol)]: 35641,
+  [Symbol(kResourceStore)]: Zone {
+    _asyncLocalStorage: AsyncLocalStorage {
+      kResourceStore: Symbol(kResourceStore),
+      enabled: true
+    },
+    _data: Map(1) { 'stepZone' => [Object] }
+  }
+}
+Promise {
+  <pending>,
+  [Symbol(async_id_symbol)]: 37944,
+  [Symbol(trigger_async_id_symbol)]: 37930,
+  [Symbol(kResourceStore)]: Zone {
+    _asyncLocalStorage: AsyncLocalStorage {
+      kResourceStore: Symbol(kResourceStore),
+      enabled: true
+    },
+    _data: Map(1) { 'stepZone' => [Object] }
+  }
+}

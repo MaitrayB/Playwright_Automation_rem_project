@@ -1,0 +1,2 @@
+🎯 Selected row index: 462 📦 Postcode: XA8A 6MG, WasteType: Garden Waste
+🧾 Running Guest flow for:  XA8A 6MG, Garden Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-8, Not sure

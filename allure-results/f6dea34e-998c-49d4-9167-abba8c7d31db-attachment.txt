@@ -1,0 +1,2 @@
+🎯 Selected row index: 550 📦 Postcode: YB6B 4KO, WasteType: Garden Waste
+🧾 Running Guest flow with site contact for:  YB6B 4KO, Garden Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-40, Not sure
