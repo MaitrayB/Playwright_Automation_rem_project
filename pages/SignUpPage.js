@@ -3,6 +3,7 @@ import { faker, Faker } from "@faker-js/faker";
 import { TestData } from "../Data/TestData";
 import { log } from "console";
 import { LoginPage } from "./LoginPage";
+import { OrderPage } from "./OrderPage";
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -53,7 +54,6 @@ export class SignUpPage {
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
         const emailAddress = `${firstName}_${lastName}@yopmail.com`;
-
 
         const randomPassword = "P@ssw0rd";
 

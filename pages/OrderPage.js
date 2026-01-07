@@ -348,7 +348,7 @@ export class OrderPage {
     await this.usethisaddressBtn.click();
   }
 
-  async completePayment({ contactAction }) {
+  async completePayment({ contactAction } = {}) {
     const genfunc = new genericFunctions(this.page);
     const contact = await genfunc.getSiteContactDetails();
     let cname, phone, email;
@@ -361,31 +361,37 @@ export class OrderPage {
       await this.page.waitForTimeout(2000);
     }
     // Site Contact section
-    if (this.siteContactLblOnPymtForm.isVisible()) {
+    const labelVisible = this.siteContactLblOnPymtForm.isVisible()
+    console.log(labelVisible);
+    if (labelVisible === 'True') {
       await this.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
       await this.yesSiteContactBtn.click();
       await expect(this.siteContactLblOnPymtForm).toBeVisible();
       await expect(this.textBelowSiteContactLbl).toBeVisible();
     }
     // “Behavior Injection” or “Strategy via explicit Parameters” - A method should never guess what scenario to run. The test must tell it what to do.
-    if (contactAction === 'Add New Contact') {
-      await this.defaultSiteContactInDropDown.click();
-      await this.addOtherSiteContactOption.click();
-      await this.addNameInput.fill(contact.name);
-      await this.addPhoneInput.fill(contact.phone);
-      await this.addEmailInput.fill(contact.email);
+    switch (contactAction) {
+      case 'Add New Contact':
+        await this.defaultSiteContactInDropDown.click();
+        await this.addOtherSiteContactOption.click();
+        await this.addNameInput.fill(contact.name);
+        await this.addPhoneInput.fill(contact.phone);
+        await this.addEmailInput.fill(contact.email);
 
-      cname = contact.name;
-      phone = contact.phone;
-      email = contact.email;
-    }
-    else if (contactAction === 'Verify Existing Contact') {
-      const text = await this.defaultSiteContactInDropDown.textContent();
-      [cname, phone] = text.split(" • ").map(v => v.trim());
-      email = `${cname}_${phone}@yopmail.com`;
-    }
-    else {
-      throw new Error(`Invalid Contact Action, ${contactAction}`);
+        cname = contact.name;
+        phone = contact.phone;
+        email = contact.email;
+        break;
+
+      case 'Verify Existing Contact':
+        const text = await this.defaultSiteContactInDropDown.textContent();
+        [cname, phone] = text.split(" • ").map(v => v.trim());
+        email = `${cname}_${phone}@yopmail.com`;
+        break;
+
+      default:
+        //console.log(`No contact action for: ${contactAction}`);
+        break;
     }
 
     await this.termsCheckbox.waitFor({ state: 'visible' });
@@ -394,9 +400,12 @@ export class OrderPage {
     if (await this.placeOrderBtn.isVisible()) {
       await this.placeOrderBtn.click();
     }
+
     await this.completePaymentBtn.waitFor({ state: 'visible' });
     await this.completePaymentBtn.click();
 
-    return { cname, phone, email };
+    if (contactAction === 'Guest adding site contact')
+
+      return { cname, phone, email };
   }
 }

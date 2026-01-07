@@ -1,0 +1,4 @@
+🎯 Selected row index: 713 📦 Postcode: A1O 1HC, WasteType: Commercial Waste
+🧾 Running Guest flow for:  A1O 1HC, Commercial Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-6, Grass verge
+Promise { <pending> }
+No contact action for: undefined
