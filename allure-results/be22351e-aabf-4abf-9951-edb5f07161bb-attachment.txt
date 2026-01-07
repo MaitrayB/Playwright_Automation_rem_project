@@ -1,2 +1,0 @@
-🎯 Selected row index: 844 📦 Postcode: CC5 9MT, WasteType: Commercial Waste
-🧾 Running Guest flow for:  CC5 9MT, Commercial Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-16, Grass verge

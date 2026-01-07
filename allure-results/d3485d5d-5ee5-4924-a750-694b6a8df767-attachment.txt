@@ -1,3 +1,0 @@
-🎯 Selected row index: 799 📦 Postcode: W5J 1GU, WasteType: Commercial Waste
-🧾 Running Guest flow for:  W5J 1GU, Commercial Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-14, Private Property
-Promise { <pending> }

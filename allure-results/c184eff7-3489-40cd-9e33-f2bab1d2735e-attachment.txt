@@ -1,2 +1,0 @@
-🎯 Selected row index: 629 📦 Postcode: L9J 9OP, WasteType: Garden Waste
-🧾 Running Guest flow for:  L9J 9OP, Garden Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-40, Grass verge

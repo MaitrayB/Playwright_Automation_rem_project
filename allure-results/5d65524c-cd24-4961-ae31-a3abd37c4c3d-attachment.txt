@@ -1,4 +1,0 @@
-🎯 Selected row index: 165 📦 Postcode: W2V 7MB, WasteType: Construction Waste
-🧾 Running Guest flow for:  W2V 7MB, Construction Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-12, Public Property
-Promise { <pending> }
-logged in user found but login button is not visible

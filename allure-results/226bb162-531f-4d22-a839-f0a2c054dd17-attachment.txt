@@ -1,2 +1,0 @@
-🎯 Selected row index: 402 📦 Postcode: Q8E 4WU, WasteType: Household Waste
-🧾 Running Guest flow for:  Q8E 4WU, Household Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-20, Not sure

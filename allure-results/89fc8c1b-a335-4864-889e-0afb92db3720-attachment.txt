@@ -1,2 +1,0 @@
-🎯 Selected row index: 306 📦 Postcode: ZB2P 0CC, WasteType: Household Waste
-🧾 Running Guest flow for:  ZB2P 0CC, Household Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-10, Not sure

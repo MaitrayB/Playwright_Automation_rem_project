@@ -1,2 +1,0 @@
-🎯 Selected row index: 679 📦 Postcode: Y2 8OV, WasteType: Commercial Waste
-🧾 Running Guest flow for:  Y2 8OV, Commercial Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-6, Private Property
