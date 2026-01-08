@@ -69,10 +69,11 @@ export class OrderPage {
     this.cvc = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-cvcInput"]');
 
     // Site contact
-    this.siteContactLblOnPymtForm = page.getByText('Site Contact', { exact: true });
+    this.siteContactLblOnPymtForm = page.locator('//h4[contains(., "Site Contact")]');
     this.textBelowSiteContactLbl = page.getByText('Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?');
     this.yesSiteContactBtn = page.getByRole('button', { name: 'Yes' });
-    this.defaultSiteContactInDropDown = page.locator("//button[contains(@class,'text-white flex items-center')]");
+    this.defaultSiteContactInDropDown = page.locator("//p[contains(.,'Customer phone number that will be used:')]/following-sibling::p");
+    this.siteContactDropdown = page.locator("(//p[contains(.,'Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?')]/../..//button)[3]");
     this.addOtherSiteContactOption = page.getByText('Add other site contact');
     this.addNameInput = page.getByPlaceholder('Enter site contact name');
     this.addPhoneInput = page.getByPlaceholder('Enter site contact phone');
@@ -360,19 +361,13 @@ export class OrderPage {
       await this.cvc.fill('123');
       await this.page.waitForTimeout(2000);
     }
-    // Site Contact section
-    const labelVisible = this.siteContactLblOnPymtForm.isVisible()
-    //console.log(labelVisible);
-    if (labelVisible === 'True') {
-      await this.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
-      await this.yesSiteContactBtn.click();
-      await expect(this.siteContactLblOnPymtForm).toBeVisible();
-      await expect(this.textBelowSiteContactLbl).toBeVisible();
-    }
-    // “Behavior Injection” or “Strategy via explicit Parameters” - A method should never guess what scenario to run. The test must tell it what to do.
-    switch (contactAction) {
+  
+  
+     switch (contactAction) {
       case 'Add New Contact':
-        await this.defaultSiteContactInDropDown.click();
+        //await this.defaultSiteContactInDropDown.click();
+        await this.yesSiteContactBtn.click();
+        await this.siteContactDropdown.click();
         await this.addOtherSiteContactOption.click();
         await this.addNameInput.fill(contact.name);
         await this.addPhoneInput.fill(contact.phone);
