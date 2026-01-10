@@ -1,2 +1,0 @@
-🎯 Selected row index: 691 📦 Postcode: XG5U 1DT, WasteType: Commercial Waste
-🧾 Running Guest flow for:  XG5U 1DT, Commercial Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-5, Private Property

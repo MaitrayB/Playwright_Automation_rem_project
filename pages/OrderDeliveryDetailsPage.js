@@ -88,6 +88,14 @@ export class OrderDeliveryDetailsPage {
         this.newContactName = this.siteContactCard.locator('..').getByText('Name', { exact: true }).locator('..').locator('.text-gray-400');
         this.newContactPhone = this.siteContactCard.locator('..').getByText('Phone', { exact: true }).locator('..').locator('.text-gray-400');
         this.newContactEmail = this.siteContactCard.locator('..').getByText('Email', { exact: true }).locator('..').locator('.text-gray-400');
+
+        // Add / Remove Image
+        this.orderImagesTitle = page.locator('h3:has-text("Order Images")');
+        this.addImagesBtn = page.getByRole('button', { name: 'Add Images' });
+        this.uploadImageBtn = page.locator("//button[contains(.,'Upload')]");
+        this.uploadSuccessMsg = page.locator("//p[contains(.,'1 image added successfully')]");
+        this.xIconCount = page.locator("//div[@class='relative group']/button");
+        this.imageDeletedMsg = page.getByText("Image removed successfully");
     }
 
     async verifyOrderDeliveryDetails() {
@@ -282,5 +290,46 @@ export class OrderDeliveryDetailsPage {
         await expect(this.newContactName).toHaveText(cname);
         await expect(this.newContactPhone).toHaveText(phone);
         await expect(this.newContactEmail).toHaveText(email);
+    }
+
+    async addImage() {
+        await expect(this.orderImagesTitle).toBeVisible();
+        await this.orderImagesTitle.scrollIntoViewIfNeeded();
+        await this.addImagesBtn.waitFor({ state: 'visible' });
+        await this.page.waitForTimeout(1000);
+        await this.addImagesBtn.click();
+        await this.page.setInputFiles('input[type="file"]', './Data/download.jpeg');
+        await this.page.waitForTimeout(1000);
+        await this.uploadImageBtn.click();
+        await expect(this.uploadSuccessMsg).toContainText("1 image added successfully");
+        const impagePreview = this.page.locator("//img[contains(@alt,'Order image')]");
+        const count = await impagePreview.count();
+        let image;
+        if (count > 1) {
+            image = impagePreview.nth(0);
+        }
+        else {
+            image = impagePreview.first();
+        }
+        await image.scrollIntoViewIfNeeded();
+        await expect(image).toBeVisible();
+        await expect.poll(async () => {
+            return await image.evaluate(img => img.complete && img.naturalHeight > 0);
+        }, { timeout: 5000 }).toBe(true);
+    }
+
+    async deleteImage() {
+        await this.page.waitForTimeout(1000);
+        const count = await this.xIconCount.count();
+        let deleteFirstImg;
+        if (count > 1) {
+            deleteFirstImg = this.xIconCount.nth(0);
+        }
+        else {
+            deleteFirstImg = this.xIconCount.first();
+        }
+        await this.page.waitForTimeout(1000);
+        await deleteFirstImg.click();
+        await expect(this.imageDeletedMsg).toBeVisible();
     }
 }

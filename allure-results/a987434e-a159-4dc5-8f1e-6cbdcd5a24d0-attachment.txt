@@ -1,2 +1,0 @@
-🎯 Selected row index: 574 📦 Postcode: J2 0HJ, WasteType: Garden Waste
-🧾 Running Guest flow for:  LE11 2LL, Household Waste, Heavywaste -No, Plasterboard -No, Skipsize-6, Private Property

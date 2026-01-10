@@ -21,7 +21,7 @@ const csvPath = './Data/testData.csv';
 /** @type {OrderDeliveryDetailsPage} */ let orderDeliveryDetailsPage;
 /** @type {genericFunctions} */ let genFunctions;
 
-let page, context, contact;
+let page, context, contact, result;
 
 // BEFORE EACH TEST 
 test.beforeEach(async ({ browser }, testInfo) => {
@@ -47,53 +47,29 @@ test.beforeEach(async ({ browser }, testInfo) => {
   testInfo.page = page;
 });
 
-test.describe('Site Contacts: Add site contact while placing new order', () => {
+test.describe('Add & remove image', () => {
   test.setTimeout(180000); // 3 minutes
 
-  test('Add site contact', async () => {
+  test('Add new image after placing an order', async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto();
     await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
-    await test.step('Enter postcode', async () => {
-      await orderPage.enterPostcode(TestData.postcodes[1]);
+    await test.step('Go to profile settings', async () => {
+      await profilesettingpage.goToProfileSettingsPage()
     });
 
-    await test.step('Select waste type', async () => {
-      await orderPage.selectWaste(TestData.WasteType[1]);
-    });
-
-    await test.step('Continue waste type', async () => {
-      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
-    });
-
-    await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
-    });
-
-    await test.step('Permit check', async () => {
-      await orderPage.permitCheck(TestData.Placement[0]);
-    });
-
-    await test.step('Choose date', async () => {
-      const dayNumber = new Date().getDate();
-      await orderPage.chooseStaticDate(dayNumber);
-    });
-
-    await test.step('Complete payment', async () => {
-      contact = await orderPage.completePayment({ contactAction: 'Add New Contact' });
-    });
-
-    await test.step('Navigate to dashboard', async () => {
-      await dashboardPage.gotoSuccessPage();
-    });
-
-    await test.step('Navigate to View Order Details', async () => {
+    await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
 
+    await test.step('Add image', async () => {
+      await orderDeliveryDetailsPage.addImage();
+      await orderDeliveryDetailsPage.deleteImage();
+    });
 
   });
 });
@@ -159,10 +135,10 @@ test.describe('Site Contacts: Add site contact while placing an order as guest u
   });
 });
 
-test.describe('Site Contacts: Select existing site contact while placing an order', () => {
+test.describe('Site Contacts: Add site contact while placing an order', () => {
   test.setTimeout(180000); // 3 minutes
 
-  test('Select site contact', async () => {
+  test('Add site contact', async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -195,15 +171,73 @@ test.describe('Site Contacts: Select existing site contact while placing an orde
     });
 
     await test.step('Complete payment', async () => {
-      contact = await orderPage.completePayment({ contactAction: 'Verify Existing Contact' });
+      contact = await orderPage.completePayment({ contactAction: 'Add New Contact' });
     });
 
     await test.step('Navigate to dashboard', async () => {
       await dashboardPage.gotoSuccessPage();
     });
 
-    await test.step('Navigate to View Order Details', async () => {
+    await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails(contact);
+    });
+
+  });
+});
+
+test.describe('Site Contacts: Select existing site contact while placing an order', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test('Select site contact', async ({ },) => {
+
+    console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Choose date', async () => {
+      const dayNumber = new Date().getDate();
+      await orderPage.chooseStaticDate(dayNumber);
+    });
+
+    await test.step('Complete payment', async () => {
+      result = await orderPage.completePayment({ contactAction: 'Verify Existing Contact' });
+      // Extract data from result
+      contact = result.data;
+
+      if (result.shouldSkip) {
+        test.skip(result?.shouldSkip, result?.skipReason);
+      }
+    });
+
+    await test.step('Navigate to dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails(contact);
     });
 
   });
@@ -560,14 +594,14 @@ test.describe('Upgrade skip', async () => {
 
     await test.step('Navigate and Upgrade skip', async () => {
       await dashboardPage.navigateToViewOrderDetails();
+      result = await orderDeliveryDetailsPage.upgradeSkip();
 
-      const result = await orderDeliveryDetailsPage.upgradeSkip();
-      if (!result.success && result.reason === 'Update Skip button is disabled') {
-        test.skip('Update Skip button is disabled - skipping the test')
+      if (result?.shouldSkip) {
+        test.skip(result.skipReason);
       }
     });
-  })
 
+  })
 });
 
 test.describe('Downgrade skip', async () => {
@@ -583,12 +617,13 @@ test.describe('Downgrade skip', async () => {
 
     await test.step('Navigate and Downgrade skip', async () => {
       await dashboardPage.navigateToViewOrderDetails();
+      result = await orderDeliveryDetailsPage.downgradeSkip();
 
-      const result = await orderDeliveryDetailsPage.downgradeSkip();
-      if (!result.success && result.reason === 'Update Skip button is disabled') {
-        test.skip('Update Skip button is disabled - skipping the test')
+      if (result?.shouldSkip) {
+        test.skip(result.skipReason);
       }
     });
+
   })
 });
 

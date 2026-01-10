@@ -1,0 +1,99 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "Navin navin@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Navin
+          - paragraph [ref=e14]: navin@yopmail.com
+        - img [ref=e15]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Postcode" [ref=e21] [cursor=pointer]:
+        - img [ref=e22]
+        - generic [ref=e25]: Postcode
+      - button "Waste Type" [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: Waste Type
+      - button "Select Skip" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e39]: Select Skip
+      - button "Permit Check" [ref=e41] [cursor=pointer]:
+        - img [ref=e42]
+        - generic [ref=e44]: Permit Check
+      - button "Choose Date" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+        - generic [ref=e49]: Choose Date
+      - button "Payment" [disabled] [ref=e51]:
+        - img [ref=e52]
+        - generic [ref=e54]: Payment
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - heading "Choose Your Delivery Date" [level=2] [ref=e58]
+        - paragraph [ref=e59]: Select your preferred skip delivery date. We'll aim to deliver between 7am and 6pm on your chosen day.
+      - generic [ref=e60]:
+        - heading "Delivery Date" [level=3] [ref=e61]
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - button "←" [disabled] [ref=e64]
+            - heading "January 2026" [level=2] [ref=e65]
+            - button "→" [ref=e66] [cursor=pointer]
+          - generic [ref=e67]:
+            - generic [ref=e68]: Sun
+            - generic [ref=e69]: Mon
+            - generic [ref=e70]: Tue
+            - generic [ref=e71]: Wed
+            - generic [ref=e72]: Thu
+            - generic [ref=e73]: Fri
+            - generic [ref=e74]: Sat
+          - generic [ref=e75]:
+            - button "1" [disabled] [ref=e80]
+            - button "2" [disabled] [ref=e81]
+            - button "3" [disabled] [ref=e82]
+            - button "4" [disabled] [ref=e83]
+            - button "5" [disabled] [ref=e84]
+            - button "6" [disabled] [ref=e85]
+            - button "7" [disabled] [ref=e86]
+            - button "8" [disabled] [ref=e87]
+            - button "9" [disabled] [ref=e88]
+            - button "10" [disabled] [ref=e89]
+            - button "11" [disabled] [ref=e90]
+            - button "12" [ref=e91] [cursor=pointer]
+            - button "13" [ref=e92] [cursor=pointer]
+            - button "14" [ref=e93] [cursor=pointer]
+            - button "15" [ref=e94] [cursor=pointer]
+            - button "16" [ref=e95] [cursor=pointer]
+            - button "17" [disabled] [ref=e96]
+            - button "18" [disabled] [ref=e97]
+            - button "19" [ref=e98] [cursor=pointer]
+            - button "20" [ref=e99] [cursor=pointer]
+            - button "21" [ref=e100] [cursor=pointer]
+            - button "22" [ref=e101] [cursor=pointer]
+            - button "23" [ref=e102] [cursor=pointer]
+            - button "24" [disabled] [ref=e103]
+            - button "25" [disabled] [ref=e104]
+            - button "26" [ref=e105] [cursor=pointer]
+            - button "27" [ref=e106] [cursor=pointer]
+            - button "28" [ref=e107] [cursor=pointer]
+            - button "29" [active] [ref=e108] [cursor=pointer]
+            - button "30" [ref=e109] [cursor=pointer]
+            - button "31" [disabled] [ref=e110]
+      - generic [ref=e111]:
+        - heading "Collection Date" [level=3] [ref=e112]
+        - generic [ref=e113]:
+          - paragraph [ref=e114]: Thursday 5 February 2026
+          - paragraph [ref=e115]: Collection date is set based on your skip hire period (7 days).
+          - paragraph [ref=e116]: You can change your collection date once the skip has been delivered if needed.
+      - generic [ref=e119]:
+        - generic [ref=e120]:
+          - paragraph [ref=e122]: 6 Yard Skip
+          - paragraph [ref=e124]: 7 days
+        - generic [ref=e125]:
+          - button "Back" [ref=e126] [cursor=pointer]
+          - button "Continue" [ref=e127] [cursor=pointer]:
+            - text: Continue
+            - img [ref=e128]
+```

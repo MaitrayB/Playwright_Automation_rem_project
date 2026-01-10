@@ -1,2 +1,0 @@
-🎯 Selected row index: 59 📦 Postcode: P1Z 7GL, WasteType: Construction Waste
-🧾 Running Guest flow with site contact for:  P1Z 7GL, Construction Waste, Heavywaste -Yes, Plasterboard -No, Skipsize-6, Not sure

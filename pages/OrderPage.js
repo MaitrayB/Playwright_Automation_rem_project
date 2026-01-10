@@ -1,6 +1,7 @@
-import { expect } from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { stat } from 'fs';
 import { genericFunctions } from '../utils/genericFunctions.js';
+import { info } from 'console';
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -74,7 +75,7 @@ export class OrderPage {
     this.yesSiteContactBtn = page.getByRole('button', { name: 'Yes' });
     this.defaultSiteContactInDropDown = page.locator("//p[contains(.,'Customer phone number that will be used:')]/following-sibling::p");
     this.siteContactDropdown = page.locator("(//p[contains(.,'Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?')]/../..//button)[3]");
-    this.addOtherSiteContactOption = page.getByText('Add other site contact');
+    this.addOtherSiteContactOption = page.getByRole('directory', { name: 'Add other site contact' });
     this.addNameInput = page.getByPlaceholder('Enter site contact name');
     this.addPhoneInput = page.getByPlaceholder('Enter site contact phone');
     this.addEmailInput = page.getByPlaceholder('Enter site contact email');
@@ -181,7 +182,7 @@ export class OrderPage {
     //skip current test if skip is not available for selection
     const isVisible = await this.noskipMsg.isVisible();
     if (isVisible) {
-      return { success: false, reason: "No skip available for the selection" }
+      return { shouldSkip: true, skipReason: "Update Skip button is disabled - Skipping the test" }
     }
 
     this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
@@ -222,7 +223,7 @@ export class OrderPage {
       }
     }
     this.skipValue = skipSize;
-    return [this.skipValue, { success: true }];
+    return [this.skipValue, { shouldSkip: false }];
   }
 
   async wrongSkipSelection() {
@@ -361,46 +362,49 @@ export class OrderPage {
       await this.cvc.fill('123');
       await this.page.waitForTimeout(2000);
     }
-  
-  
-     switch (contactAction) {
-      case 'Add New Contact':
-        //await this.defaultSiteContactInDropDown.click();
-        await this.yesSiteContactBtn.click();
-        await this.siteContactDropdown.click();
-        await this.addOtherSiteContactOption.click();
-        await this.addNameInput.fill(contact.name);
-        await this.addPhoneInput.fill(contact.phone);
-        await this.addEmailInput.fill(contact.email);
 
-        cname = contact.name;
-        phone = contact.phone;
-        email = contact.email;
-        break;
-
-      case 'Verify Existing Contact':
-        const text = await this.defaultSiteContactInDropDown.textContent();
-        [cname, phone] = text.split(" • ").map(v => v.trim());
-        email = `${cname}_${phone}@yopmail.com`;
-        break;
-
-      default:
-        //console.log(`No contact action for: ${contactAction}`);
-        break;
+    if (this.siteContactLblOnPymtForm.isVisible()) {
+      await expect(this.textBelowSiteContactLbl).toBeVisible();
+      this.yesSiteContactBtn.click();
     }
 
+    if (contactAction === 'Add New Contact') {
+      //await this.defaultSiteContactInDropDown.click();
+      await this.siteContactDropdown.click();
+      await this.addOtherSiteContactOption.click();
+      await this.addNameInput.fill(contact.name);
+      await this.addPhoneInput.fill(contact.phone);
+      await this.addEmailInput.fill(contact.email);
+
+      cname = contact.name;
+      phone = contact.phone;
+      email = contact.email;
+    }
+
+    if (contactAction === 'Verify Existing Contact') {
+      if (this.addOtherSiteContactOption.isVisible()) {
+        return {
+          shouldSkip: true,
+          skipReason: "No existing site contact available for verification."
+        }
+      }
+      const text = await this.defaultSiteContactInDropDown.textContent();
+      console.log(text);
+      [cname, phone] = text.split(" • ").map(v => v.trim());
+      email = `${cname}_${phone}@yopmail.com`;
+    }
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
 
     if (await this.placeOrderBtn.isVisible()) {
       await this.placeOrderBtn.click();
     }
-
     await this.completePaymentBtn.waitFor({ state: 'visible' });
     await this.completePaymentBtn.click();
 
-    if (contactAction === 'Guest adding site contact')
-
-      return { cname, phone, email };
+    return {
+      shouldSkip: false,
+      data: { cname, phone, email }
+    };
   }
 }

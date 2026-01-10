@@ -1,2 +1,0 @@
-🎯 Selected row index: 158 📦 Postcode: JG6A 8EU, WasteType: Construction Waste
-🧾 Running Guest flow for:  JG6A 8EU, Construction Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-8, Grass verge
