@@ -72,12 +72,12 @@ export class OrderPage {
     this.cvc = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-cvcInput"]');
 
     // Site contact
-    this.siteContactLblOnPymtForm = page.locator('//h4[contains(., "Site Contact")]');
+    this.siteContactLblOnPymtForm = page.locator('//h3[contains(., "Site Contact")]');
     this.textBelowSiteContactLbl = page.getByText('Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?');
     this.yesSiteContactBtn = page.getByRole('button', { name: 'Yes' });
-    this.defaultSiteContactInDropDown = page.locator("//p[contains(.,'Customer phone number that will be used:')]/following-sibling::p");
+    this.defaultSiteContactInDropDown = page.locator("//div[@class='relative z-50']/button");
     this.siteContactDropdown = page.locator("(//p[contains(.,'Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?')]/../..//button)[3]");
-    this.addOtherSiteContactOption = page.getByRole('directory', { name: 'Add other site contact' });
+    this.addOtherSiteContactOption = page.getByRole('button', { name: 'Add other site contact' });
     this.addNameInput = page.getByPlaceholder('Enter site contact name');
     this.addPhoneInput = page.getByPlaceholder('Enter site contact phone');
     this.addEmailInput = page.getByPlaceholder('Enter site contact email');
@@ -359,6 +359,12 @@ export class OrderPage {
     await this.usethisaddressBtn.click();
   }
 
+  async siteContactOnPymtPage() {
+    this.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
+    await expect(this.textBelowSiteContactLbl).toBeVisible();
+    this.yesSiteContactBtn.click();
+  }
+
   async completePayment({ contactAction } = {}) {
     const genfunc = new genericFunctions(this.page);
     const contact = await genfunc.getSiteContactDetails();
@@ -372,13 +378,8 @@ export class OrderPage {
       await this.page.waitForTimeout(2000);
     }
 
-    if (this.siteContactLblOnPymtForm.isVisible()) {
-      await expect(this.textBelowSiteContactLbl).toBeVisible();
-      this.yesSiteContactBtn.click();
-    }
-
     if (contactAction === 'Add New Contact') {
-      //await this.defaultSiteContactInDropDown.click();
+      await this.siteContactOnPymtPage();
       await this.siteContactDropdown.click();
       await this.addOtherSiteContactOption.click();
       await this.addNameInput.fill(contact.name);
@@ -391,15 +392,10 @@ export class OrderPage {
     }
 
     if (contactAction === 'Verify Existing Contact') {
-      if (this.addOtherSiteContactOption.isVisible()) {
-        return {
-          shouldSkip: true,
-          skipReason: "No existing site contact available for verification."
-        }
-      }
+      await this.siteContactOnPymtPage();
       const text = await this.defaultSiteContactInDropDown.textContent();
       console.log(text);
-      [cname, phone] = text.split(" • ").map(v => v.trim());
+      [cname, phone] = text.split(/\s*•\s*/).map(v => v.trim());
       email = `${cname}_${phone}@yopmail.com`;
     }
     await this.termsCheckbox.waitFor({ state: 'visible' });
@@ -412,8 +408,7 @@ export class OrderPage {
     await this.completePaymentBtn.click();
 
     return {
-      shouldSkip: false,
-      data: { cname, phone, email }
+      cname, phone, email
     };
   }
 }

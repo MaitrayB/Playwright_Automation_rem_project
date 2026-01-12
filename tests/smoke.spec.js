@@ -21,7 +21,7 @@ const csvPath = './Data/testData.csv';
 /** @type {OrderDeliveryDetailsPage} */ let orderDeliveryDetailsPage;
 /** @type {genericFunctions} */ let genFunctions;
 
-let page, context, contact, result;
+let page, context, contact;
 
 // BEFORE EACH TEST 
 test.beforeEach(async ({ browser }, testInfo) => {
@@ -74,10 +74,10 @@ test.describe('Add & remove image', () => {
   });
 });
 
-test.describe('Site Contacts: Add site contact while placing an order as guest user', () => {
+test.describe('Site Contacts - guest user: Add site contact while placing an order', () => {
   test.setTimeout(180000); // 3 minutes
 
-  test('Add site contact while placing an order as guest user', async () => {
+  test('Guest user adds new site contact', async () => {
     let contact;
 
     // ✅ Get random CSV row at runtime
@@ -112,11 +112,11 @@ test.describe('Site Contacts: Add site contact while placing an order as guest u
     });
 
     await test.step('Complete payment and add site contact', async () => {
-      contact = await orderPage.completePayment();
+      await orderPage.completePayment();
     });
 
     await test.step('Guest registration', async () => {
-      await signUpPage.fillSignUpForm();
+      contact = await signUpPage.fillSignUpForm();
     });
 
     await test.step('Navigate to dashboard', async () => {
@@ -130,6 +130,10 @@ test.describe('Site Contacts: Add site contact while placing an order as guest u
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
       await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+    });
+
+    await test.step('Verify site contact details', async () => {
+      await orderDeliveryDetailsPage.verifySiteContactDetails(contact);
     });
 
   });
@@ -180,7 +184,11 @@ test.describe('Site Contacts: Add site contact while placing an order', () => {
 
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
-      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails(contact);
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+    });
+
+    await test.step('Verify site contact details', async () => {
+      await orderDeliveryDetailsPage.verifySiteContactDetails(contact);
     });
 
   });
@@ -222,13 +230,9 @@ test.describe('Site Contacts: Select existing site contact while placing an orde
     });
 
     await test.step('Complete payment', async () => {
-      result = await orderPage.completePayment({ contactAction: 'Verify Existing Contact' });
+      contact = await orderPage.completePayment({ contactAction: 'Verify Existing Contact' });
       // Extract data from result
-      contact = result.data;
-
-      if (result.shouldSkip) {
-        test.skip(result?.shouldSkip, result?.skipReason);
-      }
+      //contact = result.data;
     });
 
     await test.step('Navigate to dashboard', async () => {
@@ -237,9 +241,12 @@ test.describe('Site Contacts: Select existing site contact while placing an orde
 
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
-      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails(contact);
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
 
+    await test.step('Verify site contact details', async () => {
+      await orderDeliveryDetailsPage.verifySiteContactDetails(contact);
+    });
   });
 });
 

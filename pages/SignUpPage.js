@@ -57,6 +57,8 @@ export class SignUpPage {
     }
 
     async fillSignUpForm() {
+        let cname, phone, email;
+
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
         const emailAddress = `${firstName}_${lastName}@yopmail.com`;
@@ -82,6 +84,10 @@ export class SignUpPage {
                 await this.sitecontactName.fill(contact.name);
                 await this.sitecontactPhone.fill(contact.phone);
                 await this.sitecontactEmail.fill(contact.email);
+
+                cname = contact.name;
+                phone = contact.phone;
+                email = contact.email;
 
                 await this.page.waitForTimeout(3000);
 
@@ -112,6 +118,8 @@ export class SignUpPage {
         catch {
             console.log('logged in user found but login button is not visible');
         }
+
+        return { cname, phone, email };
     }
 
     async fillSignUpFormExistingUser() {
