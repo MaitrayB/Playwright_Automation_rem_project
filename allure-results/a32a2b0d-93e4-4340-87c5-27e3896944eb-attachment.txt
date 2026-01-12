@@ -1,0 +1,2 @@
+🎯 Selected row index: 270 📦 Postcode: RF4 3LY, WasteType: Household Waste
+🧾 Running Guest flow for:  LE11 2LL, Household Waste, Heavywaste -No, Plasterboard -No, Skipsize-6, Public Property

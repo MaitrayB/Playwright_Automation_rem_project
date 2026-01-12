@@ -47,6 +47,70 @@ test.beforeEach(async ({ browser }, testInfo) => {
   testInfo.page = page;
 });
 
+
+test.describe('Place an order with Skip Tarp', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test('Place an order with Skip Tarp and login with existing user', async () => {
+
+    // ✅ Get random CSV row at runtime
+    const randomRow = getRandomRow(csvPath);
+
+    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[1]}`);
+
+    await loginPage.goto();
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.wrongSkipSelection();
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "Yes", "Yes");
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[1]);
+    });
+
+    await test.step('Choose date', async () => {
+      await orderPage.chooseDate(TestData.BookingDay[0]);
+    });
+
+    await test.step('Complete payment', async () => {
+      await expect(orderPage.paymentPageWrongSkipGuaranteeSection).toHaveText("Wrong Skip Guarantee");
+      await orderPage.completePayment();
+    });
+
+    await test.step('Guest registration', async () => {
+      await signUpPage.fillSignUpFormExistingUser();
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate and verify dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Verify Order Delivery Details for Tarp', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+      await orderDeliveryDetailsPage.verifyWrongSkipGuaranteeLabel.scrollIntoViewIfNeeded();
+      await expect(orderDeliveryDetailsPage.verifyWrongSkipGuaranteeLabel).toBeVisible();
+      await expect(orderDeliveryDetailsPage.skipTarpLbl).toBeVisible();
+    });
+
+  });
+});
+
+
 test.describe('Add & remove image', () => {
   test.setTimeout(180000); // 3 minutes
 

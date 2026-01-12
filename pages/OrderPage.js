@@ -54,6 +54,8 @@ export class OrderPage {
     this.skipCheckbox = page.getByText('Skip this step to upload a photo');
     this.skipTarpNoBtn = page.locator('//button[contains(.,"No, continue without")]');
     this.skipTarpYesBtn = page.locator('//button[.="Yes, add Skip Tarp"]');
+    this.tarpDiv = page.locator("//img[@alt='Skip Tarp']/../div");
+
 
     this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
     this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
@@ -212,6 +214,8 @@ export class OrderPage {
     }
 
     await this.page.waitForTimeout(1000);
+    expect(this.tarpDiv.getByText('Add Skip Tarp (Small) for £15 (one-time)').isVisible()).toBeTruthy();
+
 
     if (Skiptarp === 'Yes') {
       await this.skipTarpYesBtn.click();

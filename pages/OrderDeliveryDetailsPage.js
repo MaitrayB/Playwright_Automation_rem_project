@@ -31,6 +31,7 @@ export class OrderDeliveryDetailsPage {
         this.addQuantity = page.locator("//div[@class='flex items-center space-x-4']/button[2]");
         this.verifyTonneBagLabel = page.locator('h3:has-text("Tonne Bag")');
         this.verifyTotalQuantity = page.locator("//p[contains(.,'Quantity: 2')]");
+        this.skipTarpLbl = page.locator("//h3[contains(.,'Skip Tarp')]");
 
         this.addBtnPopup = page.locator("(//button[contains(.,'Add Item')])[last()]");
         this.payBtn = page.locator("(//button[contains(.,'Pay')])[last()]");
@@ -332,4 +333,5 @@ export class OrderDeliveryDetailsPage {
         await deleteFirstImg.click();
         await expect(this.imageDeletedMsg).toBeVisible();
     }
+
 }
