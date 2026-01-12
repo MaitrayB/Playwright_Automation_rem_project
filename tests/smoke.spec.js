@@ -100,7 +100,7 @@ test.describe('Site Contacts: Add site contact while placing an order as guest u
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -158,7 +158,7 @@ test.describe('Site Contacts: Add site contact while placing an order', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -209,7 +209,7 @@ test.describe('Site Contacts: Select existing site contact while placing an orde
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -266,7 +266,7 @@ test.describe('Missed Collection', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -324,7 +324,7 @@ test.describe('Confirm Collection', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -380,7 +380,7 @@ test.describe('Missed Delivery', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -437,7 +437,7 @@ test.describe('Confirm Delivery', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -494,7 +494,7 @@ test.describe('Request collection outside 3 days free limit and pay for differen
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -549,7 +549,7 @@ test.describe('Request collection within 3 days free limit', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -671,7 +671,7 @@ test.describe('Place an order for Wrong Skip Guarantee', () => {
 
     await test.step('Select skip & property', async () => {
       await orderPage.wrongSkipSelection();
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -732,7 +732,7 @@ test.describe('Place order and add 2 Tonne bags', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -804,7 +804,7 @@ test.describe('Change billing address and place order', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -874,7 +874,7 @@ test.describe('Place order and add Road permit', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Permit check', async () => {
@@ -950,7 +950,7 @@ test.describe('Start order as guest and logs in with existing account', () => {
 
     await test.step('Select skip & property', async () => {
       //await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose);
-      const result = await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No");
+      const result = await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No", "No");
       if (!result.success && result.reason === 'No skip available for the selection') {
         test.skip('No skip available for the selection — skipping the test.');
       }
@@ -1019,7 +1019,7 @@ test.describe('Place an order as Guest User', () => {
     });
 
     await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose);
+      await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose, "No");
     });
 
     await test.step('Permit check', async () => {
@@ -1091,7 +1091,7 @@ test.describe('Place an order as Logged-in User', () => {
 
     await test.step('Select skip & property', async () => {
       //await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose);
-      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No");
+      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No", "No");
 
     });
 

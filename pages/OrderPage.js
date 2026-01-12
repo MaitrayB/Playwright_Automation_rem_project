@@ -52,6 +52,8 @@ export class OrderPage {
     this.privatePropertyBtn = page.getByRole('button', { name: 'Private Property Driveway or' });
     this.dateBtn = page.getByRole('button', { name: '30', exact: true });
     this.skipCheckbox = page.getByText('Skip this step to upload a photo');
+    this.skipTarpNoBtn = page.locator('//button[contains(.,"No, continue without")]');
+    this.skipTarpYesBtn = page.locator('//button[.="Yes, add Skip Tarp"]');
 
     this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
     this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
@@ -177,7 +179,7 @@ export class OrderPage {
     await this.page.waitForTimeout(1000);
   }
 
-  async selectSkip(skipSize, Plasterboard, ToneBag, SelfDispose) {
+  async selectSkip(skipSize, Plasterboard, ToneBag, SelfDispose, Skiptarp) {
 
     //skip current test if skip is not available for selection
     const isVisible = await this.noskipMsg.isVisible();
@@ -210,6 +212,13 @@ export class OrderPage {
     }
 
     await this.page.waitForTimeout(1000);
+
+    if (Skiptarp === 'Yes') {
+      await this.skipTarpYesBtn.click();
+    }
+    else {
+      await this.skipTarpNoBtn.click();
+    }
 
     if (Plasterboard === 'Yes') {
       if (ToneBag === 'Yes') {
