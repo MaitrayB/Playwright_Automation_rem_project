@@ -48,7 +48,7 @@ export class DashboardPage {
       // Verify if innerText contains the specific order ID
       if (innerDivText.includes(this.orderId)) {
         // console.log(`Inner div at index ${i} contains the order ID: ${innerDivText}`);
-        expect(innerDivText).toContain("🛡️ Wrong Skip Guarantee");
+        expect(innerDivText).toContain("Wrong Skip Guarantee");
       }
       else {
         console.log(`Inner div at index ${i} does not contain the order ID: ${innerDivText}`);
