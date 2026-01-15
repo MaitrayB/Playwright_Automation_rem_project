@@ -1,0 +1,199 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e6]:
+      - generic [ref=e8]:
+        - img "We Want Waste" [ref=e9]
+        - button "Navin Shah navin@yopmail.com" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12]:
+            - paragraph [ref=e13]: Navin Shah
+            - paragraph [ref=e14]: navin@yopmail.com
+          - img [ref=e15]
+    - main [ref=e17]:
+      - generic [ref=e18]:
+        - button "Back to Orders" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+          - text: Back to Orders
+        - generic [ref=e23]:
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - img [ref=e28]
+              - generic [ref=e31]:
+                - generic [ref=e32]:
+                  - 'heading "Order #2148" [level=1] [ref=e33]'
+                  - button "Send Message" [ref=e34] [cursor=pointer]:
+                    - img [ref=e35]
+                    - generic [ref=e38]: Send Message
+                - generic [ref=e39]:
+                  - img [ref=e40]
+                  - generic [ref=e43]: Delivering today
+            - generic [ref=e45]:
+              - generic [ref=e47]: Booked
+              - button [ref=e49] [cursor=pointer]:
+                - img [ref=e50]
+          - generic [ref=e56]:
+            - button "Manage Delivery" [ref=e57] [cursor=pointer]:
+              - img [ref=e58]
+              - generic [ref=e63]: Manage Delivery
+            - button "Manage Collection" [ref=e64] [cursor=pointer]:
+              - img [ref=e65]
+              - generic [ref=e68]: Manage Collection
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - heading "Delivery Details" [level=3] [ref=e72]
+              - generic [ref=e73]:
+                - generic [ref=e74]:
+                  - img [ref=e75]
+                  - generic [ref=e78]:
+                    - generic [ref=e79]: Delivery Address
+                    - generic [ref=e80]: 46 Griggs Road, Loughborough
+                    - generic [ref=e81]: LE11 2LL
+                - generic [ref=e82]:
+                  - img [ref=e83]
+                  - generic [ref=e85]:
+                    - generic [ref=e86]: Delivery & Collection
+                    - generic [ref=e87]:
+                      - paragraph [ref=e88]: "Delivery: 13 Jan 2026"
+                      - paragraph [ref=e89]: "Collection: 20 Jan 2026"
+            - generic [ref=e90]:
+              - heading "Skip Details" [level=3] [ref=e92]
+              - generic [ref=e93]:
+                - generic [ref=e95]: 6 yarder skip
+                - generic [ref=e96]:
+                  - heading "Waste Categories" [level=3] [ref=e97]
+                  - generic [ref=e99]:
+                    - img [ref=e101]
+                    - generic [ref=e104]:
+                      - generic [ref=e105]: Household Waste
+                      - generic [ref=e106]: General household items and furniture
+          - generic [ref=e107]:
+            - generic [ref=e108]:
+              - heading "Customer Information" [level=3] [ref=e109]
+              - generic [ref=e110]:
+                - generic [ref=e111]:
+                  - img [ref=e112]
+                  - generic [ref=e115]:
+                    - generic [ref=e116]: Name
+                    - generic [ref=e117]: Navin Shah
+                - generic [ref=e118]:
+                  - img [ref=e119]
+                  - generic [ref=e122]:
+                    - generic [ref=e123]: Email
+                    - generic [ref=e124]: navin@yopmail.com
+                - generic [ref=e125]:
+                  - img [ref=e126]
+                  - generic [ref=e128]:
+                    - generic [ref=e129]: Phone
+                    - generic [ref=e130]: "1333444333"
+            - generic [ref=e131]:
+              - heading "Site Contact" [level=3] [ref=e132]
+              - generic [ref=e133]:
+                - generic [ref=e134]:
+                  - img [ref=e135]
+                  - generic [ref=e138]:
+                    - generic [ref=e139]: Name
+                    - generic [ref=e140]: Rosalyn
+                - generic [ref=e141]:
+                  - img [ref=e142]
+                  - generic [ref=e145]:
+                    - generic [ref=e146]: Email
+                    - generic [ref=e147]: Rosalyn_1888999393@yopmail.com
+                - generic [ref=e148]:
+                  - img [ref=e149]
+                  - generic [ref=e151]:
+                    - generic [ref=e152]: Phone
+                    - generic [ref=e153]: "1888999393"
+          - generic [ref=e154]:
+            - generic [ref=e155]:
+              - img [ref=e156]
+              - heading "Order Images" [level=3] [ref=e160]
+            - button "Add Images" [ref=e161] [cursor=pointer]:
+              - img [ref=e162]
+              - generic [ref=e163]: Add Images
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - heading "Order Items" [level=2] [ref=e167]
+              - button "Add Item" [disabled] [ref=e168]:
+                - img [ref=e169]
+                - generic [ref=e170]: Add Item
+            - paragraph [ref=e172]: Order editing is only available 24 hours before delivery. Your skip will be delivered on 1/13/2026.
+            - generic [ref=e173]:
+              - generic [ref=e174]:
+                - generic [ref=e175]:
+                  - heading "6 Yard Skip" [level=3] [ref=e177]
+                  - paragraph [ref=e178]: "Quantity: 1"
+                - generic [ref=e179]:
+                  - paragraph [ref=e180]: £266.00
+                  - paragraph [ref=e181]: £266.00 each
+                  - button "Update Skip" [disabled] [ref=e182]
+              - generic [ref=e183]:
+                - generic [ref=e184]:
+                  - generic [ref=e185]: Subtotal (excl. VAT)
+                  - generic [ref=e186]: £266.00
+                - generic [ref=e187]:
+                  - generic [ref=e188]: VAT (20%)
+                  - generic [ref=e189]: £53.20
+                - generic [ref=e190]:
+                  - generic [ref=e191]: Total
+                  - generic [ref=e192]: £319.20
+          - generic [ref=e193]:
+            - generic [ref=e194]:
+              - img [ref=e195]
+              - heading "Order History" [level=3] [ref=e198]
+            - generic [ref=e199]:
+              - generic [ref=e202]:
+                - button "All events" [ref=e203] [cursor=pointer]:
+                  - img [ref=e204]
+                  - generic [ref=e207]: All events
+                - button "Messages" [ref=e208] [cursor=pointer]:
+                  - img [ref=e209]
+                  - generic [ref=e212]: Messages
+              - generic [ref=e214]:
+                - img [ref=e216]
+                - generic [ref=e220]:
+                  - generic [ref=e221]:
+                    - generic [ref=e222]:
+                      - generic [ref=e223]: Order Confirmed
+                      - generic [ref=e224]: by Customer
+                    - paragraph [ref=e225]: Order created by customer, paid and confirmed
+                  - generic [ref=e226]: 13 Jan 2026, 13:18
+  - dialog "Payment History" [ref=e228]:
+    - generic [ref=e229]:
+      - generic [ref=e230]:
+        - heading "Payment History" [level=2] [ref=e232]
+        - button "Close" [ref=e233] [cursor=pointer]:
+          - img [ref=e234]
+      - generic [ref=e238]:
+        - generic [ref=e239]:
+          - generic [ref=e240]:
+            - heading "Order Summary" [level=3] [ref=e241]
+            - generic [ref=e242]: "#2148"
+          - generic [ref=e243]: "Delivery: 13 Jan 2026"
+          - generic [ref=e244]: "Collection: 20 Jan 2026"
+        - generic [ref=e245]:
+          - heading "Payment History" [level=3] [ref=e246]
+          - generic [ref=e248]:
+            - generic [ref=e249]:
+              - generic [ref=e250]:
+                - generic [ref=e251]: "Order #2148 - Base Price"
+                - generic [ref=e252]:
+                  - img [ref=e253]
+                  - generic [ref=e256]: PAID
+              - generic [ref=e257]: 13 Jan 2026
+              - generic [ref=e258]: "Paid: 13 Jan 2026"
+            - generic [ref=e260]: £319.20
+          - generic [ref=e261]:
+            - heading "Payment Summary" [level=4] [ref=e262]
+            - generic [ref=e263]:
+              - generic [ref=e264]:
+                - generic [ref=e265]: "Total Amount:"
+                - generic [ref=e266]: £319.20
+              - generic [ref=e267]:
+                - generic [ref=e268]: "Amount Paid:"
+                - generic [ref=e269]: £319.20
+              - generic [ref=e270]:
+                - generic [ref=e271]: "Outstanding Balance:"
+                - generic [ref=e272]: £0.00
+```

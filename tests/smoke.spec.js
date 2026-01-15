@@ -21,7 +21,7 @@ const csvPath = './Data/testData.csv';
 /** @type {OrderDeliveryDetailsPage} */ let orderDeliveryDetailsPage;
 /** @type {genericFunctions} */ let genFunctions;
 
-let page, context, contact;
+let page, context, contact, result;
 
 // BEFORE EACH TEST 
 test.beforeEach(async ({ browser }, testInfo) => {
@@ -47,6 +47,31 @@ test.beforeEach(async ({ browser }, testInfo) => {
   testInfo.page = page;
 });
 
+test.describe('Payment History', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test('Verify Payment History', async () => {
+
+    //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
+    await test.step('Go to profile settings', async () => {
+      await profilesettingpage.goToProfileSettingsPage()
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+    });
+
+    await test.step('Verify payment history', async () => {
+      await orderDeliveryDetailsPage.verifyPaymentHistory();
+    });
+
+  });
+});
 
 test.describe('Place an order with Skip Tarp', () => {
   test.setTimeout(180000); // 3 minutes
@@ -110,13 +135,12 @@ test.describe('Place an order with Skip Tarp', () => {
   });
 });
 
-
 test.describe('Add & remove image', () => {
   test.setTimeout(180000); // 3 minutes
 
   test('Add new image after placing an order', async () => {
 
-    console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+    // console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto();
     await loginPage.login(TestData.credentials.username, TestData.credentials.password);
@@ -239,7 +263,8 @@ test.describe('Site Contacts: Add site contact while placing an order', () => {
     });
 
     await test.step('Complete payment', async () => {
-      contact = await orderPage.completePayment({ contactAction: 'Add New Contact' });
+      result = await orderPage.completePayment({ contactAction: 'Add New Contact' });
+      contact = result.data;
     });
 
     await test.step('Navigate to dashboard', async () => {
@@ -294,9 +319,13 @@ test.describe('Site Contacts: Select existing site contact while placing an orde
     });
 
     await test.step('Complete payment', async () => {
-      contact = await orderPage.completePayment({ contactAction: 'Verify Existing Contact' });
+      result = await orderPage.completePayment({ contactAction: 'Verify Existing Contact' });
       // Extract data from result
-      //contact = result.data;
+      contact = result.data;
+
+      if (result?.skipTest) {
+        test.skip(result.reason);
+      }
     });
 
     await test.step('Navigate to dashboard', async () => {
@@ -667,8 +696,8 @@ test.describe('Upgrade skip', async () => {
       await dashboardPage.navigateToViewOrderDetails();
       result = await orderDeliveryDetailsPage.upgradeSkip();
 
-      if (result?.shouldSkip) {
-        test.skip(result.skipReason);
+      if (result?.skipTest) {
+        test.skip(result.reason);
       }
     });
 
@@ -690,8 +719,8 @@ test.describe('Downgrade skip', async () => {
       await dashboardPage.navigateToViewOrderDetails();
       result = await orderDeliveryDetailsPage.downgradeSkip();
 
-      if (result?.shouldSkip) {
-        test.skip(result.skipReason);
+      if (result?.skipTest) {
+        test.skip(result.reason);
       }
     });
 

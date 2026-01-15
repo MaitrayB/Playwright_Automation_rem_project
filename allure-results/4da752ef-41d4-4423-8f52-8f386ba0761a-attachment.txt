@@ -1,0 +1,2 @@
+🎯 Selected row index: 580 📦 Postcode: UL8 8UK, WasteType: Garden Waste
+🧾 Running Guest flow for:  UL8 8UK, Garden Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-16, Public Property

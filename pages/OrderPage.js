@@ -79,7 +79,7 @@ export class OrderPage {
     this.yesSiteContactBtn = page.getByRole('button', { name: 'Yes' });
     this.defaultSiteContactInDropDown = page.locator("//div[@class='relative z-50']/button");
     this.siteContactDropdown = page.locator("(//p[contains(.,'Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?')]/../..//button)[3]");
-    this.addOtherSiteContactOption = page.getByRole('button', { name: 'Add other site contact' });
+    this.addOtherSiteContactOption = page.getByRole('button', { name: 'Add other site contact' }).nth(1);
     this.addNameInput = page.getByPlaceholder('Enter site contact name');
     this.addPhoneInput = page.getByPlaceholder('Enter site contact phone');
     this.addEmailInput = page.getByPlaceholder('Enter site contact email');
@@ -399,8 +399,13 @@ export class OrderPage {
       await this.siteContactOnPymtPage();
       const text = await this.defaultSiteContactInDropDown.textContent();
       console.log(text);
-      [cname, phone] = text.split(/\s*•\s*/).map(v => v.trim());
-      email = `${cname}_${phone}@yopmail.com`;
+      if (text === 'Add other site contact') {
+        return { success: true, reason: "Existing site contact is not available" }
+      }
+      else {
+        [cname, phone] = text.split(/\s*•\s*/).map(v => v.trim());
+        email = `${cname}_${phone}@yopmail.com`;
+      }
     }
     await this.termsCheckbox.waitFor({ state: 'visible' });
     await this.termsCheckbox.check();
@@ -412,7 +417,7 @@ export class OrderPage {
     await this.completePaymentBtn.click();
 
     return {
-      cname, phone, email
+      success: false, data: { cname, phone, email }
     };
   }
 }

@@ -1,0 +1,3 @@
+🎯 Selected row index: 442 📦 Postcode: FC4 7HV, WasteType: Household Waste
+🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property
+print email id from SignUp Class: navin@yopmail.com

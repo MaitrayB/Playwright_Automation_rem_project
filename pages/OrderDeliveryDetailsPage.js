@@ -97,6 +97,13 @@ export class OrderDeliveryDetailsPage {
         this.uploadSuccessMsg = page.locator("//p[contains(.,'1 image added successfully')]");
         this.xIconCount = page.locator("//div[@class='relative group']/button");
         this.imageDeletedMsg = page.getByText("Image removed successfully");
+
+        // Payment History
+        this.orderTotalAmt = page.locator("//div[@class='space-y-3 pt-4']/div [3]");
+        this.moreOptionsBtn = page.locator('button:has(svg.lucide-more-vertical)'); //css xpath=> //button[.//svg[contains(@class,'lucide-more-vertical')]]
+        this.paymentHistoryBtn = page.getByRole('button', { name: 'Payment History' });
+        this.pymtHistoryLbl = page.locator('h3:has-text("Payment History")');
+        this.totalAmout = page.locator("//div[@class='text-right']/div");
     }
 
     async verifyOrderDeliveryDetails() {
@@ -136,7 +143,7 @@ export class OrderDeliveryDetailsPage {
     async downgradeSkip() {
         const isDisabled = await this.updateSkipBtn.isDisabled();
         if (isDisabled) {
-            return { success: false, reason: "Update Skip button is disabled" }
+            return { skipTest: true, reason: "Downgrade Skip button is disabled" }
         }
 
         await this.page.waitForTimeout(3000);
@@ -156,7 +163,7 @@ export class OrderDeliveryDetailsPage {
             await this.performPreviousSkipActions();
         }
 
-        return { success: true };
+        return { skipTest: false };
     }
 
     async performPreviousSkipActions() {
@@ -182,7 +189,7 @@ export class OrderDeliveryDetailsPage {
     async upgradeSkip() {
         const isDisabled = await this.updateSkipBtn.isDisabled();
         if (isDisabled) {
-            return { success: false, reason: "Update Skip button is disabled" }
+            return { skipTest: true, reason: "Update Skip button is disabled" }
         }
 
         await this.page.waitForTimeout(2000);
@@ -201,7 +208,7 @@ export class OrderDeliveryDetailsPage {
             await this.page.waitForTimeout(3000);
         }
 
-        return { success: true };
+        return { skipTest: false };
     }
 
     async requestCollection(freelimit) {
@@ -332,6 +339,16 @@ export class OrderDeliveryDetailsPage {
         await this.page.waitForTimeout(1000);
         await deleteFirstImg.click();
         await expect(this.imageDeletedMsg).toBeVisible();
+    }
+
+    async verifyPaymentHistory() {
+        const text = await this.orderTotalAmt.textContent();
+        const amt = text.slice(5);
+        await this.moreOptionsBtn.click();
+        await this.paymentHistoryBtn.click();
+        await expect(this.pymtHistoryLbl).toBeVisible();
+        const total = await this.totalAmout.textContent();
+        expect(total).toContain(amt);
     }
 
 }

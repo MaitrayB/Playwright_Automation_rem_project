@@ -1,0 +1,2 @@
+🎯 Selected row index: 440 📦 Postcode: QU8 1YW, WasteType: Household Waste
+🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property

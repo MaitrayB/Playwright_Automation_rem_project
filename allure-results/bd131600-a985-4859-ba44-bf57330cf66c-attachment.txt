@@ -1,0 +1,2 @@
+🎯 Selected row index: 825 📦 Postcode: Y2N 8NC, WasteType: Commercial Waste
+🧾 Running Guest flow for:  LE11 2LL, Household Waste, Heavywaste -No, Plasterboard -No, Skipsize-6, Public Property

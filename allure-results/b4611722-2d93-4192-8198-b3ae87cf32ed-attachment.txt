@@ -1,0 +1,2 @@
+🎯 Selected row index: 727 📦 Postcode: W6 3RV, WasteType: Commercial Waste
+🧾 Running Guest flow for:  LE11 2LL, Household Waste, Heavywaste -No, Plasterboard -No, Skipsize-6, Private Property
