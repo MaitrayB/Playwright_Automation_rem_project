@@ -1,1 +1,0 @@
-Downgrade Skip button is disabled

@@ -104,6 +104,15 @@ export class OrderDeliveryDetailsPage {
         this.paymentHistoryBtn = page.getByRole('button', { name: 'Payment History' });
         this.pymtHistoryLbl = page.locator('h3:has-text("Payment History")');
         this.totalAmout = page.locator("//div[@class='text-right']/div");
+
+        //Request Refund
+        this.requestRefundBtn = page.getByRole('button', { name: 'Request Refund' });
+        this.requestRefundTitle = page.locator('h2:has-text("Request Refund")');
+        this.reasonForRefundDropDown = page.getByRole('button', { name: 'Select reason' });
+        this.reasonSelection = page.locator("//div[@class='py-1']/button").filter({ hasText: 'Timing Of Permit Issue' });
+        this.additionalNotes = page.getByPlaceholder("Please provide details about your refund request...");
+        this.submitRequestBtn = page.getByRole('button', { name: 'Submit Request' });
+        this.RequestSubmissionSuccessMsg = page.getByText("Refund request submitted successfully");
     }
 
     async verifyOrderDeliveryDetails() {
@@ -351,4 +360,14 @@ export class OrderDeliveryDetailsPage {
         expect(total).toContain(amt);
     }
 
+    async verifyRequestRefund() {
+        await this.moreOptionsBtn.click();
+        await this.requestRefundBtn.click();
+        await expect(this.requestRefundTitle).toBeVisible();
+        await this.reasonForRefundDropDown.click();
+        await this.reasonSelection.click();
+        await this.additionalNotes.fill("Requesting refund due to selected reason.");
+        await this.submitRequestBtn.click();
+        await expect(this.RequestSubmissionSuccessMsg).toHaveText("Refund request submitted successfully");
+    }
 }

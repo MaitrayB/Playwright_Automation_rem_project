@@ -135,6 +135,33 @@ test.describe('Place an order with Skip Tarp', () => {
   });
 });
 
+//  Request Refund scenario to be placed always after the scenario in which new order has been placed.
+test.describe('Request Refund', () => {
+  test.setTimeout(180000); // 3 minutes
+
+  test('Request and verify refund', async () => {
+
+    //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
+    await test.step('Go to profile settings', async () => {
+      await profilesettingpage.goToProfileSettingsPage()
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+    });
+
+    await test.step('Request Refund', async () => {
+      await orderDeliveryDetailsPage.verifyRequestRefund();
+    });
+
+  });
+});
+
 test.describe('Add & remove image', () => {
   test.setTimeout(180000); // 3 minutes
 
