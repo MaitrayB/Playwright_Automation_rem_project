@@ -113,6 +113,8 @@ export class OrderDeliveryDetailsPage {
         this.additionalNotes = page.getByPlaceholder("Please provide details about your refund request...");
         this.submitRequestBtn = page.getByRole('button', { name: 'Submit Request' });
         this.RequestSubmissionSuccessMsg = page.getByText("Refund request submitted successfully");
+        this.verifyRefundRequestedLogHistory = page.getByText("Refund Requested");
+        this.verifyRefundRequestStatus = page.locator("//div[contains(@class, 'text-gray-300')]/span[2]");
     }
 
     async verifyOrderDeliveryDetails() {
@@ -369,5 +371,7 @@ export class OrderDeliveryDetailsPage {
         await this.additionalNotes.fill("Requesting refund due to selected reason.");
         await this.submitRequestBtn.click();
         await expect(this.RequestSubmissionSuccessMsg).toHaveText("Refund request submitted successfully");
+        await expect(this.verifyRefundRequestedLogHistory).toBeVisible();
+        await expect(this.verifyRefundRequestStatus).toHaveText("PENDING");
     }
 }
