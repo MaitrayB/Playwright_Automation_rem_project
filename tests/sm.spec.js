@@ -8,7 +8,6 @@ import { getRandomRow } from '../utils/getRandomRow.js';
 import { TestData } from '../Data/TestData.js';
 import { genericFunctions } from '../utils/genericFunctions.js';
 import { ProfileSettingsPage } from '../pages/ProfileSettingsPage.js';
-import { Order_Admin_Page } from '../pages/StaffPages/Order_Admin_Page.js';
 import { log } from 'console';
 
 const csvPath = './Data/testData.csv';
@@ -21,12 +20,10 @@ const csvPath = './Data/testData.csv';
 /** @type {DashboardPage} */ let dashboardPage;
 /** @type {OrderDeliveryDetailsPage} */ let orderDeliveryDetailsPage;
 /** @type {genericFunctions} */ let genFunctions;
-/** @type {Order_Admin_Page} */ let orderAdminPage;
 
 let page, context, contact, result;
 
 // BEFORE EACH TEST 
-
 test.beforeEach(async ({ browser }, testInfo) => {
   context = await browser.newContext({
     httpCredentials: {
@@ -45,67 +42,18 @@ test.beforeEach(async ({ browser }, testInfo) => {
   dashboardPage = new DashboardPage(page);
   orderDeliveryDetailsPage = new OrderDeliveryDetailsPage(page);
   genFunctions = new genericFunctions(page);
-  orderAdminPage = new Order_Admin_Page(page);
 
   // Store the page in testInfo so individual tests can access it
   testInfo.page = page;
 });
 
-test.describe('Customer & admin conversation verification', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Customer Sends message and Admin Replies', async ({ browser }) => {
-    let orderId, msgText, adminReply;
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
-
-    await test.step('Go to profile settings', async () => {
-      await profilesettingpage.goToProfileSettingsPage();
-    });
-
-    await test.step('Verify Order Delivery Details', async () => {
-      orderId = await dashboardPage.navigateToViewOrderDetails();
-    });
-
-    await test.step('Customer sends Message', async () => {
-      msgText = await orderDeliveryDetailsPage.sendMessage({ messageType: 'custom', customText: 'Request to provide an update on my recently placed order.' });
-    });
-
-    await test.step('Admin replies to customer', async () => {
-      console.log('Test status before admin step:', test.info().status);
-      const agentContext = await browser.newContext({
-        httpCredentials: {
-          username: TestData.authCredentials.authUserName,
-          password: TestData.authCredentials.authPassword
-        },
-        ignoreHTTPSErrors: true
-      });
-      const agentPage = await agentContext.newPage();
-      const agentLogin = new LoginPage(agentPage);
-      const agentGenFunctions = new genericFunctions(agentPage);
-      const agentOrderAdminPage = new Order_Admin_Page(agentPage);
-
-      await agentLogin.goto(agentGenFunctions.buildURL('/agent/login'));
-      await agentLogin.login(TestData.credentials.agent.username, TestData.credentials.agent.password);
-      await agentOrderAdminPage.getOrderDetails(orderId);
-      adminReply = await agentOrderAdminPage.adminRepliesToCustomer(msgText);
-      await agentContext.close();
-    });
-
-    await test.step('Customer verifies admin reply', async () => {
-      await orderDeliveryDetailsPage.verifyAdminReply(adminReply);
-    });
-
-  });
-});
-
-test.describe('Customer sends Message', () => {
+test.describe('Customer Side Test Cases', () => {
   test.setTimeout(180000); // 3 minutes
 
   test('Send message and validate', async () => {
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Go to profile settings', async () => {
       await profilesettingpage.goToProfileSettingsPage()
@@ -123,17 +71,13 @@ test.describe('Customer sends Message', () => {
     });
 
   });
-});
-
-test.describe('Payment History', () => {
-  test.setTimeout(180000); // 3 minutes
 
   test('Verify Payment History', async () => {
 
     //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Go to profile settings', async () => {
       await profilesettingpage.goToProfileSettingsPage()
@@ -149,10 +93,6 @@ test.describe('Payment History', () => {
     });
 
   });
-});
-
-test.describe('Place an order with Skip Tarp', () => {
-  test.setTimeout(180000); // 3 minutes
 
   test('Place an order with Skip Tarp and login with existing user', async () => {
 
@@ -161,7 +101,7 @@ test.describe('Place an order with Skip Tarp', () => {
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[1]}`);
 
-    await loginPage.goto(TestData.baseURL);
+    await loginPage.goto();
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -211,44 +151,38 @@ test.describe('Place an order with Skip Tarp', () => {
     });
 
   });
-});
 
-//  Request Refund scenario to be placed always after the scenario in which new order has been placed.
-/*test.describe('Request Refund', () => {
-  test.setTimeout(180000); // 3 minutes
- 
+  //  Request Refund scenario to be placed always after the scenario in which new order has been placed.
+  /*
   test('Request and verify refund', async () => {
- 
+
     //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
- 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
- 
+
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+
     await test.step('Go to profile settings', async () => {
       await profilesettingpage.goToProfileSettingsPage()
     });
- 
+
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
       await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
- 
+
     await test.step('Request Refund', async () => {
       await orderDeliveryDetailsPage.verifyRequestRefund();
     });
- 
+
   });
-}); */
+  */
 
-test.describe('Add & remove image', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Add new image after placing an order', async () => {
+  test('Add & remove image', async () => {
 
     // console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.customer.credentials.username, TestData.customer.credentials.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Go to profile settings', async () => {
       await profilesettingpage.goToProfileSettingsPage()
@@ -265,12 +199,8 @@ test.describe('Add & remove image', () => {
     });
 
   });
-});
 
-test.describe('Site Contacts - guest user: Add site contact while placing an order', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Guest user adds new site contact', async () => {
+  test('Site Contacts - guest user: Add site contact while placing an order', async () => {
     let contact;
 
     // ✅ Get random CSV row at runtime
@@ -278,7 +208,7 @@ test.describe('Site Contacts - guest user: Add site contact while placing an ord
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
+    await loginPage.goto();
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -330,17 +260,13 @@ test.describe('Site Contacts - guest user: Add site contact while placing an ord
     });
 
   });
-});
 
-test.describe('Site Contacts: Add site contact while placing an order', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Add site contact', async () => {
+  test('Site Contacts: Add site contact while placing an order', async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -386,17 +312,13 @@ test.describe('Site Contacts: Add site contact while placing an order', () => {
     });
 
   });
-});
 
-test.describe('Site Contacts: Select existing site contact while placing an order', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Select site contact', async ({ },) => {
+  test('Site Contacts: Select existing site contact while placing an order', async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -446,17 +368,13 @@ test.describe('Site Contacts: Select existing site contact while placing an orde
       await orderDeliveryDetailsPage.verifySiteContactDetails(contact);
     });
   });
-});
 
-test.describe('Missed Collection', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test(`Missed Collection for today's date`, async () => {
+  test(`Missed skip Collection for today's date`, async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -503,18 +421,13 @@ test.describe('Missed Collection', () => {
     });
 
   });
-});
-
-test.describe('Confirm Collection', () => {
-  test.setTimeout(180000); // 3 minutes
-
 
   test('Confirm skip collection', async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -560,17 +473,13 @@ test.describe('Confirm Collection', () => {
     });
 
   });
-});
-
-test.describe('Missed Delivery', () => {
-  test.setTimeout(180000); // 3 minutes
 
   test(`Missed Delivery for today's date`, async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -617,17 +526,13 @@ test.describe('Missed Delivery', () => {
     });
 
   });
-});
-
-test.describe('Confirm Delivery', () => {
-  test.setTimeout(180000); // 3 minutes
 
   test(`Confirm Delivery for today's date`, async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -674,17 +579,13 @@ test.describe('Confirm Delivery', () => {
     });
 
   });
-});
-
-test.describe('Request collection outside 3 days free limit and pay for difference', () => {
-  test.setTimeout(180000); // 3 minutes
 
   test('Request collection outside 3 days free limit and pay for difference', async () => {
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -729,17 +630,13 @@ test.describe('Request collection outside 3 days free limit and pay for differen
     });
 
   });
-});
-
-test.describe('Request collection within 3 days free limit', () => {
-  test.setTimeout(180000); // 3 minutes
 
   test('Request collection within 3 days free limit', async () => {
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await loginPage.goto();
+    await loginPage.login(TestData.credentials.username, TestData.credentials.password);
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -784,16 +681,12 @@ test.describe('Request collection within 3 days free limit', () => {
     });
 
   });
-});
 
-test.describe('Upgrade skip', async () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Upgrading skip for logged-in user', async () => {
+  test('Upgrade skip', async () => {
 
     await test.step('Go to profile settings', async () => {
-      await loginPage.goto(TestData.baseURL);
-      await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+      await loginPage.goto();
+      await loginPage.login(TestData.credentials.username, TestData.credentials.password);
       await profilesettingpage.goToProfileSettingsPage();
     });
 
@@ -806,17 +699,13 @@ test.describe('Upgrade skip', async () => {
       }
     });
 
-  })
-});
+  });
 
-test.describe('Downgrade skip', async () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Downgrading skip for logged-in user', async () => {
+  test('Downgrade skip', async () => {
 
     await test.step('Go to profile settings', async () => {
-      await loginPage.goto(TestData.baseURL);
-      await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+      await loginPage.goto();
+      await loginPage.login(TestData.credentials.username, TestData.credentials.password);
       await profilesettingpage.goToProfileSettingsPage();
     });
 
@@ -829,17 +718,13 @@ test.describe('Downgrade skip', async () => {
       }
     });
 
-  })
-});
+  });
 
-test.describe('Edit User Profile', async () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Edit profile settings', async () => {
+  test('Edit User Profile', async () => {
 
     await test.step('Go to profile settings', async () => {
-      await loginPage.goto(TestData.baseURL);
-      await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+      await loginPage.goto();
+      await loginPage.login(TestData.credentials.username, TestData.credentials.password);
       await profilesettingpage.goToProfileSettingsPage();
     });
 
@@ -847,20 +732,16 @@ test.describe('Edit User Profile', async () => {
       await profilesettingpage.editProfileSettings("Maitray", "Bhatt", "1333444355");
     });
 
-  })
-});
+  });
 
-test.describe('Place an order for Wrong Skip Guarantee', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Place an order for Wrong Skip Guarantee and login with existing user', async () => {
+  test('Place an order for Wrong Skip Guarantee', async () => {
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[1]}`);
 
-    await loginPage.goto(TestData.baseURL);
+    await loginPage.goto();
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -910,19 +791,15 @@ test.describe('Place an order for Wrong Skip Guarantee', () => {
     });
 
   });
-});
 
-test.describe('Place order and add 2 Tonne bags', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Place order and add Tonne bags', async () => {
+  test('Place order and add 2 Tonne bags', async () => {
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[1]}`);
 
-    await loginPage.goto(TestData.baseURL);
+    await loginPage.goto();
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[1]);
@@ -982,10 +859,6 @@ test.describe('Place order and add 2 Tonne bags', () => {
     });
 
   });
-});
-
-test.describe('Change billing address and place order', () => {
-  test.setTimeout(180000); // 3 minutes
 
   test('Change billing address and place order', async () => {
 
@@ -994,7 +867,7 @@ test.describe('Change billing address and place order', () => {
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
+    await loginPage.goto();
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[0]);
@@ -1052,19 +925,15 @@ test.describe('Change billing address and place order', () => {
     });
 
   });
-});
 
-test.describe('Place order and add Road permit', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Place order and add road permit', async () => {
+  test('Place order and add Road permit', async () => {
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
 
-    await loginPage.goto(TestData.baseURL);
+    await loginPage.goto();
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[0]);
@@ -1126,10 +995,6 @@ test.describe('Place order and add Road permit', () => {
     });
 
   });
-});
-
-test.describe('Start order as guest and logs in with existing account', () => {
-  test.setTimeout(180000); // 3 minutes
 
   test('Start order as guest and logs in with existing account', async () => {
 
@@ -1139,7 +1004,7 @@ test.describe('Start order as guest and logs in with existing account', () => {
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
     //console.log(`🧾 Running Guest flow for:  ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
 
-    await loginPage.goto(TestData.baseURL);
+    await loginPage.goto();
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(TestData.postcodes[0]);
@@ -1196,12 +1061,8 @@ test.describe('Start order as guest and logs in with existing account', () => {
       await genFunctions.checkOrderEmailReceived(orderPage);
     });
   });
-});
 
-test.describe('Place an order as Guest User', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Guest User Placing an order', async () => {
+  test('Place an order as Guest User', async () => {
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -1209,7 +1070,7 @@ test.describe('Place an order as Guest User', () => {
     //console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
     console.log(`🧾 Running Guest flow for:  ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
 
-    await loginPage.goto(TestData.baseURL);
+    await loginPage.goto();
 
     await test.step('Enter postcode', async () => {
       await orderPage.enterPostcode(randomRow.Postcodes);
@@ -1256,18 +1117,14 @@ test.describe('Place an order as Guest User', () => {
       await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
   });
-});
 
-test.describe('Place an order as Logged-in User', () => {
-  test.setTimeout(180000); // 3 minutes
-
-  test('Logged-in User Placing an order', async () => {
+  test('Place an order as Logged-in User', async () => {
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
 
     await test.step('Sign up new user', async () => {
-      await loginPage.goto(TestData.baseURL);
+      await loginPage.goto();
       await signUpPage.navigateToSignUpPage();
       await signUpPage.fillSignUpForm();
       await signUpPage.verifyRegistrationSuccess();
@@ -1324,10 +1181,9 @@ test.describe('Place an order as Logged-in User', () => {
       await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
     });
   });
+
 });
 
 test.afterEach(async () => {
-  // Only close the customer context after all pages have finished using it
-  await context?.close();
-
+  await test.page?.context()?.close();
 });

@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { OrderPage } from '../pages/OrderPage.js';
+// import { OrderPage } from '../pages/OrderPage.js';
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -103,7 +103,7 @@ export class OrderDeliveryDetailsPage {
         this.moreOptionsBtn = page.locator('button:has(svg.lucide-more-vertical)'); //css xpath=> //button[.//svg[contains(@class,'lucide-more-vertical')]]
         this.paymentHistoryBtn = page.getByRole('button', { name: 'Payment History' });
         this.pymtHistoryLbl = page.locator('h3:has-text("Payment History")');
-        this.totalAmout = page.locator("//div[@class='text-right']/div");
+        this.amountPaid = page.locator('div:has-text("Amount Paid:")').locator('span.text-green-400');
 
         //Request Refund
         this.requestRefundBtn = page.getByRole('button', { name: 'Request Refund' });
@@ -115,6 +115,17 @@ export class OrderDeliveryDetailsPage {
         this.RequestSubmissionSuccessMsg = page.getByText("Refund request submitted successfully");
         this.verifyRefundRequestedLogHistory = page.getByText("Refund Requested");
         this.verifyRefundRequestStatus = page.locator("//div[contains(@class, 'text-gray-300')]/span[2]");
+
+        // Send message feature locators
+        this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' }).first();
+        this.preDefinedMessage = page.locator("//div[@class='flex flex-wrap gap-2']/button").filter({ hasText: 'Can I get an update on my delivery?' });
+        this.closeSendMsgWindowBtn = page.locator("//button[contains(@aria-label,'Close')]");
+        this.messagesTab = page.getByRole('button', { name: 'Messages' });
+        this.verifySelectedMsg = page.locator("//div[@class='flex-1 min-w-0']/p").first();
+        this.enterMsg = page.getByPlaceholder('Type your message...');
+        //this.sendBtn = this.enterMsg.locator('..').locator('button');
+        this.sendBtn = page.locator("//textarea/following-sibling::button");
+        this.sendMessageBtnFromMsgTab = page.getByRole('button', { name: 'Send Message' }).last();
     }
 
     async verifyOrderDeliveryDetails() {
@@ -354,12 +365,14 @@ export class OrderDeliveryDetailsPage {
 
     async verifyPaymentHistory() {
         const text = await this.orderTotalAmt.textContent();
+        console.log(text);
         const amt = text.slice(5);
         await this.moreOptionsBtn.click();
         await this.paymentHistoryBtn.click();
         await expect(this.pymtHistoryLbl).toBeVisible();
-        const total = await this.totalAmout.textContent();
-        expect(total).toContain(amt);
+        const paidAmt = await this.amountPaid.textContent();
+        console.log(paidAmt);
+        expect(paidAmt).toContain(amt);
     }
 
     async verifyRequestRefund() {
@@ -373,5 +386,54 @@ export class OrderDeliveryDetailsPage {
         await expect(this.RequestSubmissionSuccessMsg).toHaveText("Refund request submitted successfully");
         await expect(this.verifyRefundRequestedLogHistory).toBeVisible();
         await expect(this.verifyRefundRequestStatus).toHaveText("PENDING");
+    }
+
+    //Send Message
+    //Below is parameter destructure
+    //     async sendMessage({
+    //   fromMessagesTab = false,
+    //   messageType = 'predefined',
+    //   customText = ''
+    // } = {}) {
+    //   ...
+    // }
+    //we do NOT destructure in the parameter Instead, we destructure inside the function
+    async sendMessage(options = {}) {
+        const { fromMessageTab = false,
+            messageType = 'preDefined',
+            customText = '' } = options;
+        // open message window
+        if (fromMessageTab) {
+            await this.messagesTab.click();
+            await this.sendMessageBtnFromMsgTab.click();
+        }
+        else {
+            await this.sendMessageBtn.click();
+        }
+        // handle message type
+        let expectedMessage
+        if (messageType === 'preDefined') {
+            expectedMessage = await this.preDefinedMessage.textContent();
+            await this.preDefinedMessage.click();
+        }
+        else {
+            expectedMessage = customText;
+            await this.enterMsg.fill(expectedMessage);
+            await this.sendBtn.click();
+        }
+        // common steps
+        await this.closeSendMsgWindowBtn.click();
+        await this.page.reload();
+        await this.messagesTab.click();
+
+        await expect(this.verifySelectedMsg).toHaveText(expectedMessage);
+
+        return expectedMessage;
+    }
+
+    async verifyAdminReply(adminReply) {
+        await this.page.reload();
+        await this.messagesTab.click();
+        await expect(this.verifySelectedMsg).toHaveText(adminReply);
     }
 }

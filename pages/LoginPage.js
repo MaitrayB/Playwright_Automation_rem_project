@@ -26,8 +26,8 @@ export class LoginPage {
     this.signOutBtn = page.getByRole('button', { name: 'Sign Out' });
   }
 
-  async goto() {
-    await this.page.goto(TestData.baseURL);
+  async goto(url) {
+    await this.page.goto(url);
     await this.page.waitForTimeout(1000);
   }
 
@@ -48,6 +48,6 @@ export class LoginPage {
     await this.signInBtn.waitFor({ state: 'visible' });
     await this.signInBtn.click();
     await this.page.waitForTimeout(3000);
-
+    await this.page.locator("//button[contains(@class,'p-1.5')]").last().click();
   }
 }

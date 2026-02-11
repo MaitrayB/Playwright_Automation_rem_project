@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 import { faker, Faker } from "@faker-js/faker";
+import { TestData } from '../Data/TestData';
 
 export class genericFunctions {
     constructor(page) {
@@ -57,5 +58,9 @@ export class genericFunctions {
         return {
             phone, name, email
         };
+    }
+
+    buildURL(path) {
+        return `${TestData.baseURL.replace(/\/$/, '')}${path}`;
     }
 }

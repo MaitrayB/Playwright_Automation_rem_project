@@ -19,6 +19,7 @@ export class OrderPage {
   constructor(page) {
 
     this.page = page;
+    this.closeBtnFromTermsPage = page.getByRole('button', { name: 'Close' });
     this.postcodeInput = page.getByRole('textbox', { name: 'Start Typing Your Delivery' });
     this.continueBtn = page.getByRole('button', { name: 'Continue' });
     this.confirmBtn = page.getByRole('button', { name: 'Confirm' });
@@ -108,7 +109,7 @@ export class OrderPage {
     //await this.page.getByRole('button').nth(3).click();
     await this.page.locator('(//button)[3]').waitFor({ state: 'visible', timeout: 60000 });
     await this.page.locator('(//button)[3]').click();
-
+    await this.closeBtnFromTermsPage.click();
     if (await this.page.getByRole('button').nth(3).isVisible()) { await this.page.getByRole('button').nth(3).click(); }
 
     await this.page.waitForTimeout(2000);
@@ -368,7 +369,7 @@ export class OrderPage {
     await expect(this.textBelowSiteContactLbl).toBeVisible();
     this.yesSiteContactBtn.click();
   }
-
+  //This is parameter destructuring - completePayment({ contactAction } = {})
   async completePayment({ contactAction } = {}) {
     const genfunc = new genericFunctions(this.page);
     const contact = await genfunc.getSiteContactDetails();

@@ -20,9 +20,10 @@ export class DashboardPage {
     this.myOrdersBtn = page.getByRole('button', { name: 'My Orders' });
     this.pastOrdersBtn = page.getByRole('button', { name: 'Past Orders' });
     this.activeOrdersBtn = page.getByRole('button', { name: 'Active Orders' });
-    this.viewOrderDetailsBtn = page.locator('(//button[contains(.,"View Order Details")])[1]');
+    this.viewOrderDetailsBtn = page.getByRole('button', { name: 'View details' }).first();
     this.orderNumber = page.locator("//span[contains(., '#')]");
     this.orderId = '';
+    this.existingOrderNumber = page.getByText('Order #');
   }
 
   async gotoSuccessPage() {
@@ -64,8 +65,8 @@ export class DashboardPage {
   }
   async navigateToViewOrderDetails() {
     await this.viewOrderDetailsBtn.waitFor({ state: 'visible' });
-    await this.page.waitForTimeout(2000);
     await this.viewOrderDetailsBtn.click();
-    await this.page.waitForTimeout(2000);
+    const orderId = (await this.existingOrderNumber.innerText()).split('#')[1];
+    return orderId;
   }
 }

@@ -5,8 +5,14 @@ export const TestData = {
     authPassword: 'Wewantwaste11dec'
   },
   credentials: {
-    username: 'navin@yopmail.com',
-    password: 'P@ssw0rd'
+    customer: {
+      username: 'navin@yopmail.com',
+      password: 'P@ssw0rd'
+    },
+    agent: {
+      username: 'mat+admin@remwaste.com',
+      password: 'Passport123'
+    }
   },
   postcodes: [
     'LE10 2DD',

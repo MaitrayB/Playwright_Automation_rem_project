@@ -129,8 +129,8 @@ export class SignUpPage {
         await this.page.locator('#firstName').focus();
         await this.firstNameInput.fill("Navin");
         await this.lastNameInput.fill("Shah");
-        await this.emailInput.fill(TestData.credentials.username);
-        await this.confirmEmailInput.fill(TestData.credentials.username);
+        await this.emailInput.fill(TestData.credentials.customer.username);
+        await this.confirmEmailInput.fill(TestData.credentials.customer.username);
         await this.phoneInput.fill('+44 16977 2987');
         if (await this.continueBtn.isEnabled()) {
             //console.log('Continue button is enabled');
@@ -141,7 +141,7 @@ export class SignUpPage {
         await this.page.waitForTimeout(3000);
 
         await this.signInContinueBtn.click();
-        await loginPage.login(TestData.credentials.username, TestData.credentials.password);
+        await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
         await this.page.waitForTimeout(3000);
     }
 
