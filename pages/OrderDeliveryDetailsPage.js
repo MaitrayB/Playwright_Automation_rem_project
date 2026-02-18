@@ -96,6 +96,7 @@ export class OrderDeliveryDetailsPage {
         this.uploadImageBtn = page.locator("//button[contains(.,'Upload')]");
         this.uploadSuccessMsg = page.locator("//p[contains(.,'1 image added successfully')]");
         this.xIconCount = page.locator("//div[@class='relative group']/button");
+        this.removeImgPopup = page.locator("(//button[contains(.,'Remove')])[last()]");
         this.imageDeletedMsg = page.getByText("Image removed successfully");
 
         // Payment History
@@ -360,6 +361,8 @@ export class OrderDeliveryDetailsPage {
         }
         await this.page.waitForTimeout(1000);
         await deleteFirstImg.click();
+        await this.removeImgPopup.click();
+        await this.page.waitForTimeout(1000);
         await expect(this.imageDeletedMsg).toBeVisible();
     }
 

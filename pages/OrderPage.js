@@ -70,9 +70,10 @@ export class OrderPage {
     this.calendarNextArrow = page.getByRole('button', { name: '→' })
 
     //Paymentform
-    this.cardNumberLocator = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-numberInput"]');
-    this.expiryDate = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-expiryInput"]');
-    this.cvc = page.frameLocator('iframe[name^="__privateStripe"]').nth(0).locator('xpath=//input[@id="Field-cvcInput"]');
+    const stripeFrame = page.locator('//iframe[contains(@name,"__privateStripeFrame")]').first().contentFrame();
+    this.cardNumberLocator = stripeFrame.locator('//input[@id="payment-numberInput"]');
+    this.expiryDate = stripeFrame.locator('//input[@id="payment-expiryInput"]');
+    this.cvc = stripeFrame.locator('xpath=//input[@id="payment-cvcInput"]');
 
     // Site contact
     this.siteContactLblOnPymtForm = page.locator('//h3[contains(., "Site Contact")]');
@@ -217,13 +218,13 @@ export class OrderPage {
     await this.page.waitForTimeout(1000);
     expect(this.tarpDiv.getByText('Add Skip Tarp (Small) for £15 (one-time)').isVisible()).toBeTruthy();
 
-
+/*
     if (Skiptarp === 'Yes') {
       await this.skipTarpYesBtn.click();
     }
     else {
       await this.skipTarpNoBtn.click();
-    }
+    }*/
 
     if (Plasterboard === 'Yes') {
       if (ToneBag === 'Yes') {

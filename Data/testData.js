@@ -14,6 +14,14 @@ export const TestData = {
       password: 'Passport123'
     }
   },
+
+  customer: {
+    credentials: {
+      username: 'navin@yopmail.com',
+      password: 'P@ssw0rd'
+    }
+  },
+
   postcodes: [
     'LE10 2DD',
     'LE11 2LL',

@@ -1,0 +1,2 @@
+🎯 Selected row index: 60 📦 Postcode: L2L 3EL, WasteType: Construction Waste
+🧾 Running Guest flow for:  LE11 2LL, Household Waste, Heavywaste -No, Plasterboard -No, Skipsize-6, Public Property
