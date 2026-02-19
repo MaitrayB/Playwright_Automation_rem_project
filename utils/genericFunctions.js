@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import { faker, Faker } from "@faker-js/faker";
-import { TestData } from '../Data/TestData';
+import { TestData } from '../Data/testData.js';
 
 export class genericFunctions {
     constructor(page) {
@@ -16,10 +16,10 @@ export class genericFunctions {
         // await this.page.waitForLoadState("networkidle");
     }
 
-    async accessInbox(emailId) {
+    async accessInbox() {
         await this.page.waitForSelector('.ycptinput', { state: 'visible' });
         await this.inputEmail.click();
-        await this.inputEmail.fill(emailId);
+        await this.inputEmail.fill(TestData.credentials.customer.username);
         await this.inboxBtn.click();
         await this.page.waitForTimeout(2000);
     }
@@ -62,5 +62,21 @@ export class genericFunctions {
 
     buildURL(path) {
         return `${TestData.baseURL.replace(/\/$/, '')}${path}`;
+    }
+
+    async generateRandomEmail() {
+        const firstName = faker.person.firstName();
+        const lastName = faker.person.lastName();
+        const emailAddress = `${firstName}_${lastName}@yopmail.com`;
+        return emailAddress;
+    }
+
+    async generateRandomPhoneNum() {
+        // Generate valid UK mobile phone number in format: 07XXX XXXXXX (e.g., 07361 583234)
+        // UK mobile numbers starting with 07 are SMS-capable and can receive text messages
+        const areaCode = faker.string.numeric(3);
+        const localNumber = faker.string.numeric(6);
+        const number = `07${areaCode} ${localNumber}`;
+        return number;
     }
 }

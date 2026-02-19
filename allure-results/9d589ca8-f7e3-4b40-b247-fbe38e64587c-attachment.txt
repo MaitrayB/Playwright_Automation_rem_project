@@ -1,2 +1,0 @@
-🎯 Selected row index: 596 📦 Postcode: LY6F 1NR, WasteType: Garden Waste
-🧾 Running Guest flow for:  LE11 2LL, Household Waste, Heavywaste -No, Plasterboard -No, Skipsize-6, Public Property
