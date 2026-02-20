@@ -8,7 +8,7 @@ export default defineConfig({
     browserName: 'chromium',
     launchOptions: {
       args: ['--start-maximized'],
-      slowMo: 600, // 1s delay between steps
+      slowMo:800, // 1s delay between steps
     },
     viewport: null, // ensure maximized window takes effect
     screenshot: 'only-on-failure',

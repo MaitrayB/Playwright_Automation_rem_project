@@ -44,5 +44,6 @@ export class InviteSupplierPage {
         await this.invitationSentSuccessMsg.waitFor();
         await expect(this.invitationSentSuccessMsg).toBeVisible();
         await expect(this.supplierInvitationStatus.getByText('Invited')).toBeVisible();
+        await this.page.waitForTimeout(3000);
     }
 }

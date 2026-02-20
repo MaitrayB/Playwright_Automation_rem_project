@@ -1,10 +1,10 @@
 import { test } from '@playwright/test';
-import { LoginPage } from '../pages/Customer/LoginPage.js';
-import { OrderPage } from '../pages/Customer/OrderPage.js';
-import { DashboardPage } from '../pages/Customer/DashboardPage.js';
-import { readCsv } from '../utils/readCsv.js';
-import { SignUpPage } from '../pages/Customer/SignUpPage.js';
-import { OrderDeliveryDetailsPage } from '../pages/Customer/OrderDeliveryDetailsPage.js';
+import { LoginPage } from '../../pages/Customer/LoginPage.js';
+import { OrderPage } from '../../pages/Customer/OrderPage.js';
+import { DashboardPage } from '../../pages/Customer/DashboardPage.js';
+import { readCsv } from '../../utils/readCsv.js';
+import { SignUpPage } from '../../pages/Customer/SignUpPage.js';
+import { OrderDeliveryDetailsPage } from '../../pages/Customer/OrderDeliveryDetailsPage.js';
 
 const csvData = readCsv('./Data/testData.csv');
 

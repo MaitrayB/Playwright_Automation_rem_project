@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { AdminLogin } from '../../pages/Admin/AdminLogin.js';
-import { InviteSupplierPage } from '../../pages/Supplier/InviteSupplierPage.js';
+import { InviteSupplierPage } from '../../pages/Admin/InviteSupplierPage.js';
 import { TestData } from '../../Data/testData.js';
 
 /** @type {InviteSupplier} */ let inviteSupplier;
