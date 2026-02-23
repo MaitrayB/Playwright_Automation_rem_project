@@ -1,14 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { AdminLogin } from '../../pages/Admin/AdminLogin.js';
-import { InviteSupplierPage } from '../../pages/Admin/InviteSupplierPage.js';
+import { SuppliersPage } from '../../pages/Admin/SuppliersPage.js';
 import { TestData } from '../../Data/testData.js';
 
-/** @type {InviteSupplier} */ let inviteSupplier;
+/** @type {SuppliersPage} */ let suppliersPage;
 /** @type {AdminLogin} */ let adminLogin;
 
 test.describe('Supplier Invitations', async () => {
 
     test('Blank Invitation', async ({ browser }) => {
+        let supplierDetails;
         const context = await browser.newContext({
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
@@ -18,13 +19,17 @@ test.describe('Supplier Invitations', async () => {
         });
         const page = await context.newPage();
         adminLogin = new AdminLogin(page);
-        inviteSupplier = new InviteSupplierPage(page);
+        suppliersPage = new SuppliersPage(page);
 
         await adminLogin.goto();
         await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
         await adminLogin.goToSuppliersPage();
 
-        await inviteSupplier.inviteSupplierViaEmailAndPhone();
+        supplierDetails = await suppliersPage.inviteSupplierViaEmailAndPhone();
+        console.log('Supplier details fetched from the test case is:', supplierDetails);
+
+        //Delete invited supplier
+        await suppliersPage.deleteSupplier(supplierDetails);
     });
 
 });
