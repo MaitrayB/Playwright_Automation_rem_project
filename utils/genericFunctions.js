@@ -74,9 +74,14 @@ export class genericFunctions {
     async generateRandomPhoneNum() {
         // Generate valid UK mobile phone number in format: 07XXX XXXXXX (e.g., 07361 583234)
         // UK mobile numbers starting with 07 are SMS-capable and can receive text messages
-        const areaCode = faker.string.numeric(3);
+        const validPrefixes = [
+            '071', '072', '073', '074',
+            '075', '077', '078', '079'
+        ];
+        const prefix = faker.helpers.arrayElement(validPrefixes);
+        const areaCode = faker.string.numeric(2);
         const localNumber = faker.string.numeric(6);
-        const number = `07${areaCode} ${localNumber}`;
+        const number = `${prefix}${areaCode} ${localNumber}`;
         return number;
     }
 }

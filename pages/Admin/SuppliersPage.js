@@ -25,30 +25,65 @@ export class SuppliersPage {
         this.sendInvitationBtn = page.getByRole('button', { name: 'Send Invitation' });
         this.invitationSentSuccessMsg = page.getByText('Invitation(s) sent successfully');
         this.supplierInvitationStatus = page.locator('table tbody tr').first();
-        this.invitedSupplierRow = page.locator('//table/tbody/tr').first();
-        this.actionsBtn = this.invitedSupplierRow.locator('td').last().locator('//div/button[2]');
+        this.invitedSupplierRow = page.locator('table tbody tr').first();
+        this.actionsBtn = this.invitedSupplierRow.locator('td:last-child div > button:nth-of-type(2)'); //Because nth-child can break if another element (like a <span>) appears before the button
         this.deleteBtn = page.getByRole('button', { name: 'Delete' });
         this.deleteSupplierPopupHeading = page.getByRole('heading', { name: 'Delete Supplier' });
         this.deleteSupplierBtn = this.page.getByRole('button', { name: 'Delete Supplier' });
         this.deleteSuccessMsg = page.getByText('Supplier deleted successfully');
+        this.inviteWithInfoRadioOption = page.getByRole('radio', { name: 'With Information' });
+        this.findCompanyNameInput = page.getByPlaceholder('Find company');
+        this.selectExistingCoName = page.locator('.absolute.z-50 button').filter({ has: page.locator('span', { hasText: 'active' }) }).first();
+        this.postcodeInput = page.getByPlaceholder('SW1A 1AA');
+        this.sericeRadiusInput = page.locator("[name ='companyRadius']");
+        this.hirePeriodInput = page.locator("[name ='companyHirePeriodDays']");
+        this.minimumTonneInput = page.locator("[name ='companyMinimumTone']");
+        this.invitationWithInfoSentSuccessMsg = page.getByText('Supplier created and invitation(s) sent successfully');
+
     }
 
-    async inviteSupplierViaEmailAndPhone() {
+    async inviteSupplierViaEmailAndPhone({ invitationType } = {}) {
+        let emailInput;
+        let phoneInput;
         const genFunctions = new genericFunctions(this.page);
         await this.inviteBtn.click();
-        await this.blankInvitationRadioBtn.check();
-        await this.sendInvitationsViaEmail.check();
-        await this.sendInvitationsViaPhone.check();
-        const emailInput = await genFunctions.generateRandomEmail();
-        //console.log('Generated Email is:', emailInput);
-        await this.supplierEmailInput.fill(emailInput);
-        const phoneInput = await genFunctions.generateRandomPhoneNum();
-        //console.log('Generated phone no is:', phoneInput);
-        // await this.supplierTelInput.pressSequentially('7123456789');
-        await this.supplierTelInput.fill(phoneInput);
+        if (invitationType === 'Blank Invitation') {
+            await this.blankInvitationRadioBtn.check();
+            await this.sendInvitationsViaEmail.check();
+            await this.sendInvitationsViaPhone.check();
+            emailInput = await genFunctions.generateRandomEmail();
+            //console.log('Generated Email is:', emailInput);
+            await this.supplierEmailInput.fill(emailInput);
+            phoneInput = await genFunctions.generateRandomPhoneNum();
+            //console.log('Generated phone no is:', phoneInput);
+            await this.supplierTelInput.fill(phoneInput);
+        }
+        if (invitationType === 'Invitation with Co. Information') {
+            await this.inviteWithInfoRadioOption.check();
+            await this.findCompanyNameInput.pressSequentially('abc');
+            await this.selectExistingCoName.click();
+            emailInput = await genFunctions.generateRandomEmail();
+            console.log('Generated Email for existing co. is:', emailInput);
+            await this.supplierEmailInput.fill(emailInput);
+            phoneInput = await genFunctions.generateRandomPhoneNum();
+            console.log('Generated phone no in existing co. is:', phoneInput);
+            await this.supplierTelInput.fill(phoneInput);
+            await this.postcodeInput.fill('M1 1AA');
+            await this.sericeRadiusInput.fill('27');
+            await this.hirePeriodInput.fill('14');
+            await this.minimumTonneInput.fill('2.6');
+        }
+
         await this.sendInvitationBtn.click();
-        await this.invitationSentSuccessMsg.waitFor();
-        await expect(this.invitationSentSuccessMsg).toBeVisible();
+
+        if (invitationType === 'Blank Invitation') {
+            await this.invitationSentSuccessMsg.waitFor();
+            await expect(this.invitationSentSuccessMsg).toBeVisible();
+        }
+        if (invitationType === 'Invitation with Co. Information') {
+            await this.invitationWithInfoSentSuccessMsg.waitFor();
+            await expect(this.invitationWithInfoSentSuccessMsg).toBeVisible();
+        }
         await expect(this.supplierInvitationStatus.getByText('Invited')).toBeVisible();
         await this.page.waitForTimeout(3000);
         const supplierEmail = await this.invitedSupplierRow.textContent();

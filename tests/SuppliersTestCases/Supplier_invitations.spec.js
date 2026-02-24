@@ -25,8 +25,30 @@ test.describe('Supplier Invitations', async () => {
         await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
         await adminLogin.goToSuppliersPage();
 
-        supplierDetails = await suppliersPage.inviteSupplierViaEmailAndPhone();
-        console.log('Supplier details fetched from the test case is:', supplierDetails);
+        supplierDetails = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Blank Invitation' });
+
+        //Delete invited supplier
+        await suppliersPage.deleteSupplier(supplierDetails);
+    });
+
+    test('Invitation with Company Information', async ({ browser }) => {
+        let supplierDetails;
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+        adminLogin = new AdminLogin(page);
+        suppliersPage = new SuppliersPage(page);
+
+        await adminLogin.goto();
+        await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
+        await adminLogin.goToSuppliersPage();
+
+        supplierDetails = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Invitation with Co. Information' });
 
         //Delete invited supplier
         await suppliersPage.deleteSupplier(supplierDetails);
