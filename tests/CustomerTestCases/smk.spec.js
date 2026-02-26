@@ -898,7 +898,7 @@ test.describe('Customer side test cases', () => {
 
     await test.step('Order Placement Email Verification', async () => {
       await genFunctions.goToYopmail();
-      await genFunctions.accessInbox();
+      await genFunctions.accessInbox(TestData.credentials.customer.username);
       await genFunctions.checkOrderEmailReceived(orderPage);
     });
 
@@ -963,7 +963,7 @@ test.describe('Customer side test cases', () => {
 
     await test.step('Order Placement Email Verification', async () => {
       await genFunctions.goToYopmail();
-      await genFunctions.accessInbox();
+      await genFunctions.accessInbox(TestData.credentials.customer.username);
       await genFunctions.checkOrderEmailReceived(orderPage);
     });
 
@@ -1032,7 +1032,7 @@ test.describe('Customer side test cases', () => {
 
     await test.step('Order Placement Email Verification', async () => {
       await genFunctions.goToYopmail();
-      await genFunctions.accessInbox();
+      await genFunctions.accessInbox(TestData.credentials.customer.username);
       await genFunctions.checkOrderEmailReceived(orderPage);
     });
 
@@ -1097,7 +1097,7 @@ test.describe('Customer side test cases', () => {
 
     await test.step('Order Placement Email Verification', async () => {
       await genFunctions.goToYopmail();
-      await genFunctions.accessInbox();
+      await genFunctions.accessInbox(TestData.credentials.customer.username);
       await genFunctions.checkOrderEmailReceived(orderPage);
     });
   });

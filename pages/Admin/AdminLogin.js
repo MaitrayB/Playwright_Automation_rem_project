@@ -23,9 +23,9 @@ export class AdminLogin {
         this.landingPageTitle = page.getByRole('heading', { name: 'Orders' });
         this.suppliersLink = page.getByRole('link', { name: 'Suppliers' });
     }
-    async goto() {
+    async goto(url) {
         const genFunctions = new genericFunctions(this.page);
-        await this.page.goto(genFunctions.buildURL('/agent/login'));
+        await this.page.goto(url);
         // await this.page.waitForTimeout(1000);
     }
 

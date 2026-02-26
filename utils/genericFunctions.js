@@ -12,14 +12,14 @@ export class genericFunctions {
 
     async goToYopmail() {
         await this.page.waitForTimeout(3000);
-        await this.page.goto("https://yopmail.com/en/");
+        await this.page.goto("https://yopmail.com/en/", { waitUntil: 'networkidle' });
         // await this.page.waitForLoadState("networkidle");
     }
 
-    async accessInbox() {
+    async accessInbox(email) {
         await this.page.waitForSelector('.ycptinput', { state: 'visible' });
         await this.inputEmail.click();
-        await this.inputEmail.fill(TestData.credentials.customer.username);
+        await this.inputEmail.fill(email);
         await this.inboxBtn.click();
         await this.page.waitForTimeout(2000);
     }

@@ -1,0 +1,122 @@
+import { expect } from "allure-playwright";
+import { TestData } from '../../Data/testData.js';
+/*
+Below 2 TYPEDEF lines you need for:
+✔ VS Code IntelliSense
+✔ Cmd + Click navigation
+✔ Proper type inference for page
+✔ Method autocomplete in test files
+*/
+/** 
+ * @typedef {import('@playwright/test').Page} Page
+ * @typedef {import('@playwright/test').Locator} Locator 
+ */
+
+export class YopmailPage {
+    /** @param {Page} page */
+    constructor(page) {
+        this.page = page;
+        this.emailInput = page.locator("//input[@class='ycptinput']");
+        this.inboxBtn = page.locator("//button[@class='md']");
+        this.inboxFrame = this.page.frameLocator('#ifmail');
+    }
+
+    async navigateToYopmail() {
+        await this.page.goto("https://yopmail.com/en/");
+        await this.page.waitForTimeout(1000);
+    }
+
+    async accessInbox(email) {
+        await this.page.waitForSelector('.ycptinput', { state: 'visible' });
+        await this.emailInput.click();
+        await this.emailInput.fill(email);
+        await this.inboxBtn.click();
+        await this.page.waitForTimeout(3000);
+    }
+
+    async waitForInvitationEmail(subject = "Join Your Supplier Account on We Want Waste Supplier Platform") {
+        await this.page.waitForSelector('#ifmail', { state: 'visible', timeout: 30000 });
+
+        // Wait a bit more for email to fully load
+        await this.page.waitForTimeout(3000);
+
+        // Try to find the email with various text patterns
+        const emailPatterns = [
+            subject,
+            'Join Your Supplier Account',
+            'join your supplier account'
+        ];
+
+        let emailFound = false;
+        for (const pattern of emailPatterns) {
+            try {
+                const element = this.inboxFrame.getByText(new RegExp(pattern, 'i'));
+                if (await element.isVisible({ timeout: 5000 })) {
+                    emailFound = true;
+                    console.log(`Found email with pattern: ${pattern}`);
+                    break;
+                }
+            } catch (e) {
+                // Continue to next pattern
+            }
+        }
+
+        if (!emailFound) {
+            // Log all text in the iframe for debugging
+            const allText = await this.inboxFrame.locator('body').innerText().catch(() => 'No text found');
+            console.log('Email inbox content:', allText);
+            throw new Error(`Invitation email not found. Inbox content: ${allText}`);
+        }
+    }
+
+    async clickInvitationEmail(subject = "Supplier Invitation") {
+        // Try different patterns to find the email
+        const emailPatterns = [
+            subject,
+            'Invitation',
+            'invitation',
+            'Register',
+            'register'
+        ];
+
+        for (const pattern of emailPatterns) {
+            try {
+                const element = this.inboxFrame.getByText(new RegExp(pattern, 'i'));
+                if (await element.isVisible({ timeout: 3000 })) {
+                    await element.click();
+                    await this.page.waitForTimeout(3000);
+                    return;
+                }
+            } catch (e) {
+                // Continue to next pattern
+            }
+        }
+
+        throw new Error('Could not find email to click');
+    }
+
+    async getInvitationLink() {
+        const link = this.inboxFrame.locator('a', { hasText: 'Accept Invitation' });
+        return await link.getAttribute('href');
+    }
+
+    async clickInvitationLinkInEmail() {
+        // Try to find and click a clickable link in the email
+        const allLinks = await this.inboxFrame.locator('a').all();
+
+        if (allLinks.length > 0) {
+            // Usually the main CTA link is one of the first links
+            for (const link of allLinks) {
+                const text = await link.textContent();
+                if (text && text.toLowerCase().includes('confirm') || text.toLowerCase().includes('register') || text.toLowerCase().includes('signup')) {
+                    await link.click();
+                    return;
+                }
+            }
+            // If no specific link found, click the first link
+            await allLinks[0].click();
+        } else {
+            throw new Error('No links found in email');
+        }
+    }
+}

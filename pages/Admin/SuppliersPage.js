@@ -66,7 +66,6 @@ export class SuppliersPage {
             console.log('Generated Email for existing co. is:', emailInput);
             await this.supplierEmailInput.fill(emailInput);
             phoneInput = await genFunctions.generateRandomPhoneNum();
-            console.log('Generated phone no in existing co. is:', phoneInput);
             await this.supplierTelInput.fill(phoneInput);
             await this.postcodeInput.fill('M1 1AA');
             await this.sericeRadiusInput.fill('27');
@@ -86,9 +85,9 @@ export class SuppliersPage {
         }
         await expect(this.supplierInvitationStatus.getByText('Invited')).toBeVisible();
         await this.page.waitForTimeout(3000);
-        const supplierEmail = await this.invitedSupplierRow.textContent();
-        expect(supplierEmail).toContain(emailInput);
-        return supplierEmail;
+        const supplierDetails = await this.invitedSupplierRow.textContent();
+        expect(supplierDetails).toContain(emailInput);
+        return supplierDetails;
     }
 
     async deleteSupplier(supplierDetails) {
