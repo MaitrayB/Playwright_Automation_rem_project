@@ -14,7 +14,7 @@ import { SupplierRegistrationPage } from '../../pages/Suppliers/SupplierRegistra
 
 test.describe('Supplier Invitations', async () => {
 
-    test('Blank Invitation', async ({ browser }) => {
+    test('Scenario 1: Blank Invitation', async ({ browser }) => {
         let invitedEmail;
         const context = await browser.newContext({
             httpCredentials: {
@@ -40,7 +40,7 @@ test.describe('Supplier Invitations', async () => {
         await context.close();
     });
 
-    test('Invitation with Company Information', async ({ browser }) => {
+    test('Scenario 2: Invitation with Company Information', async ({ browser }) => {
         const context = await browser.newContext({
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
@@ -65,7 +65,7 @@ test.describe('Supplier Invitations', async () => {
         await context.close();
     });
 
-    test('Supplier Registers via Invitation Link', async ({ browser }) => {
+    test('Scenario 3: Supplier Registers via Invitation Link', async ({ browser }) => {
         let invitedEmail;
         //---------------------------------------
         const context = await browser.newContext({
@@ -127,10 +127,11 @@ test.describe('Supplier Invitations', async () => {
 
         // Open inside authenticated context
         const registrationPage = await registrationContext.newPage();
+
         // Navigate to invitation link
         await registrationPage.goto(invitationLink, { waitUntil: 'domcontentloaded' });
-
         supplierRegistrationPage = new SupplierRegistrationPage(registrationPage);
+
         await supplierRegistrationPage.verifyPageLoaded();
         console.log('Supplier registration page loaded');
 
@@ -173,6 +174,52 @@ test.describe('Supplier Invitations', async () => {
 
         // Cleanup
         await context.close()
+        await emailContext.close();
+        await registrationContext.close();
+    });
+
+    test('Scenario 5: Already Accepted Invitation', async ({ browser }) => {
+
+        // Step 1: Create first page for email verification
+        const emailContext = await browser.newContext();
+        const emailPage = await emailContext.newPage();
+
+        yopmailPage = new YopmailPage(emailPage);
+        genFunctions = new genericFunctions(emailPage);
+
+        // Navigate to yopmail and access inbox
+        await genFunctions.goToYopmail();
+        await genFunctions.accessInbox('Alena_Kessler@yopmail.com');
+
+        // Step 2: Find invitation email and extract link
+        await yopmailPage.waitForInvitationEmail(['Join Your Supplier Account', 'join your supplier account']);
+
+        // Create authenticated context
+        // Step 3: Create second page to access expired invitation link
+        const registrationContext = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+
+        // Get the invitation link from email
+        const invitationLink = await yopmailPage.getInvitationLink();
+
+        // Open inside authenticated context
+        const registrationPage = await registrationContext.newPage();
+
+        // Navigate to invitation link
+        await registrationPage.goto(invitationLink, { waitUntil: 'domcontentloaded' });
+        supplierRegistrationPage = new SupplierRegistrationPage(registrationPage);
+
+        // Verify that the page shows already accepted invitation message
+        await supplierRegistrationPage.verifyAcceptedInvitationMsg();
+        const currentURL = registrationPage.url();
+        expect(currentURL).toContain('/supplier/login');
+
+        // Cleanup
         await emailContext.close();
         await registrationContext.close();
     });

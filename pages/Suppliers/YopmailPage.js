@@ -53,7 +53,7 @@ export class YopmailPage {
                 const element = this.inboxFrame.getByText(new RegExp(pattern, 'i'));
                 if (await element.isVisible({ timeout: 5000 })) {
                     emailFound = true;
-                    console.log(`Found email with pattern: ${pattern}`);
+                    //console.log(`Found email with pattern: ${pattern}`);
                     break;
                 }
             } catch (e) {
@@ -64,7 +64,7 @@ export class YopmailPage {
         if (!emailFound) {
             // Log all text in the iframe for debugging
             const allText = await this.inboxFrame.locator('body').innerText().catch(() => 'No text found');
-            console.log('Email inbox content:', allText);
+            //console.log('Email inbox content:', allText);
             throw new Error(`Invitation email not found. Inbox content: ${allText}`);
         }
     }

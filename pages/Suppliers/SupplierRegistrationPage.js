@@ -25,6 +25,8 @@ export class SupplierRegistrationPage {
         this.supplierEmailInput = page.locator('#email');
         this.supplierPasswordInput = page.locator('#password');
         this.signInBtn = page.getByRole('button', { name: 'Sign in' });
+        this.alreadyAcceptedInvitationMsg = page.getByText('This invitation has already been accepted. Please log in instead.');
+        this.supplierLoginPageHeading = page.getByRole('heading', { name: 'Supplier Sign In' });
     }
 
     async verifyEmailPreFilled(expectedEmail) {
@@ -55,5 +57,11 @@ export class SupplierRegistrationPage {
         await this.emailInput.fill(email);
         await this.passwordInput.fill(password);
         await this.signInBtn.click();
+    }
+
+    async verifyAcceptedInvitationMsg() {
+        await this.alreadyAcceptedInvitationMsg.waitFor({ state: 'visible' });
+        await expect(this.alreadyAcceptedInvitationMsg).toHaveText('This invitation has already been accepted. Please log in instead.');
+        await expect(this.supplierLoginPageHeading).toBeVisible();
     }
 }
