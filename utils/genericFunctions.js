@@ -13,9 +13,8 @@ export class genericFunctions {
 
     async goToYopmail() {
         await this.page.waitForTimeout(3000);
-        await this.page.goto("https://yopmail.com/en/", { waitUntil: 'networkidle' });
+        await this.page.goto("https://yopmail.com/en/", { timeout: 50000 });
         await this.page.waitForTimeout(1000);
-        // await this.page.waitForLoadState("networkidle");
     }
 
     async accessInbox(email) {

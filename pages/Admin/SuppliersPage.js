@@ -122,7 +122,7 @@ export class SuppliersPage {
 
         await expect(statusCell).toHaveText(/Invited/);
 
-        return { id, email: emailInput, companyName, phone: phoneInput, postcode, serviceRadius, hirePeriod, minimumTonne };
+        return { id, email: emailInput, companyName, phone: phoneInput, postcode, hirePeriod };
     }
 
     // DELETE SUPPLIER (GENERIC & STABLE)
@@ -145,19 +145,49 @@ export class SuppliersPage {
         await expect(tblHelper.getRowByText(email)).toHaveCount(0);
     }
 
-    async getSupplierEmailBasedOnStatus(status) {
+    // async getSupplierEmailBasedOnStatus(statusToFind) {
+    //     const tblHelper = new tableHelper(this.page, 'table.w-full');
+    //     const rowCount = await tblHelper.getRowCount();
+    //     for (let i = 0; i < rowCount; i++) {
+    //         const companyCell = await tblHelper.getCellByIndex(i, await tblHelper.getColumnIndexByHeader('COMPANY'));
+    //         const companyName = await companyCell.textContent().then(text => text.trim());
+    //         const statusCell = await tblHelper.getCellByIndex(i, await tblHelper.getColumnIndexByHeader('INVITATION'));
+    //         // Extract only the status word (e.g., "Joined" from "Joined 02/03/2026")
+    //         const cellStatusRaw = (await statusCell.textContent())?.trim();
+    //         const match = cellStatusRaw.match(/^(Joined|Invited|Not\sInvited|Blacklisted)/i);
+    //         const status = match ? match[0] : '';
+    //         if (status === statusToFind) {
+    //             const emailCell = await tblHelper.getCellByIndex(i, await tblHelper.getColumnIndexByHeader('CONTACT'));
+    //             const contactText = await emailCell.textContent();
+    //             const emailMatch = contactText.match(/[A-Za-z0-9._%+-]+@yopmail\.com/);
+    //             const email = emailMatch ? emailMatch[0] : contactText.trim();
+    //             return { email, companyName };
+    //         }
+    //         await this.page.waitForTimeout(1000);
+    //     }
+    //     throw new Error(`No supplier found with status: ${statusToFind}`);
+    // }
+
+    async getSupplierEmailBasedOnStatus(statusToFind) {
         const tblHelper = new tableHelper(this.page, 'table.w-full');
         const rowCount = await tblHelper.getRowCount();
         for (let i = 0; i < rowCount; i++) {
+            const companyCell = await tblHelper.getCellByIndex(i, await tblHelper.getColumnIndexByHeader('COMPANY'));
+            const companyName = await companyCell.textContent().then(text => text.trim());
             const statusCell = await tblHelper.getCellByIndex(i, await tblHelper.getColumnIndexByHeader('INVITATION'));
-            const status = await statusCell.textContent().then(text => text.split('\n')[0].trim());
-            console.log(`Checking row ${i}: Status = ${status}`);
-            const cellStatus = (await statusCell.textContent())?.trim();
-            if (cellStatus === status) {
+            // Use regex to extract status word
+            const cellStatusRaw = (await statusCell.textContent())?.trim();
+            const match = cellStatusRaw.match(/^(Joined|Invited|Not\sInvited|Blacklisted)/i);
+            const cellStatus = match ? match[0] : '';
+            if (cellStatus === statusToFind) {
                 const emailCell = await tblHelper.getCellByIndex(i, await tblHelper.getColumnIndexByHeader('CONTACT'));
-                return (await emailCell.textContent())?.split('0')[0].trim(); // Assuming email is before the phone number in the CONTACT column
+                const contactText = await emailCell.textContent();
+                const emailMatch = contactText.match(/[A-Za-z0-9._%+-]+@yopmail\.com/);
+                const email = emailMatch ? emailMatch[0] : contactText.trim();
+                return { email, companyName };
             }
+            await this.page.waitForTimeout(1000);
         }
-        throw new Error(`No supplier found with status: ${status}`);
+        throw new Error(`No supplier found with status: ${statusToFind}`);
     }
 }

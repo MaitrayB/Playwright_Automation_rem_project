@@ -28,6 +28,12 @@ export class SupplierRegistrationPage {
         this.signInBtn = page.getByRole('button', { name: 'Sign in' });
         this.alreadyAcceptedInvitationMsg = page.getByText('This invitation has already been accepted. Please log in instead.');
         this.supplierLoginPageHeading = page.getByRole('heading', { name: 'Supplier Sign In' });
+        this.companyNameInput = page.locator("input[type='text']");
+        this.phoneNumberInput = page.locator("input[type='tel']");
+        this.postcodeInput = page.locator("[placeholder='SW1A 1AA']");
+        this.serviceRadiusInput = page.locator('#serviceRadius');
+        this.hirePeriodInput = page.locator('#hirePeriod');
+        this.minimumTonneInput = page.locator('#minimumTonne');
     }
 
     async verifyEmailPreFilled(expectedEmail) {
@@ -66,19 +72,48 @@ export class SupplierRegistrationPage {
         await expect(this.supplierLoginPageHeading).toBeVisible();
     }
 
-    async completeOnboardingForm(companyNm, phoneNo, postcode, serviceRadius, hirePeriod, minimumTonne) {
-        await this.registrationSuccessMessage.waitFor({ state: 'visible', timeout: 10000 });
-        await expect(this.page.locator("input[type='text']")).toHaveValue(companyNm);
-        await this.page.getByRole('button', { name: 'Next' }).click();
-        await expect(this.page.locator("input[type='tel']")).toHaveValue(phoneNo);
-        await this.page.getByRole('button', { name: 'Next' }).click();
-        await expect(this.page.locator("[placeholder='SW1A 1AA']")).toHaveValue(postcode);
-        await this.page.getByRole('button', { name: 'Next' }).click();
-        await expect(this.page.locator(".text-white.shadow-lg")).last().toBeVisible();
-        await this.page.getByRole('button', { name: 'Next' }).click();
-        await this.page.getByLabel('Skip Hire').check();
-        await this.page.getByRole('button', { name: 'Next' }).click();
 
-        await this.page.locator("[for='terms-onboarding']").isEnabled();
+    async completeOnboardingForm(page, supplier) {
+
+        const { companyName, phone, postcode, hirePeriod } = supplier; // 1. Company Name
+        const companyNameInput = await page.locator('.w-full.pl-10.pr-10');
+        expect(await companyNameInput.inputValue()).toBe(companyName);
+        await page.click('button:has-text("Next")');
+
+        // 2. Phone Number
+        const phoneNumberInput = await page.locator('input[placeholder="+44 20 1234 5678"]'); //[type="tel"]
+        expect(await phoneNumberInput.inputValue()).toBe(phone);
+        await page.click('button:has-text("Next")');
+
+        // 3. Postcode
+        const postcodeInput = await page.locator('input[placeholder="SW1A 1AA"]');
+        expect(await postcodeInput.inputValue()).toBe(postcode);
+        await page.click('button:has-text("Next")');
+
+        // 4. Hire Period
+        const hirePeriodButton = await page.locator('button.selected');
+        expect(await hirePeriodButton.textContent()).toBe(hirePeriod);
+        await page.click('button:has-text("Next")');
+
+        // 5. Services
+        const skipHireCheckbox = page.locator('text=Skip Hire').locator('..').locator('input[type="checkbox"]');
+        if (!(await skipHireCheckbox.isChecked())) {
+            await skipHireCheckbox.check();
+        }
+        await page.click('button:has-text("Next")');
+
+        // 6. Supplier Protection & Dispute Policy
+        await page.locator('div:has-text("Supplier Protection & Dispute Policy")').scrollIntoViewIfNeeded();
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+        const policyCheckbox = page.locator('input[type="checkbox"]:below(label:has-text("I have read and agree"))');
+        await policyCheckbox.check();
+        await page.click('button:has-text("Complete")');
+
+        // Verify redirect to orders page
+        await expect(page).toHaveURL(/.*\/orders/);
+
+        // Verify supplier status is "active"
+        const supplierStatus = await page.locator('text=Status').locator('..').locator('text=active');
+        await expect(supplierStatus).toBeVisible();
     }
 }

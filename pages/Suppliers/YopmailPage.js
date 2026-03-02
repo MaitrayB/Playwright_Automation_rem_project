@@ -34,38 +34,44 @@ export class YopmailPage {
         await this.page.waitForTimeout(3000);
     }
 
-    async waitForInvitationEmail(coName, subject = `Join ${coName} on We Want Waste Supplier Platform`) {
-        await this.page.waitForSelector('#ifmail', { state: 'visible', timeout: 50000 });
-
-        // Wait a bit more for email to fully load
-        await this.page.waitForTimeout(3000);
-
-        // Try to find the email with various text patterns
-        const emailPatterns = [
-            subject,
-            `Join ${coName} on We Want Waste Supplier Platform`,
-            `join ${coName} on we want waste supplier platform`
-        ];
-
+    async waitForInvitationEmail(coName, subject = `Join ${coName} on We Want Waste Supplier Platform`, maxRetries = 10, retryDelay = 3000) {
         let emailFound = false;
-        for (const pattern of emailPatterns) {
-            try {
-                const element = this.inboxFrame.getByText(new RegExp(pattern, 'i'));
-                if (await element.isVisible({ timeout: 5000 })) {
-                    emailFound = true;
-                    //console.log(`Found email with pattern: ${pattern}`);
-                    break;
+        let lastInboxText = '';
+
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            await this.page.waitForSelector('#ifmail', { state: 'visible', timeout: 50000 });
+            await this.page.waitForTimeout(2000); // Wait for iframe to load
+
+            // Try to find the email with various text patterns
+            const emailPatterns = [
+                subject,
+                `Join ${coName} on We Want Waste Supplier Platform`,
+                `join ${coName} on we want waste supplier platform`
+            ];
+
+            for (const pattern of emailPatterns) {
+                try {
+                    const element = this.inboxFrame.getByText(new RegExp(pattern, 'i'));
+                    if (await element.isVisible({ timeout: 3000 })) {
+                        emailFound = true;
+                        break;
+                    }
+                } catch (e) {
+                    // Continue to next pattern
                 }
-            } catch (e) {
-                // Continue to next pattern
             }
+
+            if (emailFound) break;
+
+            // Refresh inbox and try again
+            await this.page.reload();
+            await this.page.waitForTimeout(retryDelay);
+            // Optionally, log inbox text for debugging
+            lastInboxText = await this.inboxFrame.locator('body').innerText().catch(() => 'No text found');
         }
 
         if (!emailFound) {
-            // Log all text in the iframe for debugging
-            const allText = await this.inboxFrame.locator('body').innerText().catch(() => 'No text found');
-            //console.log('Email inbox content:', allText);
-            throw new Error(`Invitation email not found. Inbox content: ${allText}`);
+            throw new Error(`Invitation email not found after ${maxRetries} attempts. Last inbox content: ${lastInboxText}`);
         }
     }
 
