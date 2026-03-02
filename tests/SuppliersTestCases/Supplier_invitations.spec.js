@@ -15,59 +15,6 @@ import { SupplierRegistrationPage } from '../../pages/Suppliers/SupplierRegistra
 test.describe('Supplier Invitations', async () => {
 
     test('Scenario 1: Blank Invitation', async ({ browser }) => {
-        let invitedEmail;
-        const context = await browser.newContext({
-            httpCredentials: {
-                username: TestData.authCredentials.authUserName,
-                password: TestData.authCredentials.authPassword
-            },
-            ignoreHTTPSErrors: true
-        });
-        const page = await context.newPage();
-        adminLogin = new AdminLogin(page);
-        suppliersPage = new SuppliersPage(page);
-
-        await adminLogin.goto();
-        await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
-        await adminLogin.goToSuppliersPage();
-
-        const supplierDetails = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Blank Invitation' });
-
-        //Delete invited supplier
-        await suppliersPage.deleteSupplier(supplierDetails);
-
-        // Cleanup
-        await context.close();
-    });
-
-    test('Scenario 2: Invitation with Company Information', async ({ browser }) => {
-        const context = await browser.newContext({
-            httpCredentials: {
-                username: TestData.authCredentials.authUserName,
-                password: TestData.authCredentials.authPassword
-            },
-            ignoreHTTPSErrors: true
-        });
-        const page = await context.newPage();
-        adminLogin = new AdminLogin(page);
-        suppliersPage = new SuppliersPage(page);
-
-        await adminLogin.goto();
-        await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
-        await adminLogin.goToSuppliersPage();
-
-        const supplierDetails = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Invitation with Co. Information' });
-
-        //Delete invited supplier
-        await suppliersPage.deleteSupplier(supplierDetails);
-
-        // Cleanup
-        await context.close();
-    });
-
-    test('Scenario 3: Supplier Registers via Invitation Link', async ({ browser }) => {
-        let invitedEmail;
-        //---------------------------------------
         const context = await browser.newContext({
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
@@ -84,21 +31,67 @@ test.describe('Supplier Invitations', async () => {
         await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
         await adminLogin.goToSuppliersPage();
 
-        const supplierDetails = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Blank Invitation' });
+        const supplierEmail = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Blank Invitation' });
+        console.log(supplierEmail);
+        //Delete invited supplier
+        await suppliersPage.deleteSupplier(supplierEmail.email);
 
-        console.log('Supplier details from blank invitation test is:', supplierDetails);
-        const emailMatch = supplierDetails.match(/\d+-([\w._-]+@yopmail\.com)/);
+        // Cleanup
+        await context.close();
+    });
 
-        invitedEmail = emailMatch ? emailMatch[1] : null;
-        //-------------------------------------
-        //invitedEmail = 'Nicolette_Medhurst@yopmail.com';
-        if (!invitedEmail) {
-            throw new Error('Could not extract email from supplier details');
-        }
-        // console.log(email);
-        console.log('Invited supplier email:', invitedEmail);
+    test('Scenario 2: Invitation with Company Information', async ({ browser }) => {
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+        adminLogin = new AdminLogin(page);
+        suppliersPage = new SuppliersPage(page);
+        genFunctions = new genericFunctions(page);
 
-        // Step 2: Create second page for email verification
+        await adminLogin.goto(genFunctions.buildURL('/agent/login'));
+        await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
+        await adminLogin.goToSuppliersPage();
+
+        const supplierEmail = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Invitation with Co. Information' });
+
+        //Delete invited supplier
+        await suppliersPage.deleteSupplier(supplierEmail.email);
+
+        // Cleanup
+        await context.close();
+    });
+
+    test('Scenario 3: Supplier Registers via Invitation Link', async ({ browser }) => {
+        // let invitedEmail;
+
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+        adminLogin = new AdminLogin(page);
+        suppliersPage = new SuppliersPage(page);
+        genFunctions = new genericFunctions(page);
+
+        await adminLogin.goto(genFunctions.buildURL('/agent/login'));
+        await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
+        await adminLogin.goToSuppliersPage();
+
+        //Step 1: Receive invitation email/SMS and extract invitation link
+        const supplier = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Blank Invitation' });
+
+        const invitedEmail = supplier.email;
+        expect(invitedEmail).toBeTruthy();
+
+        // Create second page for email verification
         const emailContext = await browser.newContext();
         const emailPage = await emailContext.newPage();
 
@@ -109,11 +102,173 @@ test.describe('Supplier Invitations', async () => {
         await genFunctions.goToYopmail();
         await genFunctions.accessInbox(invitedEmail);
 
-        // Step 3: Find invitation email and extract link
+        // Find invitation email and extract link
         await yopmailPage.waitForInvitationEmail(['Join Your Supplier Account', 'join your supplier account']);
 
         // Create authenticated context
-        // Step 4: Create third page for registration
+        // Create third page for registration
+        const registrationContext = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+
+        // Step 2: Get & Click invitation link
+        const invitationLink = await yopmailPage.getInvitationLink();
+
+        // Open inside authenticated context
+        const registrationPage = await registrationContext.newPage();
+
+        // Navigate to invitation link
+        await registrationPage.goto(invitationLink, { waitUntil: 'domcontentloaded' });
+        supplierRegistrationPage = new SupplierRegistrationPage(registrationPage);
+
+        await supplierRegistrationPage.verifyPageLoaded();
+
+        // Step 3: Verify registration page loads with pre-filled email
+        await supplierRegistrationPage.verifyEmailPreFilled(invitedEmail);
+
+        // Step 4: Enter password and confirm password
+        const supplierPassword = 'Password@123';
+        await supplierRegistrationPage.fillRegistrationForm(supplierPassword);
+
+        // Step 5: Submit registration
+        await supplierRegistrationPage.submitRegistration();
+
+        // Verify registration success
+        await supplierRegistrationPage.verifyRegistrationSuccess();
+
+        // Step 7: Verify redirect to onboarding page
+        // await registrationPage.waitForTimeout(3000);
+        const currentUrl = registrationPage.url();
+        expect(currentUrl).not.toContain('/register');
+        expect(currentUrl).not.toContain('/invite');
+        expect(currentUrl).toContain('/onboarding');
+
+        //Step 6: Verify automatic login
+        const genFunction = new genericFunctions(registrationPage);
+        const supplierRegistrationPg = new SupplierRegistrationPage(registrationPage);
+        const supplierLogin = new AdminLogin(registrationPage);
+        const supplierLoginPageURL = genFunction.buildURL('/supplier/login');
+        await registrationPage.goto(supplierLoginPageURL);
+        await supplierRegistrationPg.supplierLogin(invitedEmail, supplierPassword);
+
+        // Cleanup
+        await context.close()
+        await emailContext.close();
+        await registrationContext.close();
+    });
+
+    test('Scenario 5: Already Accepted Invitation', async ({ browser }) => {
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+        adminLogin = new AdminLogin(page);
+        suppliersPage = new SuppliersPage(page);
+        genFunctions = new genericFunctions(page);
+
+        await adminLogin.goto(genFunctions.buildURL('/agent/login'));
+        await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
+        await adminLogin.goToSuppliersPage();
+
+        const email = await suppliersPage.getSupplierEmailBasedOnStatus('Joined');
+        expect(email).toBeTruthy();
+
+        // Step 1: Access already accepted invitation link
+        // Create first page for email verification
+        const emailContext = await browser.newContext();
+        const emailPage = await emailContext.newPage();
+
+        yopmailPage = new YopmailPage(emailPage);
+        genFunctions = new genericFunctions(emailPage);
+
+
+        // Navigate to yopmail and access inbox
+        console.log(`Email of a supplier with 'Joined' status: ${email}`);
+        await genFunctions.goToYopmail();
+        await genFunctions.accessInbox(email);
+
+        // Find invitation email and extract link
+        await yopmailPage.waitForInvitationEmail(['Join Your Supplier Account', 'join your supplier account']);
+
+        // Create authenticated context
+        const registrationContext = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+
+        // Get the invitation link from email
+        const invitationLink = await yopmailPage.getInvitationLink();
+
+        // Create second page to access expired invitation link, Open inside authenticated context
+        const registrationPage = await registrationContext.newPage();
+
+        // Navigate to invitation link
+        await registrationPage.goto(invitationLink, { waitUntil: 'domcontentloaded' });
+        supplierRegistrationPage = new SupplierRegistrationPage(registrationPage);
+
+        // Step 2 / 3: Verify error message displays & supplier cannot register again
+        await supplierRegistrationPage.verifyAcceptedInvitationMsg();
+        const currentURL = registrationPage.url();
+
+        // Step 4: Verify link to login page is provided
+        expect(currentURL).toContain('/supplier/login');
+
+        // Cleanup
+        await emailContext.close();
+        await registrationContext.close();
+    });
+
+    test('Scenario 6: Supplier Completes Onboarding', async ({ browser }) => {
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+        adminLogin = new AdminLogin(page);
+        suppliersPage = new SuppliersPage(page);
+        genFunctions = new genericFunctions(page);
+
+        await adminLogin.goto(genFunctions.buildURL('/agent/login'));
+        await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
+        await adminLogin.goToSuppliersPage();
+
+        const supplier = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Invitation with Co. Information' });
+
+        console.log('Supplier object:', supplier);
+        const invitedEmail = supplier.email;
+        const coName = supplier.companyName;
+        // expect(invitedEmail).toBeTruthy();
+
+        // Create second page for email verification
+        const emailContext = await browser.newContext();
+        const emailPage = await emailContext.newPage();
+
+        yopmailPage = new YopmailPage(emailPage);
+        genFunctions = new genericFunctions(emailPage);
+
+        // Navigate to yopmail and access inbox
+        await genFunctions.goToYopmail();
+        await genFunctions.accessInbox(invitedEmail);
+
+        // Find invitation email and extract link
+        await yopmailPage.waitForInvitationEmail(coName, [`Join ${coName} on We Want Waste Supplier Platform`,
+        `join ${coName} on we want waste supplier platform`]);
+
+        // Create third page for registration
         const registrationContext = await browser.newContext({
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
@@ -133,93 +288,28 @@ test.describe('Supplier Invitations', async () => {
         supplierRegistrationPage = new SupplierRegistrationPage(registrationPage);
 
         await supplierRegistrationPage.verifyPageLoaded();
-        console.log('Supplier registration page loaded');
 
-        // Step 5: Verify email is pre-filled
+        // Verify email is pre-filled
         await supplierRegistrationPage.verifyEmailPreFilled(invitedEmail);
-        console.log('Email pre-filled correctly');
 
-        // Step 6: Fill registration form
+        // Fill registration form
         const supplierPassword = 'Password@123';
         await supplierRegistrationPage.fillRegistrationForm(supplierPassword);
         console.log('Registration form filled');
 
-        // Step 7: Submit registration
+        // Submit registration
         await supplierRegistrationPage.submitRegistration();
-        console.log('Registration form submitted');
 
-        // Step 8: Verify registration success
+        // Verify registration success
         await supplierRegistrationPage.verifyRegistrationSuccess();
-        console.log('Registration successful');
 
-        // Step 9: Verify automatic redirect to dashboard/onboarding
-        await registrationPage.waitForTimeout(3000);
-        const currentUrl = registrationPage.url();
-        console.log('Current URL after registration:', currentUrl);
-
-        // Verify that the page has redirected (not on registration page anymore)
-        expect(currentUrl).not.toContain('/register');
-        expect(currentUrl).not.toContain('/invite');
-        expect(currentUrl).toContain('/onboarding');
-        console.log('Successfully redirected onboarding page');
-
-        //Verify AutoLogin to supplier's a/c
-        //https://develop.wewantwaste.co.uk/supplier/login
-        const genFunction = new genericFunctions(registrationPage);
-        const supplierRegistrationPg = new SupplierRegistrationPage(registrationPage);
-        const supplierLogin = new AdminLogin(registrationPage);
-        const supplierLoginPageURL = genFunction.buildURL('/supplier/login');
-        await supplierLogin.goto(supplierLoginPageURL);
-        await supplierRegistrationPg.supplierLogin(invitedEmail, supplierPassword);
+        // Step 2: Complete onboarding form
+        const onboardingPage = new SupplierRegistrationPage(registrationPage);
+        await onboardingPage.completeOnboardingForm();
+        console.log('Onboarding form completed');
 
         // Cleanup
         await context.close()
-        await emailContext.close();
-        await registrationContext.close();
-    });
-
-    test('Scenario 5: Already Accepted Invitation', async ({ browser }) => {
-
-        // Step 1: Create first page for email verification
-        const emailContext = await browser.newContext();
-        const emailPage = await emailContext.newPage();
-
-        yopmailPage = new YopmailPage(emailPage);
-        genFunctions = new genericFunctions(emailPage);
-
-        // Navigate to yopmail and access inbox
-        await genFunctions.goToYopmail();
-        await genFunctions.accessInbox('Alena_Kessler@yopmail.com');
-
-        // Step 2: Find invitation email and extract link
-        await yopmailPage.waitForInvitationEmail(['Join Your Supplier Account', 'join your supplier account']);
-
-        // Create authenticated context
-        // Step 3: Create second page to access expired invitation link
-        const registrationContext = await browser.newContext({
-            httpCredentials: {
-                username: TestData.authCredentials.authUserName,
-                password: TestData.authCredentials.authPassword
-            },
-            ignoreHTTPSErrors: true
-        });
-
-        // Get the invitation link from email
-        const invitationLink = await yopmailPage.getInvitationLink();
-
-        // Open inside authenticated context
-        const registrationPage = await registrationContext.newPage();
-
-        // Navigate to invitation link
-        await registrationPage.goto(invitationLink, { waitUntil: 'domcontentloaded' });
-        supplierRegistrationPage = new SupplierRegistrationPage(registrationPage);
-
-        // Verify that the page shows already accepted invitation message
-        await supplierRegistrationPage.verifyAcceptedInvitationMsg();
-        const currentURL = registrationPage.url();
-        expect(currentURL).toContain('/supplier/login');
-
-        // Cleanup
         await emailContext.close();
         await registrationContext.close();
     });

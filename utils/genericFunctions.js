@@ -5,7 +5,8 @@ import { TestData } from '../Data/testData.js';
 export class genericFunctions {
     constructor(page) {
         this.page = page;
-        this.inputEmail = page.locator("//input[@class='ycptinput']");
+        //this.inputEmail = page.locator("//input[@class='ycptinput']");
+        this.inputEmail = page.locator("#f .ycptinput");
         this.inboxBtn = page.locator("//button[@class='md']");
         this.inboxFrame = this.page.frameLocator('#ifmail');
     }
@@ -13,6 +14,7 @@ export class genericFunctions {
     async goToYopmail() {
         await this.page.waitForTimeout(3000);
         await this.page.goto("https://yopmail.com/en/", { waitUntil: 'networkidle' });
+        await this.page.waitForTimeout(1000);
         // await this.page.waitForLoadState("networkidle");
     }
 

@@ -1,5 +1,6 @@
 import { expect } from "allure-playwright";
 import { genericFunctions } from '../../utils/genericFunctions.js';
+import { tableHelper } from '../../utils/tableHelper.js';
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -63,5 +64,21 @@ export class SupplierRegistrationPage {
         await this.alreadyAcceptedInvitationMsg.waitFor({ state: 'visible' });
         await expect(this.alreadyAcceptedInvitationMsg).toHaveText('This invitation has already been accepted. Please log in instead.');
         await expect(this.supplierLoginPageHeading).toBeVisible();
+    }
+
+    async completeOnboardingForm(companyNm, phoneNo, postcode, serviceRadius, hirePeriod, minimumTonne) {
+        await this.registrationSuccessMessage.waitFor({ state: 'visible', timeout: 10000 });
+        await expect(this.page.locator("input[type='text']")).toHaveValue(companyNm);
+        await this.page.getByRole('button', { name: 'Next' }).click();
+        await expect(this.page.locator("input[type='tel']")).toHaveValue(phoneNo);
+        await this.page.getByRole('button', { name: 'Next' }).click();
+        await expect(this.page.locator("[placeholder='SW1A 1AA']")).toHaveValue(postcode);
+        await this.page.getByRole('button', { name: 'Next' }).click();
+        await expect(this.page.locator(".text-white.shadow-lg")).last().toBeVisible();
+        await this.page.getByRole('button', { name: 'Next' }).click();
+        await this.page.getByLabel('Skip Hire').check();
+        await this.page.getByRole('button', { name: 'Next' }).click();
+
+        await this.page.locator("[for='terms-onboarding']").isEnabled();
     }
 }

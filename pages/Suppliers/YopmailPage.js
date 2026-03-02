@@ -34,8 +34,8 @@ export class YopmailPage {
         await this.page.waitForTimeout(3000);
     }
 
-    async waitForInvitationEmail(subject = "Join Your Supplier Account on We Want Waste Supplier Platform") {
-        await this.page.waitForSelector('#ifmail', { state: 'visible', timeout: 30000 });
+    async waitForInvitationEmail(coName, subject = `Join ${coName} on We Want Waste Supplier Platform`) {
+        await this.page.waitForSelector('#ifmail', { state: 'visible', timeout: 50000 });
 
         // Wait a bit more for email to fully load
         await this.page.waitForTimeout(3000);
@@ -43,8 +43,8 @@ export class YopmailPage {
         // Try to find the email with various text patterns
         const emailPatterns = [
             subject,
-            'Join Your Supplier Account',
-            'join your supplier account'
+            `Join ${coName} on We Want Waste Supplier Platform`,
+            `join ${coName} on we want waste supplier platform`
         ];
 
         let emailFound = false;
