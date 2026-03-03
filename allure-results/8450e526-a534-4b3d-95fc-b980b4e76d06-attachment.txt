@@ -1,0 +1,2 @@
+Supplier details fetched from the test case is: #358-Claude_Graham@yopmail.com07494 818740--Invited24/02/2026
+Supplier details passed to delete supplier function is: #358-Claude_Graham@yopmail.com07494 818740--Invited24/02/2026

@@ -1,0 +1,2 @@
+Checking row 0: Status = Invited02/03/2026
+Email of a supplier with 'Joined' status: Sienna_Doyle@yopmail.com

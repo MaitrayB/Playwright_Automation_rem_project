@@ -151,6 +151,7 @@ test.describe('Supplier Invitations', async () => {
         const supplierLoginPageURL = genFunction.buildURL('/supplier/login');
         await registrationPage.goto(supplierLoginPageURL);
         await supplierRegistrationPage.supplierLogin(supplier.email, supplierPassword);
+        await registrationPage.waitForTimeout(3000);
 
         // Cleanup
         await context.close()
@@ -280,6 +281,7 @@ test.describe('Supplier Invitations', async () => {
 
         // Get supplier with status "Joined"
         const supplierInfo = await suppliersPage.getSupplierEmailBasedOnStatus('Joined');
+        await page.waitForTimeout(3000);
         expect(supplierInfo.email).toBeTruthy();
 
         // Access already accepted invitation link
@@ -318,6 +320,7 @@ test.describe('Supplier Invitations', async () => {
         // Verify link to login page is provided
         const currentURL = registrationPage.url();
         expect(currentURL).toContain('/supplier/login');
+        await registrationPage.waitForTimeout(3000);
 
         // Cleanup
         await emailContext.close();

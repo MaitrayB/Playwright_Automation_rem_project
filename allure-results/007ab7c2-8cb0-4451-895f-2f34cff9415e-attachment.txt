@@ -1,0 +1,5 @@
+getCellByRowTextAndHeader: Row with text "Valentina_Heller@yopmail.com" found. Column "ID" is at index 0.
+getCellByRowTextAndHeader: Row with text "Valentina_Heller@yopmail.com" found. Column "COMPANY" is at index 1.
+getCellByRowTextAndHeader: Row with text "Valentina_Heller@yopmail.com" found. Column "INVITATION" is at index 5.
+inviteSupplierViaEmailAndPhone: Extracted from table - ID: #482, Company: -, Status: Invited02/03/2026
+Join Your Supplier Account,join your supplier account on We Want Waste Supplier Platform
