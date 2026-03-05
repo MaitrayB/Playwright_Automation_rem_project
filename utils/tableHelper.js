@@ -64,7 +64,7 @@ export class tableHelper {
     async getCellByRowTextAndHeader(rowText, headerName) {
         const row = this.getRowByText(rowText);
         const colIndex = await this.getColumnIndexByHeader(headerName);
-        console.log(`getCellByRowTextAndHeader: Row with text "${rowText}" found. Column "${headerName}" is at index ${colIndex}.`);
+        //console.log(`getCellByRowTextAndHeader: Row with text "${rowText}" found. Column "${headerName}" is at index ${colIndex}.`);
         return row.locator('td').nth(colIndex);
     }
 

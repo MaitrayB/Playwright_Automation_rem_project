@@ -1,3 +1,0 @@
-Generated Email for existing co. is: Timothy_Lowe@yopmail.com
-Generated phone no in existing co. is: 07273 509994
-Supplier details passed to delete supplier function is: #404ABC LTDTimothy_Lowe@yopmail.com07273 509994M1 1AAR: 27miHire: 14dMin: 2.6tInvited26/02/2026

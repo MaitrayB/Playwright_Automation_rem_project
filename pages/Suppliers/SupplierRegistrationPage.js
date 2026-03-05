@@ -28,12 +28,20 @@ export class SupplierRegistrationPage {
         this.signInBtn = page.getByRole('button', { name: 'Sign in' });
         this.alreadyAcceptedInvitationMsg = page.getByText('This invitation has already been accepted. Please log in instead.');
         this.supplierLoginPageHeading = page.getByRole('heading', { name: 'Supplier Sign In' });
-        this.companyNameInput = page.locator("input[type='text']");
-        this.phoneNumberInput = page.locator("input[type='tel']");
-        this.postcodeInput = page.locator("[placeholder='SW1A 1AA']");
-        this.serviceRadiusInput = page.locator('#serviceRadius');
-        this.hirePeriodInput = page.locator('#hirePeriod');
-        this.minimumTonneInput = page.locator('#minimumTonne');
+
+        // Onboarding form locators
+        this.companyNameInput = page.getByRole('textbox');
+        this.phoneNumberInput = page.getByRole('textbox', { name: '+44 20 1234' });
+        this.postcodeInput = page.getByRole('textbox', { name: 'SW1A 1AA' });
+        this.skipHireCheckbox = page.getByRole('checkbox', { name: 'Skip Hire Skip bins and' });
+        this.nextBtn = page.getByRole('button', { name: 'Next' });
+        this.privacyPolicyPdf = page.locator('div:nth-child(15) > .react-pdf__Page__canvas');
+        this.termsCheckbox = page.getByText('I have read and agree to the');
+        this.completeBtn = page.getByRole('button', { name: 'Complete' });
+
+        //Supplier admin portal locators
+        this.orderPageHeading = page.getByRole('heading', { name: 'Orders' });
+        this.doItLaterBtn = page.getByRole('button', { name: 'Do it later' });
     }
 
     async verifyEmailPreFilled(expectedEmail) {
@@ -74,46 +82,32 @@ export class SupplierRegistrationPage {
 
 
     async completeOnboardingForm(page, supplier) {
-
         const { companyName, phone, postcode, hirePeriod } = supplier; // 1. Company Name
-        const companyNameInput = await page.locator('.w-full.pl-10.pr-10');
-        expect(await companyNameInput.inputValue()).toBe(companyName);
-        await page.click('button:has-text("Next")');
+        await expect(this.companyNameInput).toHaveValue(companyName);
+        await this.nextBtn.click();
+        await expect(this.phoneNumberInput).toHaveValue(phone);
+        await this.nextBtn.click();
+        await expect(this.postcodeInput).toHaveValue(postcode);
+        await this.nextBtn.click();
+        await expect(page.getByRole('button', { name: `${hirePeriod} days` })).toBeVisible();
+        await this.nextBtn.click();
+        await this.skipHireCheckbox.check();
+        await this.nextBtn.click();
+        await this.privacyPolicyPdf.click({
+            position: {
+                x: 634,
+                y: 641
+            }
+        });
+        await expect(this.privacyPolicyPdf).toBeVisible();
+        await expect(this.termsCheckbox).toBeEnabled();
+        await this.termsCheckbox.check();
+        await this.completeBtn.click();
+    }
 
-        // 2. Phone Number
-        const phoneNumberInput = await page.locator('input[placeholder="+44 20 1234 5678"]'); //[type="tel"]
-        expect(await phoneNumberInput.inputValue()).toBe(phone);
-        await page.click('button:has-text("Next")');
-
-        // 3. Postcode
-        const postcodeInput = await page.locator('input[placeholder="SW1A 1AA"]');
-        expect(await postcodeInput.inputValue()).toBe(postcode);
-        await page.click('button:has-text("Next")');
-
-        // 4. Hire Period
-        const hirePeriodButton = await page.locator('button.selected');
-        expect(await hirePeriodButton.textContent()).toBe(hirePeriod);
-        await page.click('button:has-text("Next")');
-
-        // 5. Services
-        const skipHireCheckbox = page.locator('text=Skip Hire').locator('..').locator('input[type="checkbox"]');
-        if (!(await skipHireCheckbox.isChecked())) {
-            await skipHireCheckbox.check();
-        }
-        await page.click('button:has-text("Next")');
-
-        // 6. Supplier Protection & Dispute Policy
-        await page.locator('div:has-text("Supplier Protection & Dispute Policy")').scrollIntoViewIfNeeded();
-        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-        const policyCheckbox = page.locator('input[type="checkbox"]:below(label:has-text("I have read and agree"))');
-        await policyCheckbox.check();
-        await page.click('button:has-text("Complete")');
-
-        // Verify redirect to orders page
+    async verifySupplierRedirectedToOrdersPage(page) {
         await expect(page).toHaveURL(/.*\/orders/);
-
-        // Verify supplier status is "active"
-        const supplierStatus = await page.locator('text=Status').locator('..').locator('text=active');
-        await expect(supplierStatus).toBeVisible();
+        await this.doItLaterBtn.click();
+        await expect(this.orderPageHeading).toBeVisible();
     }
 }
