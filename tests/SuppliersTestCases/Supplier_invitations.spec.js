@@ -306,12 +306,12 @@ test.describe('Supplier Invitations', async () => {
 
         //Step 5: Verify supplier status is "active"
         supplierAccount = new SupplierAccount(registrationPage);
-        await supplierAccount.navigateToAccountPage();
-        await supplierAccount.verifyAccountStatus('Active');
+        await supplierAccount.navigateToAccountPage();  await page.waitForTimeout(1000);
+        await supplierAccount.verifyAccountStatus('Active');  await page.waitForTimeout(1000);
 
         //Delete Supplier after test
         await page.bringToFront();
-        await suppliersPage.deleteSupplier(email);
+        await suppliersPage.deleteSupplier(email);  await page.waitForTimeout(1000);
 
         // Cleanup
         await context.close()

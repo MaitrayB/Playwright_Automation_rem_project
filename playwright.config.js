@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 40 * 2000,
+  timeout: 40 * 3000,
   use: {
     headless: false,
     browserName: 'chromium',

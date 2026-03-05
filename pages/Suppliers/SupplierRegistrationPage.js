@@ -85,29 +85,42 @@ export class SupplierRegistrationPage {
         const { companyName, phone, postcode, hirePeriod } = supplier; // 1. Company Name
         await expect(this.companyNameInput).toHaveValue(companyName);
         await this.nextBtn.click();
+        await page.waitForTimeout(1000);
         await expect(this.phoneNumberInput).toHaveValue(phone);
         await this.nextBtn.click();
+        await page.waitForTimeout(1000);
         await expect(this.postcodeInput).toHaveValue(postcode);
         await this.nextBtn.click();
+        await page.waitForTimeout(1000);
         await expect(page.getByRole('button', { name: `${hirePeriod} days` })).toBeVisible();
         await this.nextBtn.click();
+        await page.waitForTimeout(1000);
         await this.skipHireCheckbox.check();
+        await page.waitForTimeout(1000);
         await this.nextBtn.click();
+        await page.waitForTimeout(1000);
         await this.privacyPolicyPdf.click({
             position: {
                 x: 634,
                 y: 641
             }
         });
+        await page.waitForTimeout(1000);
         await expect(this.privacyPolicyPdf).toBeVisible();
         await expect(this.termsCheckbox).toBeEnabled();
+        await page.waitForTimeout(1000);
         await this.termsCheckbox.check();
+        await page.waitForTimeout(1000);
         await this.completeBtn.click();
+        await page.waitForTimeout(1000);
     }
 
     async verifySupplierRedirectedToOrdersPage(page) {
         await expect(page).toHaveURL(/.*\/orders/);
+        await page.waitForTimeout(1000);
         await this.doItLaterBtn.click();
+        await page.waitForTimeout(1000);
         await expect(this.orderPageHeading).toBeVisible();
+        await page.waitForTimeout(1000);
     }
 }
