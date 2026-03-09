@@ -39,6 +39,10 @@ export class YopmailPage {
         let lastInboxText = '';
 
         for (let attempt = 0; attempt < maxRetries; attempt++) {
+            if (this.page.locator('.recaptcha-checkbox-border').isVisible()) {
+                this.page.locator('.recaptcha-checkbox-border').check();
+                await this.page.waitForTimeout(5000); // Wait for reCAPTCHA to process
+            }
             await this.page.waitForSelector('#ifmail', { state: 'visible', timeout: 50000 });
             await this.page.waitForTimeout(2000); // Wait for iframe to load
 

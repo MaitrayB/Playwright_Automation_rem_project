@@ -12,6 +12,10 @@ export const TestData = {
     agent: {
       username: 'mat+admin@remwaste.com',
       password: 'Passport123'
+    },
+    supplier: {
+      username: 'Estell_Stamm@yopmail.com',
+      password: 'Password@123'
     }
   },
 

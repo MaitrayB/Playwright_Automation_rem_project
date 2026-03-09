@@ -4,20 +4,20 @@ import { expect } from '@playwright/test';
  * @typedef {import('@playwright/test').Locator} Locator 
  */
 
-export class SupplierAccount {
+export class AccountPage {
     /** @param {Page} page */
     constructor(page) {
         this.page = page;
-        this.accountMenu = page.getByRole('link', { name: 'Account' });
         this.accountStatusSection = page.getByText('Account Status').locator('..').last();//.getByText(/Active/);
-    }
-
-    async navigateToAccountPage() {
-        await this.accountMenu.click();
-        await this.accountStatusSection.waitFor({ state: 'visible' });
+        this.getCompanyName = page.getByText('Company Name').locator('..').getByText(/.+/).last();
     }
 
     async verifyAccountStatus(expectedStatus) {
         await expect(this.accountStatusSection).toContainText(expectedStatus);
+    }
+
+    async companyName() {
+        console.log(`Company Name: ${await this.getCompanyName.innerText()}`);
+        return await this.getCompanyName.innerText();
     }
 }

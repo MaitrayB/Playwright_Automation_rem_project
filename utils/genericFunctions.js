@@ -9,6 +9,24 @@ export class genericFunctions {
         this.inputEmail = page.locator("#f .ycptinput");
         this.inboxBtn = page.locator("#refreshbut button[class='md']"); //page.locator("//button[@class='md']");
         this.inboxFrame = this.page.frameLocator('#ifmail');
+        this.usernameInput = page.locator("#email");
+        this.passwordInput = page.locator('#password');
+        this.signInBtn = page.getByRole('button', { name: 'Sign in' });
+    }
+
+    buildURL(path) {
+        return `${TestData.baseURL.replace(/\/$/, '')}${path}`;
+    }
+
+    async goto(page, path) {
+        await page.goto(this.buildURL(path));
+    }
+
+    async autoLogin(username, password) {
+        await this.usernameInput.fill(username);
+        await this.passwordInput.fill(password);
+        await this.signInBtn.click();
+        await this.page.getByRole('heading', { name: 'Orders' });
     }
 
     async goToYopmail() {
@@ -59,10 +77,6 @@ export class genericFunctions {
         return {
             phone, name, email
         };
-    }
-
-    buildURL(path) {
-        return `${TestData.baseURL.replace(/\/$/, '')}${path}`;
     }
 
     async generateRandomEmail() {

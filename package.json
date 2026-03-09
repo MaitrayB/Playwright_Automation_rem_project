@@ -11,6 +11,7 @@
     "allure:open": "npx allure open allure-report"
   },
   "keywords": [],
+  "type": "module",
   "author": "",
   "license": "ISC",
   "devDependencies": {

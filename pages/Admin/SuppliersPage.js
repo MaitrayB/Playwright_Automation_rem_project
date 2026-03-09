@@ -33,11 +33,6 @@ export class SuppliersPage {
         this.invitationSentSuccessMsg = page.getByText('Invitation(s) sent successfully');
         this.invitationWithInfoSentSuccessMsg = page.getByText('Supplier created and invitation(s) sent successfully');
 
-        // this.supplierInvitationStatus = page.locator('table tbody tr').first();
-        // this.invitedSupplierRow = page.locator('table tbody tr').first();
-        // this.actionsBtn = this.invitedSupplierRow.locator('td:last-child div > button:nth-of-type(2)'); //Because nth-child can break if another element (like a <span>) appears before the button
-        // this.deleteBtn = page.getByRole('button', { name: 'Delete' });
-
         this.inviteWithInfoRadioOption = page.getByRole('radio', { name: 'With Information' });
         this.findCompanyNameInput = page.getByPlaceholder('Find company');
         this.selectExistingCoName = page.locator('.absolute.z-50 button').filter({ has: page.locator('span', { hasText: 'active' }) }).first();

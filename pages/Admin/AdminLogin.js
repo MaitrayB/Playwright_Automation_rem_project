@@ -24,9 +24,8 @@ export class AdminLogin {
         this.suppliersLink = page.getByRole('link', { name: 'Suppliers' });
     }
     async goto(url) {
-        const genFunctions = new genericFunctions(this.page);
+        // const genFunctions = new genericFunctions(this.page);
         await this.page.goto(url);
-        // await this.page.waitForTimeout(1000);
     }
 
     async adminLogin(email, password) {

@@ -5,14 +5,20 @@ import { TestData } from '../../Data/testData.js';
 import { YopmailPage } from '../../pages/Suppliers/YopmailPage.js';
 import { genericFunctions } from '../../utils/genericFunctions.js';
 import { SupplierRegistrationPage } from '../../pages/Suppliers/SupplierRegistrationPage.js';
-import { SupplierAccount } from '../../pages/Suppliers/SupplierAccount.js';
+import { AccountPage } from '../../pages/Suppliers/AccountPage.js';
+import { UsersPage } from '../../pages/Suppliers/UsersPage.js';
+import { DashboardPage } from '../../pages/Suppliers/DashboardPage.js';
+import { SupplierMenuNavigation } from '../../pages/Suppliers/SupplierMenuNavigation.js';
 
 /** @type {SuppliersPage} */ let suppliersPage;
 /** @type {AdminLogin} */ let adminLogin;
 /** @type {YopmailPage} */ let yopmailPage;
 /** @type {genericFunctions} */ let genFunctions;
 /** @type {SupplierRegistrationPage} */ let supplierRegistrationPage;
-/** @type {SupplierAccount} */ let supplierAccount;
+/** @type {AccountPage} */ let supplierAccount;
+/** @type {UsersPage} */ let usersPage;
+/** @type {DashboardPage} */ let dashboardPage;
+/** @type {SupplierMenuNavigation} */ let supplierMenuNavigation;
 
 test.describe('Supplier Invitations', async () => {
 
@@ -305,13 +311,15 @@ test.describe('Supplier Invitations', async () => {
         await supplierRegistrationPage.verifySupplierRedirectedToOrdersPage(registrationPage);
 
         //Step 5: Verify supplier status is "active"
-        supplierAccount = new SupplierAccount(registrationPage);
-        await supplierAccount.navigateToAccountPage();  await page.waitForTimeout(1000);
-        await supplierAccount.verifyAccountStatus('Active');  await page.waitForTimeout(1000);
+        supplierAccount = new AccountPage(registrationPage);
+        supplierMenuNavigation = new SupplierMenuNavigation(registrationPage);
+
+        await supplierMenuNavigation.navigateToAccountPage();
+        await supplierAccount.verifyAccountStatus('Active');
 
         //Delete Supplier after test
         await page.bringToFront();
-        await suppliersPage.deleteSupplier(email);  await page.waitForTimeout(1000);
+        await suppliersPage.deleteSupplier(email); await page.waitForTimeout(1000);
 
         // Cleanup
         await context.close()
@@ -319,8 +327,85 @@ test.describe('Supplier Invitations', async () => {
         await registrationContext.close();
     });
 
-    test('Scenario 7: Supplier Invites Team Member', async ({ browser }) => {
+    test('Scenario 7 & 8: Supplier Invites Team Member & Team member registers', async ({ browser }) => {
+        // Step 1: Login as supplier admin
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
 
+        const page = await context.newPage();
+        genFunctions = new genericFunctions(page);
+        usersPage = new UsersPage(page);
+        supplierMenuNavigation = new SupplierMenuNavigation(page);
+        supplierAccount = new AccountPage(page);
+
+        await genFunctions.goto(page, '/supplier/login');
+        await genFunctions.autoLogin(TestData.credentials.supplier.username, TestData.credentials.supplier.password);
+        await supplierMenuNavigation.redirectToUsersPage();
+        const userDetails = await usersPage.inviteTeamMember();
+        await usersPage.verifyUserDetails(userDetails.emailInput, await userDetails.status);
+
+        await supplierMenuNavigation.navigateToAccountPage();
+        const companyName = await supplierAccount.companyName();
+
+        // Create second page for email verification
+        const emailContext = await browser.newContext();
+        const emailPage = await emailContext.newPage();
+
+        yopmailPage = new YopmailPage(emailPage);
+        genFunctions = new genericFunctions(emailPage);
+
+        // Navigate to yopmail and access inbox
+        await genFunctions.goToYopmail();
+        await genFunctions.accessInbox(userDetails.emailInput);
+
+        // Find invitation email and extract link
+        await yopmailPage.waitForInvitationEmail(companyName);
+
+        // Create third page for registration
+        const registrationContext = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+
+        // Get the invitation link from email
+        const invitationLink = await yopmailPage.getInvitationLink();
+
+        // Open inside authenticated context
+        const registrationPage = await registrationContext.newPage();
+
+        // Navigate to invitation link
+        await registrationPage.goto(invitationLink, { waitUntil: 'domcontentloaded' });
+        supplierRegistrationPage = new SupplierRegistrationPage(registrationPage);
+        dashboardPage = new DashboardPage(registrationPage);
+        supplierMenuNavigation = new SupplierMenuNavigation(registrationPage);
+        usersPage = new UsersPage(registrationPage);
+
+        await supplierRegistrationPage.verifyPageLoaded();
+
+        // Step 2: Complete Onboarding Form
+        // Verify email is pre-filled
+        await supplierRegistrationPage.verifyEmailPreFilled(userDetails.emailInput.toLowerCase());
+
+        // Fill registration form
+        const supplierPassword = 'Password@123';
+        await supplierRegistrationPage.fillRegistrationForm(supplierPassword);
+
+        // Submit registration
+        await supplierRegistrationPage.submitRegistration();
+        await dashboardPage.verifyDashboardPageLoaded();
+
+        // Cleanup
+        await context.close()
+        await emailContext.close();
+        await registrationContext.close();
     });
 
 });
