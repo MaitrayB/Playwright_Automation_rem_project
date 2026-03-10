@@ -47,7 +47,9 @@ export class SuppliersPage {
         this.deleteSuccessMsg = page.getByText('Supplier deleted successfully');
     }
 
-    async inviteSupplierViaEmailAndPhone({ invitationType } = {}) {
+    async inviteSupplierViaEmailAndPhone(options = {}/*{ invitationType } = {}*/) {
+        const { invitationTypeOptions = ['Blank Invitation', 'Invitation with Co. Information'],
+            domainName = '' } = options;
         const genFunctions = new genericFunctions(this.page);
         const tblHelper = new tableHelper(this.page, 'table.w-full');
 
@@ -57,12 +59,16 @@ export class SuppliersPage {
         let postcode, serviceRadius, hirePeriod, minimumTonne
         await this.inviteBtn.click();
 
-        if (invitationType === 'Blank Invitation') {
+        if (invitationTypeOptions === 'Blank Invitation') {
             await this.blankInvitationRadioBtn.check();
             await this.sendInvitationsViaEmail.check();
             await this.sendInvitationsViaPhone.check();
-
-            emailInput = await genFunctions.generateRandomEmail();
+            if (domainName === 'yopmail.com') {
+                emailInput = await genFunctions.generateRandomEmail();
+            }
+            if (domainName === 'mailinator.com') {
+                emailInput = await genFunctions.generateRandomEmailmailinator();
+            }
             phoneInput = await genFunctions.generateRandomPhoneNum();
 
             await this.supplierEmailInput.fill(emailInput);
@@ -70,14 +76,19 @@ export class SuppliersPage {
 
             companyName = '-'; // Blank invitation has no company name, so we use a placeholder value for validation later
         }
-        if (invitationType === 'Invitation with Co. Information') {
+        if (invitationTypeOptions === 'Invitation with Co. Information') {
             await this.inviteWithInfoRadioOption.check();
             await this.sendInvitationsViaEmail.check();
             await this.sendInvitationsViaPhone.check();
             await this.findCompanyNameInput.pressSequentially('abcl');
             await this.selectExistingCoName.click();
 
-            emailInput = await genFunctions.generateRandomEmail();
+            if (domainName === 'yopmail.com') {
+                emailInput = await genFunctions.generateRandomEmail();
+            }
+            if (domainName === 'mailinator.com') {
+                emailInput = await genFunctions.generateRandomEmailmailinator();
+            }
             phoneInput = await genFunctions.generateRandomPhoneNum();
 
             await this.supplierEmailInput.fill(emailInput);
@@ -94,11 +105,11 @@ export class SuppliersPage {
 
         await this.sendInvitationBtn.click();
         // Success validation
-        if (invitationType === 'Blank Invitation') {
+        if (invitationTypeOptions === 'Blank Invitation') {
             await this.invitationSentSuccessMsg.waitFor();
             await expect(this.invitationSentSuccessMsg).toBeVisible();
         }
-        if (invitationType === 'Invitation with Co. Information') {
+        if (invitationTypeOptions === 'Invitation with Co. Information') {
             await this.invitationWithInfoSentSuccessMsg.waitFor();
             await expect(this.invitationWithInfoSentSuccessMsg).toBeVisible();
         }
@@ -141,7 +152,7 @@ export class SuppliersPage {
         await this.page.waitForTimeout(1000);
 
         // Optional: Validate row removed
-       // await expect(tblHelper.getRowByText(email)).toHaveCount(0);
+        // await expect(tblHelper.getRowByText(email)).toHaveCount(0);
     }
 
     async getSupplierEmailBasedOnStatus(statusToFind) {

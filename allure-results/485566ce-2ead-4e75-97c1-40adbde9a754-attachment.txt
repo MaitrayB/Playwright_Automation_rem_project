@@ -1,4 +1,0 @@
-verifyUserDetails: Email cell text: natalia_greenfelder@yopmail.com
-verifyUserDetails: Status cell text: Pending
-verifyUserDetails: Role cell text: User
-Company Name: ABC LTD

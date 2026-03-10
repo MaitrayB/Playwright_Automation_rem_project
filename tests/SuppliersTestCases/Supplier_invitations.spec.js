@@ -41,7 +41,7 @@ test.describe('Supplier Invitations', async () => {
         await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
         await adminLogin.goToSuppliersPage();
 
-        const supplierEmail = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Blank Invitation' });
+        const supplierEmail = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationTypeOptions: 'Blank Invitation', domainName: 'yopmail.com' });
         console.log(supplierEmail);
         //Delete invited supplier
         await suppliersPage.deleteSupplier(supplierEmail.email);
@@ -67,7 +67,7 @@ test.describe('Supplier Invitations', async () => {
         await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
         await adminLogin.goToSuppliersPage();
 
-        const supplierEmail = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Invitation with Co. Information' });
+        const supplierEmail = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationTypeOptions: 'Invitation with Co. Information', domainName: 'yopmail.com' });
 
         //Delete invited supplier
         await suppliersPage.deleteSupplier(supplierEmail.email);
@@ -96,7 +96,7 @@ test.describe('Supplier Invitations', async () => {
         await adminLogin.goToSuppliersPage();
 
         //Step 1: Receive invitation email/SMS and extract invitation link
-        const supplier = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Invitation with Co. Information' });
+        const supplier = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationTypeOptions: 'Invitation with Co. Information', domainName: 'yopmail.com' });
 
         expect(supplier.email).toBeTruthy();
 
@@ -252,7 +252,7 @@ test.describe('Supplier Invitations', async () => {
         await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
         await adminLogin.goToSuppliersPage();
 
-        const supplier = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationType: 'Invitation with Co. Information' });
+        const supplier = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationTypeOptions: 'Invitation with Co. Information', domainName: 'yopmail.com' });
         const email = supplier.email;
         console.log(email);
         expect(email).toBeTruthy();
@@ -353,7 +353,7 @@ test.describe('Supplier Invitations', async () => {
         await usersPage.verifyUserDetails(userDetails.emailInput, await userDetails.status);
 
         await supplierMenuNavigation.navigateToAccountPage();
-        const companyName = await supplierAccount.companyName();
+        // const companyName = await supplierAccount.companyName();
 
         // Create second page for email verification
         const emailContext = await browser.newContext();
@@ -363,11 +363,9 @@ test.describe('Supplier Invitations', async () => {
         mailinatorPage = new MailinatorPage(emailPage);
         genFunctions = new genericFunctions(emailPage);
 
-        // Navigate to yopmail and access inbox
+        // Navigate to mailinator and access inbox
         await mailinatorPage.navigateToMailinator();
         await mailinatorPage.accessInbox(userDetails.emailInput);
-
-     
 
         // Create third page for registration
         const registrationContext = await browser.newContext({
@@ -402,9 +400,9 @@ test.describe('Supplier Invitations', async () => {
         await supplierRegistrationPage.fillRegistrationForm(supplierPassword);
 
         // Submit registration
+        //verify registered user navigates to dashboard
         await supplierRegistrationPage.submitRegistration();
         await dashboardPage.verifyDashboardPageLoaded();
-    
 
         // Cleanup
         await context.close()
