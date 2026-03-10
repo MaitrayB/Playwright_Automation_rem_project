@@ -1,0 +1,4 @@
+verifyUserDetails: Email cell text: julian_funk@yopmail.com
+verifyUserDetails: Status cell text: Pending
+verifyUserDetails: Role cell text: User
+Company Name: ABC LTD

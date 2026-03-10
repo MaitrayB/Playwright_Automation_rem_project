@@ -15,5 +15,6 @@ export class DashboardPage {
     async verifyDashboardPageLoaded() {
         await this.pageHeading.waitFor({ state: 'visible' });
         await expect(this.pageHeading).toHaveText('Supplier Dashboard');
+        await this.page.waitForTimeout(3000);
     }
 }

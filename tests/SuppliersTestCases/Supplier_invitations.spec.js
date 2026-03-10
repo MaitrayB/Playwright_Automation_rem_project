@@ -9,6 +9,7 @@ import { AccountPage } from '../../pages/Suppliers/AccountPage.js';
 import { UsersPage } from '../../pages/Suppliers/UsersPage.js';
 import { DashboardPage } from '../../pages/Suppliers/DashboardPage.js';
 import { SupplierMenuNavigation } from '../../pages/Suppliers/SupplierMenuNavigation.js';
+import { MailinatorPage } from '../../pages/Suppliers/MailinatorPage.js';
 
 /** @type {SuppliersPage} */ let suppliersPage;
 /** @type {AdminLogin} */ let adminLogin;
@@ -19,6 +20,7 @@ import { SupplierMenuNavigation } from '../../pages/Suppliers/SupplierMenuNaviga
 /** @type {UsersPage} */ let usersPage;
 /** @type {DashboardPage} */ let dashboardPage;
 /** @type {SupplierMenuNavigation} */ let supplierMenuNavigation;
+/** @type {MailinatorPage} */ let mailinatorPage;
 
 test.describe('Supplier Invitations', async () => {
 
@@ -133,6 +135,7 @@ test.describe('Supplier Invitations', async () => {
         supplierRegistrationPage = new SupplierRegistrationPage(registrationPage);
 
         await supplierRegistrationPage.verifyPageLoaded();
+        await supplierRegistrationPage.waitForTimeout(2000);
 
         // Step 3: Verify registration page loads with pre-filled email
         await supplierRegistrationPage.verifyEmailPreFilled(supplier.email);
@@ -356,15 +359,15 @@ test.describe('Supplier Invitations', async () => {
         const emailContext = await browser.newContext();
         const emailPage = await emailContext.newPage();
 
-        yopmailPage = new YopmailPage(emailPage);
+        //yopmailPage = new YopmailPage(emailPage);
+        mailinatorPage = new MailinatorPage(emailPage);
         genFunctions = new genericFunctions(emailPage);
 
         // Navigate to yopmail and access inbox
-        await genFunctions.goToYopmail();
-        await genFunctions.accessInbox(userDetails.emailInput);
+        await mailinatorPage.navigateToMailinator();
+        await mailinatorPage.accessInbox(userDetails.emailInput);
 
-        // Find invitation email and extract link
-        await yopmailPage.waitForInvitationEmail(companyName);
+     
 
         // Create third page for registration
         const registrationContext = await browser.newContext({
@@ -376,7 +379,7 @@ test.describe('Supplier Invitations', async () => {
         });
 
         // Get the invitation link from email
-        const invitationLink = await yopmailPage.getInvitationLink();
+        const invitationLink = await mailinatorPage.getInvitationLink();
 
         // Open inside authenticated context
         const registrationPage = await registrationContext.newPage();
@@ -401,6 +404,7 @@ test.describe('Supplier Invitations', async () => {
         // Submit registration
         await supplierRegistrationPage.submitRegistration();
         await dashboardPage.verifyDashboardPageLoaded();
+    
 
         // Cleanup
         await context.close()

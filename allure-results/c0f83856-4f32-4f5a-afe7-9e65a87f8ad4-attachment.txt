@@ -1,0 +1,4 @@
+verifyUserDetails: Email cell text: cora_cormier@mailinator.com
+verifyUserDetails: Status cell text: Pending
+verifyUserDetails: Role cell text: User
+Company Name: ABC LTD

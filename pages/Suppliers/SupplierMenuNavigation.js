@@ -17,14 +17,17 @@ export class SupplierMenuNavigation {
     async redirectToUsersPage() {
         if (await this.doItLaterBtn.isVisible()) {
             await this.doItLaterBtn.click();
+            await this.page.waitForTimeout(2000);
         }
         // Step 2: Navigate to Users page
         await this.usersMenuLink.waitFor({ state: 'visible' });
         await this.usersMenuLink.click();
+        await this.page.waitForTimeout(2000);
     }
 
     async navigateToAccountPage() {
         await this.accountMenuLink.click();
         await this.accountStatusSection.waitFor({ state: 'visible' });
+        await this.page.waitForTimeout(2000);
     }
 }

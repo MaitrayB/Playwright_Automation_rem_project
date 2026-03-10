@@ -30,14 +30,17 @@ export class UsersPage {
         await this.inviteUserBtn.click();
         await expect(this.supplierUserRole).toBeChecked();
         // Step 4: Enter email, phone (optional), and select role
-        const emailInput = await genFunctions.generateRandomEmail();
+        await this.page.waitForTimeout(2000);
+        const emailInput = await genFunctions.generateRandomEmailmailinator();
         const phoneInput = await genFunctions.generateRandomPhoneNum();
         await this.emailAddressInput.fill(emailInput);
         await this.phoneNumberInput.fill(phoneInput);
         // Step 5: Send invitation
         await this.sendInvitationBtn.click();
         // Step 6: Verify success message
+        await this.page.waitForTimeout(2000);
         await expect(this.UserInviteSuccessMsg).toHaveText('User invited successfully!');
+        await this.page.waitForTimeout(2000);
         // Step 7: Verify invited user appears in list with "pending" status
 
         const invitedUserRow = await tblHelper.getRowByText(emailInput);

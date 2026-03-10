@@ -1,0 +1,4 @@
+verifyUserDetails: Email cell text: jackeline_jakubowski@yopmail.com
+verifyUserDetails: Status cell text: Pending
+verifyUserDetails: Role cell text: User
+Company Name: ABC LTD

@@ -6,7 +6,7 @@ export class genericFunctions {
     constructor(page) {
         this.page = page;
         //this.inputEmail = page.locator("//input[@class='ycptinput']");
-        this.inputEmail = page.locator("#f .ycptinput");
+        this.inputEmail = page.locator("//input[contains(@class,'ycptinput')]");
         this.inboxBtn = page.locator("#refreshbut button[class='md']"); //page.locator("//button[@class='md']");
         this.inboxFrame = this.page.frameLocator('#ifmail');
         this.usernameInput = page.locator("#email");
@@ -36,11 +36,28 @@ export class genericFunctions {
     }
 
     async accessInbox(email) {
+
+        let attempts = 0;
+        const maxAttempts = 5;
+
         await this.page.waitForSelector('.ycptinput', { state: 'visible' });
         await this.inputEmail.click();
         await this.inputEmail.fill(email);
         await this.inboxBtn.click();
         await this.page.waitForTimeout(2000);
+
+        while(await this.inputEmail.isVisible() && attempts < maxAttempts) {
+        await this.page.goto(this.page.url(), { waitUntil: 'domcontentloaded' });
+        await this.page.goto("https://yopmail.com", { timeout: 50000 });
+        await this.page.waitForTimeout(2000);
+        await this.inputEmail.click();
+        await this.inputEmail.fill(email);
+        await this.inboxBtn.click();
+        await this.page.waitForTimeout(2000);
+        await this.inboxBtn.click();
+        await this.page.waitForTimeout(2000);
+        attempts++;
+        }
     }
 
     async checkOrderEmailReceived(orderPage) {
@@ -83,6 +100,13 @@ export class genericFunctions {
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
         const emailAddress = `${firstName}_${lastName}@yopmail.com`;
+        return emailAddress;
+    }
+
+    async generateRandomEmailmailinator() {
+        const firstName = faker.person.firstName();
+        const lastName = faker.person.lastName();
+        const emailAddress = `${firstName}_${lastName}@mailinator.com`;
         return emailAddress;
     }
 
