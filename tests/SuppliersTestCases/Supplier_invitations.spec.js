@@ -307,7 +307,6 @@ test.describe('Supplier Invitations', async () => {
         await supplierRegistrationPage.verifyRegistrationSuccess();
 
         // Step 3: Submit onboarding
-
         await supplierRegistrationPage.completeOnboardingForm(registrationPage, supplier);
 
         //Step 4: Verify redirect to orders page

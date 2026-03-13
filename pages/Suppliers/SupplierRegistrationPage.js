@@ -30,6 +30,9 @@ export class SupplierRegistrationPage {
         this.supplierLoginPageHeading = page.getByRole('heading', { name: 'Supplier Sign In' });
 
         // Onboarding form locators
+        // this.searchNewCompanyName = page.locator('input[type="text"]');
+        this.findCompanyNameInput = page.getByPlaceholder('Find company');
+        this.selectExistingCoName = page.locator('.absolute.z-50 button').filter({ has: page.locator('span', { hasText: 'active' }) }).first();
         this.companyNameInput = page.getByRole('textbox');
         this.phoneNumberInput = page.getByRole('textbox', { name: '+44 20 1234' });
         this.postcodeInput = page.getByRole('textbox', { name: 'SW1A 1AA' });
@@ -64,11 +67,11 @@ export class SupplierRegistrationPage {
     }
     //used
     async verifyPageLoaded() {
-        await this.emailInput.waitFor({ state: 'visible' });
+        await this.emailInput.waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async supplierLogin(email, password) {
-        await this.emailInput.waitFor({ state: 'visible' });
+        await this.emailInput.waitFor({ state: 'visible', timeout: 20000 });
         await this.emailInput.fill(email);
         await this.passwordInput.fill(password);
         await this.signInBtn.click();
@@ -80,10 +83,27 @@ export class SupplierRegistrationPage {
         await expect(this.supplierLoginPageHeading).toBeVisible();
     }
 
+    async verifyCompanyNameOnOnboardingForm(companyName) {
+        await expect(this.companyNameInput).toHaveValue(companyName);
+    }
+
+    async changeCompanyNameOnOnboardingForm() {
+        await this.companyNameInput.fill(' ');
+        await this.companyNameInput.pressSequentially('bc');
+        await this.selectExistingCoName.waitFor({ state: 'visible', timeout: 20000 });
+        await this.selectExistingCoName.click();
+        await this.page.waitForTimeout(1000);
+
+        // ✅ Read from the actual input field, not the button
+        const newCoName = await this.companyNameInput.inputValue();
+        return newCoName;
+    }
 
     async completeOnboardingForm(page, supplier) {
         const { companyName, phone, postcode, hirePeriod } = supplier; // 1. Company Name
-        await expect(this.companyNameInput).toHaveValue(companyName);
+        //console.log(`completeOnboardingForm: Starting with companyName=${companyName}, phone=${phone}, postcode=${postcode}, hirePeriod=${hirePeriod}`);
+        await this.verifyCompanyNameOnOnboardingForm(companyName);
+        //await expect(this.companyNameInput).toHaveValue(companyName);
         await this.nextBtn.click();
         await page.waitForTimeout(1000);
         await expect(this.phoneNumberInput).toHaveValue(phone);
@@ -118,7 +138,10 @@ export class SupplierRegistrationPage {
     async verifySupplierRedirectedToOrdersPage(page) {
         await expect(page).toHaveURL(/.*\/orders/);
         await page.waitForTimeout(1000);
-        await this.doItLaterBtn.click();
+        if (await this.doItLaterBtn.isVisible()) {
+            await this.doItLaterBtn.click();
+            await this.page.waitForTimeout(2000);
+        }
         await page.waitForTimeout(1000);
         await expect(this.orderPageHeading).toBeVisible();
         await page.waitForTimeout(1000);

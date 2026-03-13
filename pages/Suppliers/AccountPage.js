@@ -20,4 +20,9 @@ export class AccountPage {
         console.log(`Company Name: ${await this.getCompanyName.innerText()}`);
         return await this.getCompanyName.innerText();
     }
+
+    async verifyCompanyName(expectedCompanyName) {
+        const actualCompanyName = await this.getCompanyName.innerText();
+        expect(actualCompanyName).toBe(expectedCompanyName);
+    }
 }

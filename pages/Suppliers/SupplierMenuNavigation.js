@@ -30,4 +30,8 @@ export class SupplierMenuNavigation {
         await this.accountStatusSection.waitFor({ state: 'visible' });
         await this.page.waitForTimeout(2000);
     }
+    async navigateToDashboardPage() {
+        await this.dashboardMenuLink.click();
+        await this.page.waitForTimeout(2000);
+    }
 }
