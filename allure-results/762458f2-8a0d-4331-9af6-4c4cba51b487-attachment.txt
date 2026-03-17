@@ -1,0 +1,1 @@
+Deleting supplier with email: Mary_Hegmann@mailinator.com

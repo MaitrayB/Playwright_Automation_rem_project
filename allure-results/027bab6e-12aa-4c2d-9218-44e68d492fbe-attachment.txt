@@ -1,0 +1,1 @@
+Company name input is not visible, skipping company name step

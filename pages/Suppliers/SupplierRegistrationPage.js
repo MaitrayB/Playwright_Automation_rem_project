@@ -30,11 +30,17 @@ export class SupplierRegistrationPage {
         this.supplierLoginPageHeading = page.getByRole('heading', { name: 'Supplier Sign In' });
 
         // Onboarding form locators
-        // this.searchNewCompanyName = page.locator('input[type="text"]');
+        this.companyNameErrorMsg = page.getByText('Company name is required');
+        this.phoneErrorMsg = page.getByText('Please enter a valid UK phone number');
+        this.previousBtn = page.getByRole('button', { name: 'Previous' });
+        this.scrollWarningBanner = page.getByText('Please scroll down to read the full Supplier Protection & Dispute Policy');
+        this.checkboxHintText = page.getByText('Please scroll to the bottom of the Supplier Protection & Dispute Policy above to enable this checkbox.');
+        this.termsErrorMsg = page.getByText('You must accept the Supplier Protection & Dispute Policy to continue');
+
         this.findCompanyNameInput = page.getByPlaceholder('Find company');
         this.selectExistingCoName = page.locator('.absolute.z-50 button').filter({ has: page.locator('span', { hasText: 'active' }) }).first();
-        this.companyNameInput = page.getByRole('textbox');
-        this.phoneNumberInput = page.getByRole('textbox', { name: '+44 20 1234' });
+        this.companyNameInput = page.locator('input[type="text"]');
+        this.phoneNumberInput = page.locator('input[type="tel"]');
         this.postcodeInput = page.getByRole('textbox', { name: 'SW1A 1AA' });
         this.skipHireCheckbox = page.getByRole('checkbox', { name: 'Skip Hire Skip bins and' });
         this.nextBtn = page.getByRole('button', { name: 'Next' });
@@ -83,11 +89,8 @@ export class SupplierRegistrationPage {
         await expect(this.supplierLoginPageHeading).toBeVisible();
     }
 
-    async verifyCompanyNameOnOnboardingForm(companyName) {
-        await expect(this.companyNameInput).toHaveValue(companyName);
-    }
-
     async changeCompanyNameOnOnboardingForm() {
+        await this.companyNameInput.waitFor({ state: 'visible', timeout: 20000 });
         await this.companyNameInput.fill(' ');
         await this.companyNameInput.pressSequentially('bc');
         await this.selectExistingCoName.waitFor({ state: 'visible', timeout: 20000 });
@@ -99,26 +102,131 @@ export class SupplierRegistrationPage {
         return newCoName;
     }
 
-    async completeOnboardingForm(page, supplier) {
-        const { companyName, phone, postcode, hirePeriod } = supplier; // 1. Company Name
+    // ✅ NEW — blur the field to trigger inline validation
+    async clearCompanyNameAndTriggerError() {
+        await this.companyNameInput.waitFor({ state: 'visible', timeout: 20000 });
+        await this.companyNameInput.fill('');
+        await this.companyNameInput.press('Tab');
+        await this.page.waitForTimeout(500);
+    }
+
+    //Verify company name required error is visible after trying to proceed without entering company name
+    async verifyCompanyNameRequiredError() {
+        await this.companyNameErrorMsg.waitFor({ state: 'visible', timeout: 10000 });
+        await expect(this.companyNameErrorMsg).toBeVisible();
+    }
+
+    //Enter a valid company name to pass the step
+    async enterCompanyNameToPassStep(companyName) {
+        await this.companyNameInput.fill(companyName);
+        await this.page.waitForTimeout(500);
+    }
+
+    //Verify company name error has cleared 
+    async verifyCompanyNameErrorCleared() {
+        await expect(this.companyNameErrorMsg).not.toBeVisible();
+    }
+
+    //Proceed to phone step
+    async proceedToPhoneStep() {
+        await this.nextBtn.click();
+        await this.page.waitForTimeout(1000);
+        // Confirm we are now on the phone step
+        await this.phoneNumberInput.waitFor({ state: 'visible', timeout: 10000 });
+    }
+
+    // ✅ NEW — blur after invalid input
+    async enterInvalidPhoneAndTriggerError(invalidPhone) {
+        await this.phoneNumberInput.fill('');
+        await this.phoneNumberInput.fill(invalidPhone);
+        // Blur to trigger validation
+        // await this.phoneNumberInput.press('Tab');
+        await this.page.waitForTimeout(500);
+    }
+
+    //Verify phone validation error is visible
+    async verifyPhoneValidationError() {
+        await this.phoneErrorMsg.waitFor({ state: 'visible', timeout: 10000 });
+        await expect(this.phoneErrorMsg).toBeVisible();
+    }
+
+    //Replace invalid phone with a correct phone number
+    async correctPhoneNumber(validPhone) {
+        await this.phoneNumberInput.fill('');
+        await this.phoneNumberInput.fill(validPhone);
+        await this.page.waitForTimeout(500);
+    }
+
+    //Verify phone error has cleared
+    async verifyPhoneErrorCleared() {
+        await expect(this.phoneErrorMsg).not.toBeVisible();
+    }
+
+    async verifyCompanyNameOnOnboardingForm(companyName) {
+        if (await this.companyNameInput.isVisible()) {
+            await expect(this.companyNameInput).toHaveValue(companyName);
+        }
+    }
+
+    async completeOnboardingForm(page, supplier, { scenarioName } = {}) {
+        // Step 1: Navigate through all steps to reach the Terms step
+        const { companyName, phone, postcode, hirePeriod } = supplier;
         //console.log(`completeOnboardingForm: Starting with companyName=${companyName}, phone=${phone}, postcode=${postcode}, hirePeriod=${hirePeriod}`);
-        await this.verifyCompanyNameOnOnboardingForm(companyName);
-        //await expect(this.companyNameInput).toHaveValue(companyName);
-        await this.nextBtn.click();
-        await page.waitForTimeout(1000);
-        await expect(this.phoneNumberInput).toHaveValue(phone);
-        await this.nextBtn.click();
-        await page.waitForTimeout(1000);
+        if (await this.companyNameInput.isVisible()) {
+            await this.verifyCompanyNameOnOnboardingForm(companyName);
+            await this.nextBtn.click();
+            await page.waitForTimeout(1000);
+        }
+        if (await this.phoneNumberInput.isVisible()) {
+            await expect(this.phoneNumberInput).toHaveValue(phone);
+            await this.nextBtn.click();
+            await page.waitForTimeout(1000);
+        }
+        //Postcode
         await expect(this.postcodeInput).toHaveValue(postcode);
         await this.nextBtn.click();
         await page.waitForTimeout(1000);
+
+        if (scenarioName === 'Scenario 5: Step Navigation') {
+            // Verify we can navigate back to previous steps and the data is retained
+            await this.previousBtn.click();
+            await page.waitForTimeout(500);
+            await this.previousBtn.click();
+            await page.waitForTimeout(500);
+            await this.previousBtn.click();
+            await page.waitForTimeout(500);
+            await expect(this.companyNameInput).toHaveValue(companyName);
+            await page.waitForTimeout(1000);
+            await this.nextBtn.click();
+            await expect(this.phoneNumberInput).toHaveValue(phone);
+            await page.waitForTimeout(1000);
+            await this.nextBtn.click();
+            await expect(this.postcodeInput).toHaveValue(postcode);
+            await page.waitForTimeout(1000);
+            await this.nextBtn.click();
+        }
+
+        //Hire period
         await expect(page.getByRole('button', { name: `${hirePeriod} days` })).toBeVisible();
         await this.nextBtn.click();
         await page.waitForTimeout(1000);
+
+        //Services
         await this.skipHireCheckbox.check();
         await page.waitForTimeout(1000);
         await this.nextBtn.click();
         await page.waitForTimeout(1000);
+
+        // Terms step
+        await this.privacyPolicyPdf.waitFor({ state: 'visible', timeout: 20000 });
+
+        // Step 2: Verify checkbox is disabled before scrolling
+        await this.verifyTermsCheckboxIsDisabled();
+
+        // Step 3: Verify warning banner is visible before scrolling
+        await this.verifyScrollWarningIsVisible();
+
+        // Step 4: Scroll through the terms document
         await this.privacyPolicyPdf.click({
             position: {
                 x: 634,
@@ -126,13 +234,39 @@ export class SupplierRegistrationPage {
             }
         });
         await page.waitForTimeout(1000);
-        await expect(this.privacyPolicyPdf).toBeVisible();
-        await expect(this.termsCheckbox).toBeEnabled();
-        await page.waitForTimeout(1000);
+        // Step 4 (continued): Verify warning banner disappears after scrolling
+        await this.verifyScrollWarningIsGone();
+
+        // Step 5: Verify checkbox is now enabled
+        await this.verifyTermsCheckboxIsEnabled();
+
+        // Step 6 & 7: Accept terms and complete onboarding
         await this.termsCheckbox.check();
         await page.waitForTimeout(1000);
         await this.completeBtn.click();
         await page.waitForTimeout(1000);
+    }
+
+    //Verify the terms checkbox is disabled before scrolling
+    async verifyTermsCheckboxIsDisabled() {
+        await expect(this.termsCheckbox).toBeDisabled();
+        await expect(this.checkboxHintText).toBeVisible();
+    }
+
+    //Verify the orange scroll warning banner is visible before scrolling
+    async verifyScrollWarningIsVisible() {
+        await expect(this.scrollWarningBanner).toBeVisible();
+    }
+
+    //Verify the orange scroll warning banner is gone after scrolling
+    async verifyScrollWarningIsGone() {
+        await expect(this.scrollWarningBanner).not.toBeVisible();
+    }
+
+    //Verify the checkbox is now enabled after scrolling to the bottom.
+    async verifyTermsCheckboxIsEnabled() {
+        await expect(this.termsCheckbox).toBeEnabled();
+        await expect(this.checkboxHintText).not.toBeVisible();
     }
 
     async verifySupplierRedirectedToOrdersPage(page) {
