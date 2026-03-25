@@ -304,7 +304,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await registrationContext.close();
     });
 
-    test('Scenario 4: Terms and Conditions - Pending to add step 4', async ({ browser }) => {
+    test('Scenario 4: Terms and Conditions', async ({ browser }) => {
         const context = await browser.newContext({
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,

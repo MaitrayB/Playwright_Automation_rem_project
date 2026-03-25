@@ -12,8 +12,8 @@ export class SupplierMenuNavigation {
         this.doItLaterBtn = page.getByRole('button', { name: 'Do it later' });
         this.usersMenuLink = page.getByRole('link', { name: 'Users' });
         this.accountStatusSection = page.getByText('Account Status').locator('..').last();//.getByText(/Active/);
+        this.bankInformationMenuLink = page.getByRole('link', { name: 'Bank Information' });
     }
-
     async redirectToUsersPage() {
         if (await this.doItLaterBtn.isVisible()) {
             await this.doItLaterBtn.click();
@@ -24,7 +24,6 @@ export class SupplierMenuNavigation {
         await this.usersMenuLink.click();
         await this.page.waitForTimeout(2000);
     }
-
     async navigateToAccountPage() {
         await this.accountMenuLink.click();
         await this.accountStatusSection.waitFor({ state: 'visible' });
@@ -32,6 +31,10 @@ export class SupplierMenuNavigation {
     }
     async navigateToDashboardPage() {
         await this.dashboardMenuLink.click();
+        await this.page.waitForTimeout(2000);
+    }
+    async navigateToBankInformationPage() {
+        await this.bankInformationMenuLink.click();
         await this.page.waitForTimeout(2000);
     }
 }

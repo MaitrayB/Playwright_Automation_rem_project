@@ -48,7 +48,7 @@ export class SupplierRegistrationPage {
         this.termsCheckbox = page.getByText('I have read and agree to the');
         this.completeBtn = page.getByRole('button', { name: 'Complete' });
 
-        //Supplier admin portal locators
+        //Supplier order page locators
         this.orderPageHeading = page.getByRole('heading', { name: 'Orders' });
         this.doItLaterBtn = page.getByRole('button', { name: 'Do it later' });
     }

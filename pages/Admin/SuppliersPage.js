@@ -45,6 +45,13 @@ export class SuppliersPage {
         this.deleteSupplierPopupHeading = page.getByRole('heading', { name: 'Delete Supplier' });
         this.deleteSupplierBtn = this.page.getByRole('button', { name: 'Delete Supplier' });
         this.deleteSuccessMsg = page.getByText('Supplier deleted successfully');
+
+        //View Supplier Details
+        this.documentsTab = page.getByRole('button', { name: 'Documents' });
+        this.approveDocumentSuccessMsg = page.getByText('Document approved successfully');
+        this.informationTab = page.getByRole('button', { name: 'Information' });
+        this.verifySupplierBtn = page.getByRole('button', { name: 'Verify Supplier' });
+        this.supplierVerifiedSuccessMsg = page.getByText('Supplier verified successfully');
     }
 
     async inviteSupplierViaEmailAndPhone(options = {}/*{ invitationType } = {}*/) {
@@ -176,5 +183,37 @@ export class SuppliersPage {
             await this.page.waitForTimeout(1000);
         }
         throw new Error(`No supplier found with status: ${statusToFind}`);
+    }
+
+    async viewSupplierDetails(email) {
+        const tblHelper = new tableHelper(this.page, 'table.w-full');
+        const row = tblHelper.getRowByText(email);
+        await expect(row).toBeVisible();
+        const viewButton = row.getByRole('button', { name: 'View Details' }).first();
+        await viewButton.click();
+    }
+
+    async goToDocumentTabinViewSupplier() {
+        await this.documentsTab.click();
+    }
+
+    async approveDocuments(documentNames) {
+        for (const docName of documentNames) {
+            const tblHelper = new tableHelper(this.page, 'table.w-full');
+            //document names = Waste Carrier License, Public Liability Insurance, Terms and Conditions, Compliance
+            const documentRow = await tblHelper.getRowByText(docName);
+            const approveBtn = documentRow.getByRole('button', { name: 'Approve document' }).first();
+            await approveBtn.click();
+            await expect(this.approveDocumentSuccessMsg).toBeVisible();
+        }
+    }
+
+    async goToInformationTabinViewSupplier() {
+        await this.informationTab.click();
+    }
+
+    async verifySupplier() {
+        await this.verifySupplierBtn.click();
+        await expect(this.supplierVerifiedSuccessMsg).toBeVisible();
     }
 }

@@ -49,6 +49,19 @@ export class tableHelper {
         );
     }
 
+    async getColumnNames() {
+        const headers = this.page.locator('thead th');
+        await headers.first().waitFor({ state: 'visible' });
+        const count = await this.getColumnCount();
+        const columnNames = [];
+        for (let i = 0; i < count; i++) {
+            const text = (await headers.nth(i).innerText()).trim();
+            columnNames.push(text);
+        }
+        console.log(`getColumnNames: Column names: ${columnNames.join(', ')}`);
+        return columnNames;
+    }
+
     //Get cell value by row index and column name
     async getCellByIndex(rowIndex, colIndex) {
         return this.getRowByIndex(rowIndex).locator('td').nth(colIndex);
