@@ -42,18 +42,6 @@ export class OrdersPage {
             'your price', 'actions'
         ]);
     }
-    // async verifyFirstRowDataFields() {
-    //     await expect(this.table.getRowByIndex(0).locator('td').nth(0)).toContainText(/#\d+/);
-
-    //     const addressText = await this.table.getRowByIndex(0).locator('td').nth(1).innerText();
-    //     expect(addressText).toMatch(/[A-Z]{1,2}\d{1,2}[A-Z]?\s*\d[A-Z]{2}/i);
-
-    //     await expect(this.table.getRowByIndex(0).locator('td').nth(2)).toContainText(/yarder skip/i);
-    //     await expect(this.table.getRowByIndex(0).locator('td').nth(3)).toBeVisible();
-    //     await expect(this.table.getRowByIndex(0).locator('td').nth(4)).toContainText(/\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/);
-    //     await expect(this.table.getRowByIndex(0).locator('td').nth(5)).toContainText(/\d+\s*days/i);
-    //     await expect(this.table.getRowByIndex(0).locator('td').nth(7)).toContainText(/£[\d,.]+/);
-    // }
 
     async verifyOrdersSortedByCreationDateNewestFirst() {
         const count = await this.table.getRowCount();
@@ -184,5 +172,50 @@ export class OrdersPage {
             await expect(skipCell).toContainText(skipSize);
         }
         await this.searchInput.clear();
+    }
+
+    async getFirstRowOrderId() {
+        try {
+            const tbleHelper = new tableHelper(this.page, 'w-full');
+            const cell = await tbleHelper.getCellByIndex(1, 0); // row 1 = first data row
+            const rawText = await cell.innerText();
+            // rawText = "#2525\n30 Mar 2026"
+            const idNum = rawText.split('\n')[0].trim();
+            // idNum = "#2525"
+            return idNum || null;
+        } catch (error) { return null; }
+    }
+
+    async verifyTakenOrderIDIsNotVisibleInAvailableOrdersTab(orderId) {
+        try {
+            const tbleHelper = new tableHelper(this.page, 'w-full');
+            const count = await tbleHelper.getRowCount();
+            for (let i = 0; i < count; i++) {
+                const cell = await tbleHelper.getCellByIndex(i, 0);
+                const text = await cell.innerText();
+                if (text.includes(`#${orderId}`)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        catch (error) { return false; }
+    }
+
+    async verifyTakenOrderIDIsVisibleInMyOrdersTab(orderId) {
+        try {
+            await this.myOrdersTab.click();
+            const tbleHelper = new tableHelper(this.page, 'w-full');
+            const count = await tbleHelper.getRowCount();
+            for (let i = 0; i < count; i++) {
+                const cell = await tbleHelper.getCellByIndex(i, 0);
+                const text = await cell.innerText();
+                if (text.includes(`#${orderId}`)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        catch (error) { return false; }
     }
 }

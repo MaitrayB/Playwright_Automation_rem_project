@@ -58,7 +58,7 @@ export class tableHelper {
             const text = (await headers.nth(i).innerText()).trim();
             columnNames.push(text);
         }
-        console.log(`getColumnNames: Column names: ${columnNames.join(', ')}`);
+        // console.log(`getColumnNames: Column names: ${columnNames.join(', ')}`);
         return columnNames;
     }
 

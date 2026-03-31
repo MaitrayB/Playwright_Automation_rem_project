@@ -20,6 +20,10 @@ export const TestData = {
     pendingVerificationSupplier: {
       username: 'Elise_Price@mailinator.com',
       password: 'Password@123'
+    },
+    pendingBankSetupSupplier: {
+      username: 'Ofelia_Koch-Volkman@mailinator.com',
+      password: 'Password@123'
     }
   },
 

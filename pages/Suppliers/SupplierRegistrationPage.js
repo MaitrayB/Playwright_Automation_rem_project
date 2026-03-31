@@ -17,6 +17,7 @@ export class SupplierRegistrationPage {
     /** @param {Page} page */
     constructor(page) {
         this.page = page;
+        this.supplierLogInPageHeading = page.getByRole('heading', { name: 'Supplier Sign In' });
         this.emailInput = page.locator('#email');
         this.passwordInput = page.locator('#password');
         this.confirmPasswordInput = page.locator('#confirmPassword');

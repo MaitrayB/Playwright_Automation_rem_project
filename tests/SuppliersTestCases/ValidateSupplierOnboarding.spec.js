@@ -379,13 +379,6 @@ test.describe('Supplier Onboarding Validation cases', async () => {
     });
 
     test('Scenario 5: Step Navigation', async ({ browser }) => {
-        // Access onboarding page
-        // Complete first 3 steps
-        // Navigate back to step 1
-        // Verify data is preserved
-        // Navigate forward again
-        // Complete remaining steps
-        // Verify all data is saved correctly
 
         const context = await browser.newContext({
             httpCredentials: {

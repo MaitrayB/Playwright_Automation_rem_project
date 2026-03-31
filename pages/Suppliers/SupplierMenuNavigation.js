@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { SupplierRegistrationPage } from './SupplierRegistrationPage.js'
 /**
  * @typedef {import('@playwright/test').Page} Page
  * @typedef {import('@playwright/test').Locator} Locator
@@ -13,6 +13,9 @@ export class SupplierMenuNavigation {
         this.usersMenuLink = page.getByRole('link', { name: 'Users' });
         this.accountStatusSection = page.getByText('Account Status').locator('..').last();//.getByText(/Active/);
         this.bankInformationMenuLink = page.getByRole('link', { name: 'Bank Information' });
+
+        //Logout
+        this.logOutBtn = page.getByRole('button', { name: 'Logout' });
     }
     async redirectToUsersPage() {
         if (await this.doItLaterBtn.isVisible()) {
@@ -36,5 +39,11 @@ export class SupplierMenuNavigation {
     async navigateToBankInformationPage() {
         await this.bankInformationMenuLink.click();
         await this.page.waitForTimeout(2000);
+    }
+
+    async logout() {
+        const supplierRegistrationPage = new SupplierRegistrationPage(this.page);
+        await this.logOutBtn.click();
+        await supplierRegistrationPage.emailInput.waitFor({ state: 'visible', timeout: 20000 });
     }
 }
