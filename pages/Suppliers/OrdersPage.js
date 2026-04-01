@@ -90,6 +90,11 @@ export class OrdersPage {
         await actionsCell.locator('button[title="View Details"]').click();
     }
 
+    async clickFirstRowTakeIcon() {
+        const actionsCell = await this.table.getCellByHeader(0, 'Actions');
+        await actionsCell.locator('button[title="Take Order"]').click();
+    }
+
     async verifyOrderDetailBeforeTaking() {
         await expect(this.orderDetailHeading).toBeVisible();
         await expect(this.takeThisOrderBtn).toBeVisible();
@@ -176,14 +181,24 @@ export class OrdersPage {
 
     async getFirstRowOrderId() {
         try {
-            const tbleHelper = new tableHelper(this.page, 'w-full');
-            const cell = await tbleHelper.getCellByIndex(1, 0); // row 1 = first data row
+            await this.page.waitForSelector('table.w-full tbody tr', {
+                state: 'visible',
+                timeout: 10000
+            });
+
+            const tbleHelper = new tableHelper(this.page, '.w-full');
+            const cell = await tbleHelper.getCellByIndex(0, 0);
+
+            await cell.waitFor({ state: 'visible', timeout: 5000 }); // ← key fix
+
             const rawText = await cell.innerText();
-            // rawText = "#2525\n30 Mar 2026"
-            const idNum = rawText.split('\n')[0].trim();
-            // idNum = "#2525"
+            const idNum = rawText.split('\n')[0].trim().replace('#', '');
+            console.log("First Row ORDER_ID:", idNum);
             return idNum || null;
-        } catch (error) { return null; }
+        } catch (error) {
+            console.error("getFirstRowOrderId error:", error);
+            return null;
+        }
     }
 
     async verifyTakenOrderIDIsNotVisibleInAvailableOrdersTab(orderId) {

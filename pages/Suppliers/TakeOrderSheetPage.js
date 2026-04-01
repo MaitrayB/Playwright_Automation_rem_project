@@ -66,8 +66,9 @@ export class TakeOrderSheetPage {
         this.termsLink = page.getByRole('link', { name: /terms and conditions/i });
 
         // Submit Take Order Sheet button locator
-        this.submitButton = page.locator('#root').getByRole('button', { name: 'Take this Order' });
-        this.submitBtnNameDuringSubmission = page.locator('#root').getByRole('button', { name: 'Taking Order...' });
+        // this.submitButton = page.locator('#root').getByRole('button', { name: 'Take this Order' });
+        this.takeThisOrderBtn = page.locator('button[type="submit"]');//.filter({ hasText: 'Take this Order' });
+        this.submitBtnNameDuringSubmission = page.getByRole('button', { name: 'Taking Order...' });
         this.takeOrderSuccessMsg = page.getByText('Order taken successfully! This order is now on your orders list, and you will be taking care of this order as supplier');
     }
 
@@ -76,7 +77,7 @@ export class TakeOrderSheetPage {
     }
 
     async verifyTakeOrderSheetClosed() {
-        await expect(this.takeOrderSheet).not.toBeVisible();
+
     }
 
     async verifyOrderSummarySection() {

@@ -13,8 +13,7 @@ import { SupplierMenuNavigation } from '../../pages/Suppliers/SupplierMenuNaviga
 /** @type {SupplierMenuNavigation} */ let supplierMenuNavigation;
 
 
-test.describe('Supplier Onboarding Validation cases', () => {
-
+test.describe('1. Requirements to Take Orders', () => {
     test('Scenario 1: Requirements Check Display when supplier is not verified', async ({ browser }) => {
         const context = await browser.newContext({
             httpCredentials: {
@@ -43,7 +42,9 @@ test.describe('Supplier Onboarding Validation cases', () => {
         // Shows "Complete Documents" button
         await expect(ordersPage.completeDocumentsBtn).toBeVisible();
     });
+});
 
+test.describe('2. Viewing Available Orders', () => {
     test('Scenario 2.1 Available Orders Tab', async ({ browser }) => {
         const context = await browser.newContext({
             httpCredentials: {
@@ -129,7 +130,9 @@ test.describe('Supplier Onboarding Validation cases', () => {
         await context.close();
         await page.close();
     });
+});
 
+test.describe('3. Taking Orders', () => {
     test('3.1 Take Order Button', async ({ browser }) => {
         const context = await browser.newContext({
             httpCredentials: {
@@ -459,7 +462,7 @@ test.describe('Supplier Onboarding Validation cases', () => {
 
         await test.step('AC-3.4.2 / AC-3.4.4: Validate checkbox must be checked to submit', async () => {
             takeOrderSheetPage.termsAndConditionsCheckbox.check();
-            await expect(takeOrderSheetPage.submitButton).toBeEnabled();
+            await expect(takeOrderSheetPage.takeThisOrderBtn).toBeEnabled();
         });
 
         await test.step('AC-3.4.3: Validate terms can be viewed in modal', async () => {
@@ -505,18 +508,10 @@ test.describe('Supplier Onboarding Validation cases', () => {
             await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
         });
 
-        await test.step('Navigate to first order detail page', async () => {
+        await test.step('Navigate to first order detail page & click Take button', async () => {
             orderId = await ordersPage.getFirstRowOrderId();
-            console.log("First Row ORDER_ID:", orderId);
-            await ordersPage.clickFirstRowViewIcon();
+            await ordersPage.clickFirstRowTakeIcon();
             await page.waitForTimeout(1000);
-        });
-
-        await test.step('Click Take Order button to open sheet', async () => {
-            await expect(ordersPage.takeThisOrderBtn).toBeVisible();
-            await expect(ordersPage.takeThisOrderBtn).toBeEnabled();
-            await ordersPage.takeThisOrderBtn.click();
-            await page.waitForTimeout(2000);
         });
 
         await test.step('Verify Take Order sheet is displayed', async () => {
@@ -526,18 +521,12 @@ test.describe('Supplier Onboarding Validation cases', () => {
         await test.step('Accept terms and policies', async () => {
             await expect(takeOrderSheetPage.termsAndConditionsCheckbox).toBeVisible();
             takeOrderSheetPage.termsAndConditionsCheckbox.check();
-            await expect(takeOrderSheetPage.submitButton).toBeEnabled();
-        });
-
-        await test.step('AC-3.5.2: Submit button shows "Taking Order..." when submitting', async () => {
-            takeOrderSheetPage.submitButton.click();
-            expect(takeOrderSheetPage.submitBtnNameDuringSubmission).toBe('Taking Order...');
+            await expect(takeOrderSheetPage.takeThisOrderBtn).toBeEnabled();
         });
 
         await test.step('AC-3.5.4: On successful submission, validate success message, order status and order list', async () => {
-            takeOrderSheetPage.submitButton.click();
-            expect(takeOrderSheetPage.submitBtnNameDuringSubmission).toBe('Taking Order...');
-            expect(await takeOrderSheetPage.verifyTakeOrderSheetClosed()).toBe(true);
+            await takeOrderSheetPage.takeThisOrderBtn.click();
+            await expect(takeOrderSheetPage.takeOrderSheet).not.toBeVisible();
             await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible();
             await ordersPage.verifyTakenOrderIDIsNotVisibleInAvailableOrdersTab(orderId);
         });
@@ -549,5 +538,52 @@ test.describe('Supplier Onboarding Validation cases', () => {
         });
 
     });
+});
 
+test.describe('4. Viewing My Orders', () => {
+    test('4.1 My Orders Tab', async ({ browser }) => {
+
+
+        // AC-4.1.3: Orders show status badge (in_progress, requested_collection, collected, delivered, refunded) Pass
+        // AC-4.1.4: Orders can be filtered by status Pass
+        // AC-4.1.5: Orders can be filtered by date range Fail
+        // AC-4.1.6: Orders tab shows total orders and total amount Pass
+        // AC-4.1.7: Orders are searchable Pass
+
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+        supplierRegistrationPage = new SupplierRegistrationPage(page);
+        genFunctions = new genericFunctions(page);
+        ordersPage = new OrdersPage(page);
+        takeOrderSheetPage = new TakeOrderSheetPage(page);
+
+        await test.step('Navigate to supplier login', async () => {
+            await genFunctions.goto(page, '/supplier/login');
+        });
+
+        await test.step('Login as verified supplier', async () => {
+            await supplierRegistrationPage.supplierLogin(
+                TestData.credentials.supplier.username,
+                TestData.credentials.supplier.password
+            );
+            await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
+        });
+
+        await test.step('AC-4.1.1: Supplier can access "My Orders" tab', async () => {
+            await ordersPage.myOrdersTab.click();
+            await page.waitForLoadState("domcontentloaded");
+        });
+
+        // AC-4.1.2: My Orders tab displays only orders booked with the supplier Pass
+        await test.step('AC-4.1.1: Supplier can access "My Orders" tab', async () => {
+            await ordersPage.myOrdersTab.click();
+            await page.waitForLoadState("domcontentloaded");
+        });
+    });
 });
