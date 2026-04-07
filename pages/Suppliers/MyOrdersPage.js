@@ -26,10 +26,19 @@ export class MyOrdersPage {
             await this.filterByDateRangeBtn.click();
             await this.page.waitForTimeout(500); // Allow popover animation to complete
         }
-        // await this.page.getByRole('button', { name: '1', exact: true }).first().click();
-        // await this.page.getByRole('button', { name: '28', exact: true }).last().click();
-        await this.page.getByRole('button', { name: { startDate }, exact: true }).first().click();
-        await this.page.getByRole('button', { name: { endDate }, exact: true }).last().click();
+
+        // Extract numeric day as string from whatever is passed in
+        const resolveDay = (val) => {
+            if (/^\d{1,2}$/.test(String(val))) return String(val);
+            const d = new Date(val);
+            return isNaN(d.getDate()) ? String(val) : String(d.getDate());
+        };
+        const startDay = resolveDay(startDate);
+        const endDay = resolveDay(endDate);
+
+        // ✅ Pass the string value directly, not wrapped in {}
+        await this.page.getByRole('button', { name: startDay, exact: true }).first().click();
+        await this.page.getByRole('button', { name: endDay, exact: true }).last().click();
 
         // Click the Apply button
         if (await this.applyDateFilterBtn.isVisible()) {
