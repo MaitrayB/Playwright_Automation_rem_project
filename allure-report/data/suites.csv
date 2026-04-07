@@ -1,3 +1,2 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","180261","Logged-in User Placing an order","","Sat Nov 08 13:43:42 IST 2025","broken","Sat Nov 08 13:46:43 IST 2025","Place an order as Logged-in User","sanity.spec.js","",""
-"","64413","Guest User Placing an order","","Sat Nov 08 13:42:37 IST 2025","passed","Sat Nov 08 13:43:42 IST 2025","Place an order as Guest User","sanity.spec.js","",""
+"","22673","4.1 My Orders Tab","","Thu Apr 02 17:27:53 IST 2026","passed","Thu Apr 02 17:28:16 IST 2026","4. Viewing My Orders","SuppliersTestCases/SupplierTakingUnassigningOrders.spec.js","",""

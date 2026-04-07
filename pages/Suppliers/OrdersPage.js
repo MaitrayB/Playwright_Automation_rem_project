@@ -23,6 +23,10 @@ export class OrdersPage {
         this.orderDetailHeading = page.getByRole('heading', { name: /order #\d+/i });
         this.bookedBadge = page.locator('text="Booked"');
         this.takeThisOrderBtn = page.getByRole('button', { name: /take this order/i, exact: true });
+
+        //Available Orders tab - Order Details page locator
+        this.moreOptionsForUnbookedOrdersBtn = page.locator('button:has(svg.lucide-more-vertical)');
+
     }
 
     async verifyPopupDisplayed() {

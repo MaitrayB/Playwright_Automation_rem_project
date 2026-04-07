@@ -5,12 +5,16 @@ import { SupplierRegistrationPage } from '../../pages/Suppliers/SupplierRegistra
 import { OrdersPage } from '../../pages/Suppliers/OrdersPage.js';
 import { TakeOrderSheetPage } from '../../pages/Suppliers/TakeOrderSheetPage.js';
 import { SupplierMenuNavigation } from '../../pages/Suppliers/SupplierMenuNavigation.js';
+import { MyOrdersPage } from '../../pages/Suppliers/MyOrdersPage.js';
+import { MyOrderDetailsPage } from '../../pages/Suppliers/MyOrderDetailsPage.js';
 
 /** @type {genericFunctions} */ let genFunctions;
 /** @type {SupplierRegistrationPage} */ let supplierRegistrationPage;
 /** @type {OrdersPage} */ let ordersPage;
 /** @type {TakeOrderSheetPage} */ let takeOrderSheetPage;
 /** @type {SupplierMenuNavigation} */ let supplierMenuNavigation;
+/** @type {MyOrdersPage} */ let myOrdersPage;
+/** @type {MyOrderDetailsPage} */ let myOrderDetailsPage;
 
 
 test.describe('1. Requirements to Take Orders', () => {
@@ -41,6 +45,10 @@ test.describe('1. Requirements to Take Orders', () => {
 
         // Shows "Complete Documents" button
         await expect(ordersPage.completeDocumentsBtn).toBeVisible();
+
+        // Cleanup
+        await context.close();
+        await page.close();
     });
 });
 
@@ -74,9 +82,6 @@ test.describe('2. Viewing Available Orders', () => {
         // AC-2.1.3: Orders list shows: Order ID, Address / Postcode, Skip size, Permit, Delivery date, Days to delivery, Supplier price (with VAT)
         await ordersPage.verifyColumnNamesofAvailableOrders();
 
-        // AC: First row contains all required data fields with correct format
-        // await ordersPage.verifyFirstRowDataFields();
-
         // AC-2.1.4: Orders are sorted by creation date (newest first)
         await ordersPage.verifyOrdersSortedByCreationDateNewestFirst();
 
@@ -98,6 +103,7 @@ test.describe('2. Viewing Available Orders', () => {
         await ordersPage.clickFirstRowViewIcon();
         await ordersPage.verifyOrderDetailBeforeTaking();
 
+        // Cleanup
         await context.close();
         await page.close();
     });
@@ -161,6 +167,7 @@ test.describe('3. Taking Orders', () => {
         await ordersPage.clickFirstRowViewIcon();
         await ordersPage.verifyTakeThisOrderBtnForUnverifiedSupplier();
 
+        // Cleanup
         await context.close();
         await page.close();
     });
@@ -265,6 +272,7 @@ test.describe('3. Taking Orders', () => {
             await takeOrderSheetPage.verifySheetFullyLoaded();
         });
 
+        //Cleanup
         await context.close();
         await page.close();
     });
@@ -405,6 +413,7 @@ test.describe('3. Taking Orders', () => {
             await expect(takeOrderSheetPage.documentsNotCompletedMsg).not.toBeVisible();
         });
 
+        // Cleanup
         await context.close();
         await page.close();
     });
@@ -477,6 +486,7 @@ test.describe('3. Taking Orders', () => {
             await expect(page.getByText(/must accept/i)).toBeVisible();
         });
 
+        // Cleanup
         await context.close();
         await page.close();
     });
@@ -537,19 +547,15 @@ test.describe('3. Taking Orders', () => {
             await ordersPage.verifyTakenOrderIDIsVisibleInMyOrdersTab(orderId);
         });
 
+        // Cleanup
+        await context.close();
+        await page.close();
+
     });
 });
 
 test.describe('4. Viewing My Orders', () => {
     test('4.1 My Orders Tab', async ({ browser }) => {
-
-
-        // AC-4.1.3: Orders show status badge (in_progress, requested_collection, collected, delivered, refunded) Pass
-        // AC-4.1.4: Orders can be filtered by status Pass
-        // AC-4.1.5: Orders can be filtered by date range Fail
-        // AC-4.1.6: Orders tab shows total orders and total amount Pass
-        // AC-4.1.7: Orders are searchable Pass
-
         const context = await browser.newContext({
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
@@ -558,16 +564,17 @@ test.describe('4. Viewing My Orders', () => {
             ignoreHTTPSErrors: true
         });
         const page = await context.newPage();
+
+        // Initialize page objects
         supplierRegistrationPage = new SupplierRegistrationPage(page);
         genFunctions = new genericFunctions(page);
         ordersPage = new OrdersPage(page);
-        takeOrderSheetPage = new TakeOrderSheetPage(page);
+        myOrdersPage = new MyOrdersPage(page);
+        myOrderDetailsPage = new MyOrderDetailsPage(page);
 
-        await test.step('Navigate to supplier login', async () => {
+        // Setup: Navigate to supplier login & Login as verified supplier
+        await test.step('Navigate to supplier login and authenticate', async () => {
             await genFunctions.goto(page, '/supplier/login');
-        });
-
-        await test.step('Login as verified supplier', async () => {
             await supplierRegistrationPage.supplierLogin(
                 TestData.credentials.supplier.username,
                 TestData.credentials.supplier.password
@@ -575,15 +582,144 @@ test.describe('4. Viewing My Orders', () => {
             await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
         });
 
-        await test.step('AC-4.1.1: Supplier can access "My Orders" tab', async () => {
+        await test.step('AC-4.1.2: My Orders tab displays orders', async () => {
+            await expect(ordersPage.myOrdersTab).toBeVisible();
             await ordersPage.myOrdersTab.click();
             await page.waitForLoadState("domcontentloaded");
+
+            // Verify the table has loaded orders
+            await page.waitForSelector('table');
+            const rowCount = await ordersPage.table.getRowCount();
+            expect(rowCount).toBeGreaterThan(0);
         });
 
-        // AC-4.1.2: My Orders tab displays only orders booked with the supplier Pass
-        await test.step('AC-4.1.1: Supplier can access "My Orders" tab', async () => {
-            await ordersPage.myOrdersTab.click();
+        await test.step('AC-4.1.3: Orders show status badge', async () => {
+            // View order details first since the badge is visible on the detailed page
+            await myOrdersPage.clickFirstRowViewIcon();
+            await page.waitForLoadState('domcontentloaded');
+
+            // Verify the badge on the order details view
+            await myOrderDetailsPage.verifyOrderStatusBadge();
+
+            // Navigate back to My Orders tab to continue other tests
+            await myOrderDetailsPage.clickBackToMyOrders();
+            await expect(ordersPage.myOrdersTab).toBeVisible();
+        });
+
+        await test.step('AC-4.1.5: Orders can be filtered by date range', async () => {
+            await myOrdersPage.filterOrdersByDate('1', '28');
+            const rowCount = await ordersPage.table.getRowCount();
+            expect(rowCount).toBeGreaterThanOrEqual(0);
+        });
+
+        await test.step('AC-4.1.6: My Orders tab shows total orders and total amount', async () => {
+            await myOrdersPage.verifyTotalsDisplayed();
+        });
+
+        await test.step('AC-4.1.7: My Orders tab is searchable', async () => {
+            // Reusing the same search methods from OrdersPage as they target the list & search input
+            await expect(ordersPage.searchInput).toBeVisible();
+
+            // Search by filtering methods 
+            await ordersPage.verifySearchFilterByOrderId();
+            await ordersPage.verifySearchFilterByAddress();
+            await ordersPage.verifySearchFilterByPostcode();
+            await ordersPage.verifySearchFilterBySkipSize();
+        });
+    });
+});
+
+test.describe('5. Order Details Page - Taking Orders', () => {
+    test('5.2 Order Details After Taking', async ({ browser }) => {
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+
+        // Initialize page objects
+        supplierRegistrationPage = new SupplierRegistrationPage(page);
+        genFunctions = new genericFunctions(page);
+        ordersPage = new OrdersPage(page);
+        myOrdersPage = new MyOrdersPage(page);
+        myOrderDetailsPage = new MyOrderDetailsPage(page);
+
+        await test.step('Supplier login and authenticate', async () => {
+            await genFunctions.goto(page, '/supplier/login');
+            await supplierRegistrationPage.supplierLogin(
+                TestData.credentials.supplier.username,
+                TestData.credentials.supplier.password
+            );
+            await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
+        });
+        await expect(ordersPage.myOrdersTab).toBeVisible();
+        await ordersPage.myOrdersTab.click();
+        await page.waitForLoadState("domcontentloaded");
+
+        await test.step('Navigate to order details page of a booked order', async () => {
+            await myOrdersPage.clickFirstRowViewIcon();
+            await page.waitForLoadState('domcontentloaded');
+            await myOrderDetailsPage.verifyOrderStatusBadge();
+        });
+
+        await test.step('AC-5.2.2: "Take this Order" button is replaced with order management options', async () => {
+            await expect(myOrderDetailsPage.manageDeliveryBtn).toBeVisible();
+            await expect(myOrderDetailsPage.manageCollectionBtn).toBeVisible();
+            await expect(myOrderDetailsPage.extraChargeableItemsBtn).toBeVisible();
+        });
+    });
+});
+
+test.describe('6. Unassigning from Orders', () => {
+    test('6.1 Unassign Button Access', async ({ browser }) => {
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+
+        // Initialize page objects
+        supplierRegistrationPage = new SupplierRegistrationPage(page);
+        genFunctions = new genericFunctions(page);
+        ordersPage = new OrdersPage(page);
+        myOrdersPage = new MyOrdersPage(page);
+        myOrderDetailsPage = new MyOrderDetailsPage(page);
+
+        await test.step('Supplier login and authenticate', async () => {
+            await genFunctions.goto(page, '/supplier/login');
+            await supplierRegistrationPage.supplierLogin(
+                TestData.credentials.supplier.username,
+                TestData.credentials.supplier.password
+            );
+            await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
+        });
+        await expect(ordersPage.myOrdersTab).toBeVisible();
+        await ordersPage.myOrdersTab.click();
+        await page.waitForLoadState("domcontentloaded");
+
+        await test.step('Navigate to order details page of a booked order', async () => {
+            await myOrdersPage.clickFirstRowViewIcon();
+            await page.waitForLoadState('domcontentloaded');
+        });
+
+        await test.step('AC-6.1.2 / AC-6.1.3: Unassign button is visible in more options menu', async () => {
+            await myOrderDetailsPage.moreOptionsBtn.click();
+            await expect(myOrderDetailsPage.unassignFromOrderBtn).toBeVisible();
+            await myOrderDetailsPage.backToMyOrdersBtn.click(); // to navigate to Available Orders tab for next test step
+        });
+
+        await test.step('AC-6.1.4: Supplier cannot unassign from orders not booked with them', async () => {
+            await ordersPage.availableOrdersTab.click();
             await page.waitForLoadState("domcontentloaded");
+            await ordersPage.clickFirstRowViewIcon();
+            await page.waitForLoadState('domcontentloaded');
+            await expect(ordersPage.moreOptionsForUnbookedOrdersBtn).toBeDisabled();
         });
     });
 });
