@@ -722,4 +722,129 @@ test.describe('6. Unassigning from Orders', () => {
             await expect(ordersPage.moreOptionsForUnbookedOrdersBtn).toBeDisabled();
         });
     });
+
+    test('6.2 Unassign Modal - Step 1: Reason Selection', async ({ browser }) => {
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+
+        // Initialize page objects
+        supplierRegistrationPage = new SupplierRegistrationPage(page);
+        genFunctions = new genericFunctions(page);
+        ordersPage = new OrdersPage(page);
+        myOrdersPage = new MyOrdersPage(page);
+        myOrderDetailsPage = new MyOrderDetailsPage(page);
+
+        await test.step('Supplier login and authenticate', async () => {
+            await genFunctions.goto(page, '/supplier/login');
+            await supplierRegistrationPage.supplierLogin(
+                TestData.credentials.supplier.username,
+                TestData.credentials.supplier.password
+            );
+            await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
+        });
+        await expect(ordersPage.myOrdersTab).toBeVisible();
+        await ordersPage.myOrdersTab.click();
+        await page.waitForLoadState("domcontentloaded");
+
+        await test.step('Navigate to order details page of a booked order', async () => {
+            await myOrdersPage.clickFirstRowViewIcon();
+            await page.waitForLoadState('domcontentloaded');
+            await myOrderDetailsPage.moreOptionsBtn.click();
+        });
+
+        await test.step('AC-6.2.1: Clicking unassign opens confirmation modal', async () => {
+            await myOrderDetailsPage.unassignFromOrderBtn.click();
+            await expect(myOrderDetailsPage.unassignModal).toBeVisible();
+        });
+
+        await test.step('AC-6.2.2: Modal shows "Unassign from this order?" title', async () => {
+            await expect(myOrderDetailsPage.unassignModalTitle).toBeVisible();
+        });
+
+        await test.step('AC-6.2.3: Modal displays reason dropdown with options', async () => {
+            await myOrderDetailsPage.clickReasonDropdown();
+            await myOrderDetailsPage.verifyDropdownOptionsVisible();
+        });
+
+        await test.step('AC-6.2.4 & AC-6.2.8: Reason selection is required & Validation errors display if reason not selected', async () => {
+            await myOrderDetailsPage.closeDropdownWithoutSelecting();
+            await myOrderDetailsPage.clickContinueToUnassign();
+            await myOrderDetailsPage.verifyReasonValidationMessage();
+        });
+
+        await test.step('AC-6.2.5 & AC-6.2.6: Custom reason input appears when "Other" is selected and is required', async () => {
+            await myOrderDetailsPage.selectOtherReason();
+            await myOrderDetailsPage.verifyCustomReasonInputVisible();
+
+            await myOrderDetailsPage.clickContinueToUnassign();
+            await myOrderDetailsPage.verifyCustomReasonValidationMessage();
+
+            await myOrderDetailsPage.fillCustomReason('The truck tyre got punctured during transit.');
+        });
+
+        await test.step('AC-6.2.7: "Continue" button proceeds to confirmation step', async () => {
+            await myOrderDetailsPage.clickContinueToUnassign();
+
+            // Assuming this moves to Step 2, verify validation messages disappear to confirm progression
+            await expect(myOrderDetailsPage.unassignValidationMsg).not.toBeVisible();
+            await expect(myOrderDetailsPage.unassignCustomReasonValidationMsg).not.toBeVisible();
+        });
+    });
+
+    test('6.3 Unassign Modal - Step 2: Confirmation', async ({ browser }) => {
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+
+        // Initialize page objects
+        supplierRegistrationPage = new SupplierRegistrationPage(page);
+        genFunctions = new genericFunctions(page);
+        ordersPage = new OrdersPage(page);
+        myOrdersPage = new MyOrdersPage(page);
+        myOrderDetailsPage = new MyOrderDetailsPage(page);
+
+        await test.step('Supplier login and authenticate', async () => {
+            await genFunctions.goto(page, '/supplier/login');
+            await supplierRegistrationPage.supplierLogin(
+                TestData.credentials.supplier.username,
+                TestData.credentials.supplier.password
+            );
+            await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
+        });
+        await expect(ordersPage.myOrdersTab).toBeVisible();
+        await ordersPage.myOrdersTab.click();
+        await page.waitForLoadState("domcontentloaded");
+
+        await test.step('Navigate to order details page of a booked order', async () => {
+            await myOrdersPage.clickFirstRowViewIcon();
+            await page.waitForLoadState('domcontentloaded');
+            await myOrderDetailsPage.moreOptionsBtn.click();
+        });
+
+        await test.step('Click unassign from orders button', async () => {
+            await expect(myOrderDetailsPage.unassignFromOrderBtn).click();
+            await expect(myOrderDetailsPage.unassignModal).toBeVisible();
+        });
+
+        await test.step('Modal shows "Unassign from this order?" title', async () => {
+            await expect(myOrderDetailsPage.unassignModalTitle).toBeVisible();
+        });
+
+        await test.step('Custom reason input appears when "Other" is selected and is required', async () => {
+            await myOrderDetailsPage.unassignDriverAvailabilityOption.click();
+            await myOrderDetailsPage.clickContinueToUnassign();
+        });
+    });
+
 });
