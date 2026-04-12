@@ -26,6 +26,8 @@ export class MyOrderDetailsPage {
         this.unassignCustomReasonValidationMsg = page.getByText(/Please provide a reason/i);
         this.unassignContinueBtn = page.getByRole('button', { name: 'Continue', exact: true });
         this.unassignCancelBtn = page.getByRole('button', { name: 'Cancel', exact: true });
+        this.reasonDropdown = page.locator('//label[contains(.,"Reason")]/following-sibling::div');
+        this.backBtn = page.locator('(//button[contains(.,"Back")])[2]');
     }
 
     async verifyOrderStatusBadge() {
@@ -72,6 +74,8 @@ export class MyOrderDetailsPage {
     }
 
     async clickContinueToUnassign() {
+        await this.unassignContinueBtn.scrollIntoViewIfNeeded();
+        await this.unassignContinueBtn.highlight();
         await this.unassignContinueBtn.click();
     }
 

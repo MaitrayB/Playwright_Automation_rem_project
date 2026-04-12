@@ -630,6 +630,68 @@ test.describe('4. Viewing My Orders', () => {
 });
 
 test.describe('5. Order Details Page - Taking Orders', () => {
+    
+    test('5.1 Take Order Button on Details Page', async ({ browser }) => {
+        let orderId;
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+        supplierRegistrationPage = new SupplierRegistrationPage(page);
+        genFunctions = new genericFunctions(page);
+        ordersPage = new OrdersPage(page);
+        takeOrderSheetPage = new TakeOrderSheetPage(page);
+
+        await test.step('Navigate to supplier login', async () => {
+            await genFunctions.goto(page, '/supplier/login');
+        });
+
+        await test.step('Login as verified supplier', async () => {
+            await supplierRegistrationPage.supplierLogin(
+                TestData.credentials.supplier.username,
+                TestData.credentials.supplier.password
+            );
+            await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
+        });
+
+        await test.step('Navigate to first order detail page & click View button', async () => {
+            orderId = await ordersPage.getFirstRowOrderId();
+            await ordersPage.clickFirstRowViewIcon();
+            await page.waitForTimeout(1000);
+        });
+
+
+        await test.step('Click Take Order button on details page', async () => {
+            await ordersPage.clickTakeOrderButtonOnDetailsPage();
+            await page.waitForTimeout(1000);
+        });
+
+        await test.step('Verify Take Order sheet is displayed', async () => {
+            await takeOrderSheetPage.verifySheetDisplayed();
+        });
+
+        await test.step('Accept terms and policies', async () => {
+            await expect(takeOrderSheetPage.termsAndConditionsCheckbox).toBeVisible();
+            takeOrderSheetPage.termsAndConditionsCheckbox.check();
+            await expect(takeOrderSheetPage.takeThisOrderBtn).toBeEnabled();
+        });
+
+        await test.step( 'On successful submission, validate success message, order status and order list', async () => {
+            await takeOrderSheetPage.takeThisOrderBtn.click();
+            await expect(takeOrderSheetPage.takeOrderSheet).not.toBeVisible();
+        });
+
+        // Cleanup
+        await context.close();
+        await page.close();
+
+    });
+    
+    
     test('5.2 Order Details After Taking', async ({ browser }) => {
         const context = await browser.newContext({
             httpCredentials: {
@@ -660,15 +722,26 @@ test.describe('5. Order Details Page - Taking Orders', () => {
         await page.waitForLoadState("domcontentloaded");
 
         await test.step('Navigate to order details page of a booked order', async () => {
+            await page.waitForTimeout(2000);
             await myOrdersPage.clickFirstRowViewIcon();
+            
             await page.waitForLoadState('domcontentloaded');
             await myOrderDetailsPage.verifyOrderStatusBadge();
+            await page.waitForTimeout(3000);
         });
 
         await test.step('AC-5.2.2: "Take this Order" button is replaced with order management options', async () => {
+            await myOrderDetailsPage.manageDeliveryBtn.scrollIntoViewIfNeeded();
+            await myOrderDetailsPage.manageDeliveryBtn.highlight();
             await expect(myOrderDetailsPage.manageDeliveryBtn).toBeVisible();
+            await page.waitForTimeout(3000);
+            await myOrderDetailsPage.manageCollectionBtn.scrollIntoViewIfNeeded();
+            await myOrderDetailsPage.manageCollectionBtn.highlight();
             await expect(myOrderDetailsPage.manageCollectionBtn).toBeVisible();
+            await myOrderDetailsPage.extraChargeableItemsBtn.scrollIntoViewIfNeeded();
+            await myOrderDetailsPage.extraChargeableItemsBtn.highlight();
             await expect(myOrderDetailsPage.extraChargeableItemsBtn).toBeVisible();
+            await page.waitForTimeout(3000);
         });
     });
 });
@@ -833,17 +906,36 @@ test.describe('6. Unassigning from Orders', () => {
         });
 
         await test.step('Click unassign from orders button', async () => {
-            await expect(myOrderDetailsPage.unassignFromOrderBtn).click();
+            await page.waitForTimeout(2000);
+            await myOrderDetailsPage.unassignFromOrderBtn.click();
+            await page.waitForTimeout(2000);
             await expect(myOrderDetailsPage.unassignModal).toBeVisible();
+            await myOrderDetailsPage.unassignModal.highlight();
         });
 
         await test.step('Modal shows "Unassign from this order?" title', async () => {
             await expect(myOrderDetailsPage.unassignModalTitle).toBeVisible();
+            await myOrderDetailsPage.unassignModalTitle.highlight();
         });
 
-        await test.step('Custom reason input appears when "Other" is selected and is required', async () => {
+        await test.step('Select reason and click continue to unassign, navigate back', async () => {
+            await myOrderDetailsPage.reasonDropdown.click();
+            await page.waitForTimeout(2000);
             await myOrderDetailsPage.unassignDriverAvailabilityOption.click();
+            await myOrderDetailsPage.unassignDriverAvailabilityOption.scrollIntoViewIfNeeded();
+            await myOrderDetailsPage.unassignDriverAvailabilityOption.highlight();
             await myOrderDetailsPage.clickContinueToUnassign();
+            await page.waitForTimeout(2000);
+            await myOrderDetailsPage.backBtn.click();
+            await page.waitForTimeout(2000);
+            await myOrderDetailsPage.reasonDropdown.click();
+            await page.waitForTimeout(2000);
+            await myOrderDetailsPage.unassignOtherOption.click();
+            await page.waitForTimeout(2000);
+            await myOrderDetailsPage.fillCustomReason('The truck tyre got punctured during transit.');
+            await page.waitForTimeout(2000);
+            await myOrderDetailsPage.clickContinueToUnassign();
+            await page.waitForTimeout(2000);
         });
     });
 

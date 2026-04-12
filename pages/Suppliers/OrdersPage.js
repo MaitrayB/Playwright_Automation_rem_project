@@ -99,6 +99,10 @@ export class OrdersPage {
         await actionsCell.locator('button[title="Take Order"]').click();
     }
 
+    async clickTakeOrderButtonOnDetailsPage() {
+        await this.takeThisOrderBtn.click();
+    }
+
     async verifyOrderDetailBeforeTaking() {
         await expect(this.orderDetailHeading).toBeVisible();
         await expect(this.takeThisOrderBtn).toBeVisible();
