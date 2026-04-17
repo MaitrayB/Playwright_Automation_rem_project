@@ -1,0 +1,237 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e7]:
+      - img "We Want Waste" [ref=e9]
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e12] [cursor=pointer]:
+          - /url: /supplier
+          - img [ref=e13]
+          - text: Dashboard
+        - link "Orders" [ref=e20] [cursor=pointer]:
+          - /url: /supplier/orders
+          - img [ref=e21]
+          - text: Orders
+        - link "Messages" [ref=e25] [cursor=pointer]:
+          - /url: /supplier/messages
+          - img [ref=e26]
+          - text: Messages
+        - link "Payments" [ref=e29] [cursor=pointer]:
+          - /url: /supplier/payments
+          - img [ref=e30]
+          - text: Payments
+        - link "Products / Services" [ref=e33] [cursor=pointer]:
+          - /url: /supplier/products-services
+          - img [ref=e34]
+          - text: Products / Services
+        - link "Documents" [ref=e39] [cursor=pointer]:
+          - /url: /supplier/documents
+          - img [ref=e40]
+          - text: Documents
+        - link "Account" [ref=e44] [cursor=pointer]:
+          - /url: /supplier/profile
+          - img [ref=e45]
+          - text: Account
+        - link "Users" [ref=e49] [cursor=pointer]:
+          - /url: /supplier/users
+          - img [ref=e50]
+          - text: Users
+        - generic [ref=e55]:
+          - link "Locations" [ref=e56] [cursor=pointer]:
+            - /url: /supplier/locations
+            - img [ref=e57]
+            - text: Locations
+          - generic [ref=e60]: Soon
+        - generic [ref=e61]:
+          - link "Working Hours" [ref=e62] [cursor=pointer]:
+            - /url: /supplier/working-hours
+            - img [ref=e63]
+            - text: Working Hours
+          - generic [ref=e66]: Soon
+        - link "Bank Information" [ref=e68] [cursor=pointer]:
+          - /url: /supplier/bank
+          - img [ref=e69]
+          - text: Bank Information
+        - link "Services" [ref=e72] [cursor=pointer]:
+          - /url: /supplier/services
+          - img [ref=e73]
+          - text: Services
+        - link "Settings" [ref=e78] [cursor=pointer]:
+          - /url: /supplier/settings
+          - img [ref=e79]
+          - text: Settings
+      - generic [ref=e82]:
+        - generic [ref=e83]:
+          - generic [ref=e84]: 🧪 DEV
+          - button "Customer" [ref=e85] [cursor=pointer]:
+            - img [ref=e86]
+            - img [ref=e89]
+            - text: Customer
+          - button "Supplier" [ref=e92] [cursor=pointer]:
+            - img [ref=e93]
+            - img [ref=e96]
+            - text: Supplier
+          - button "Admin" [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+            - img [ref=e105]
+            - text: Admin
+        - button "Logout" [ref=e108] [cursor=pointer]:
+          - img [ref=e109]
+          - text: Logout
+    - generic [ref=e112]:
+      - button "Notifications" [ref=e116] [cursor=pointer]:
+        - img [ref=e117]
+      - main [ref=e120]:
+        - generic [ref=e122]:
+          - button "Back to My Orders" [ref=e124] [cursor=pointer]:
+            - img [ref=e125]
+            - text: Back to My Orders
+          - generic [ref=e127]:
+            - generic [ref=e129]:
+              - generic [ref=e130]:
+                - img [ref=e132]
+                - generic [ref=e135]:
+                  - generic [ref=e136]:
+                    - generic [ref=e137]:
+                      - 'heading "Order #2595" [level=1] [ref=e138]'
+                      - generic [ref=e139]:
+                        - img [ref=e140]
+                        - generic [ref=e143]: Delivered
+                    - button "Chat" [ref=e146] [cursor=pointer]:
+                      - img [ref=e147]
+                      - generic [ref=e149]: Chat
+                  - generic [ref=e151]: "PO Ref: WO-00002595"
+              - generic [ref=e153]:
+                - generic [ref=e155]: Booked
+                - button [ref=e157] [cursor=pointer]:
+                  - img [ref=e158]
+            - generic [ref=e164]:
+              - generic [ref=e165]:
+                - button "Manage Delivery" [disabled] [ref=e167]:
+                  - img [ref=e168]
+                  - generic [ref=e173]: Manage Delivery
+                - generic [ref=e174]: Delivered
+              - button "Manage Collection" [ref=e177] [cursor=pointer]:
+                - img [ref=e178]
+                - generic [ref=e181]: Manage Collection
+              - button "Extra Chargeable Items" [ref=e183] [cursor=pointer]:
+                - img [ref=e184]
+                - generic [ref=e186]: Extra Chargeable Items
+            - generic [ref=e187]:
+              - generic [ref=e188]:
+                - heading "Delivery Details" [level=3] [ref=e190]
+                - generic [ref=e191]:
+                  - generic [ref=e192]:
+                    - img [ref=e193]
+                    - generic [ref=e196]:
+                      - generic [ref=e197]: Delivery Address
+                      - generic [ref=e198]: 5 Pwllan Cottages, Llandinam
+                      - generic [ref=e199]: SY17 5AT
+                  - generic [ref=e200]:
+                    - img [ref=e201]
+                    - generic [ref=e203]:
+                      - generic [ref=e204]: Delivery & Collection
+                      - generic [ref=e205]:
+                        - paragraph [ref=e206]: "Delivery: 9 Apr 2026"
+                        - paragraph [ref=e207]: "Collection: 23 Apr 2026"
+              - generic [ref=e208]:
+                - heading "Skip Details" [level=3] [ref=e210]
+                - generic [ref=e211]:
+                  - generic [ref=e213]: 6 yarder skip
+                  - generic [ref=e214]:
+                    - heading "Waste Categories" [level=3] [ref=e215]
+                    - generic [ref=e217]:
+                      - img [ref=e219]
+                      - generic [ref=e222]:
+                        - generic [ref=e223]: Garden Waste
+                        - generic [ref=e224]: Green waste and landscaping materials.
+            - generic [ref=e225]:
+              - generic [ref=e226]:
+                - img [ref=e227]
+                - heading "Order Images" [level=3] [ref=e231]
+              - generic [ref=e232]:
+                - img [ref=e233]
+                - paragraph [ref=e237]: No images attached to this order
+              - button "Add Images" [ref=e240] [cursor=pointer]:
+                - img [ref=e241]
+                - generic [ref=e242]: Add Images
+            - generic [ref=e244]:
+              - generic [ref=e245]:
+                - img [ref=e246]
+                - heading "Order Items" [level=3] [ref=e249]
+              - generic [ref=e250]:
+                - generic [ref=e252]:
+                  - generic [ref=e253]:
+                    - heading "6 Yard Skip" [level=4] [ref=e255]
+                    - generic [ref=e256]:
+                      - paragraph [ref=e257]: "Type: skip"
+                      - paragraph [ref=e258]: "Quantity: 1"
+                  - generic [ref=e259]:
+                    - paragraph [ref=e260]: £253.00
+                    - paragraph [ref=e261]: £253.00 each
+                    - paragraph [ref=e262]: "Qty: 1"
+                - generic [ref=e264]:
+                  - generic [ref=e265]:
+                    - heading "1x Plasterboard Tonne Bag" [level=4] [ref=e267]
+                    - generic [ref=e268]:
+                      - paragraph [ref=e269]: "Type: tonne_bag"
+                      - paragraph [ref=e270]: "Quantity: 1"
+                  - generic [ref=e271]:
+                    - paragraph [ref=e272]: £511.00
+                    - paragraph [ref=e273]: £511.00 each
+                    - paragraph [ref=e274]: "Qty: 1"
+              - generic [ref=e275]:
+                - heading "Order Summary" [level=4] [ref=e276]
+                - generic [ref=e277]:
+                  - generic [ref=e278]: Subtotal (excl. VAT)
+                  - generic [ref=e279]: £764.00
+                - generic [ref=e280]:
+                  - generic [ref=e281]: VAT (20%)
+                  - generic [ref=e282]: £152.80
+                - generic [ref=e283]:
+                  - generic [ref=e284]: Total
+                  - generic [ref=e285]: £916.80
+            - generic [ref=e286]:
+              - generic [ref=e287]:
+                - img [ref=e288]
+                - heading "Order History" [level=3] [ref=e291]
+              - generic [ref=e292]:
+                - generic [ref=e293]:
+                  - heading "Order history" [level=3] [ref=e294]
+                  - button "Chat" [ref=e297] [cursor=pointer]:
+                    - img [ref=e298]
+                    - generic [ref=e300]: Chat
+                - generic [ref=e302]:
+                  - img [ref=e304]
+                  - generic [ref=e308]:
+                    - generic [ref=e309]:
+                      - generic [ref=e310]:
+                        - generic [ref=e311]: Order Confirmed
+                        - generic [ref=e312]: by Customer
+                      - paragraph [ref=e313]: Order created by customer, paid and confirmed
+                    - generic [ref=e314]: 07 Apr 2026, 12:52
+            - generic [ref=e316]:
+              - generic [ref=e317]:
+                - heading "Confirm Unassignment" [level=3] [ref=e318]
+                - button [ref=e319] [cursor=pointer]:
+                  - img [ref=e320]
+              - generic [ref=e323]:
+                - generic [ref=e325]:
+                  - img [ref=e326]
+                  - generic [ref=e328]:
+                    - paragraph [ref=e329]: Wasted Journey Fee Will Be Charged
+                    - paragraph [ref=e330]: You're unassigning less than 24 hours before the delivery.
+                    - paragraph [ref=e331]: According to our terms, a wasted journey fee will be charged.
+                    - paragraph [ref=e332]: The order will be released back for reassignment.
+                - generic [ref=e333]:
+                  - button "Back" [ref=e334] [cursor=pointer]
+                  - button "Confirm & Accept Fee" [active] [ref=e335] [cursor=pointer]:
+                    - generic [ref=e336]: Confirm & Accept Fee
+        - generic [ref=e339]:
+          - generic [ref=e340]: © 2026 All rights reserved.
+          - button "Terms and Conditions" [ref=e342] [cursor=pointer]
+  - button "Open support chat" [ref=e343] [cursor=pointer]:
+    - img [ref=e344]
+```

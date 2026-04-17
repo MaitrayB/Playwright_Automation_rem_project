@@ -1,0 +1,542 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e7]:
+      - img "We Want Waste" [ref=e9]
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e12] [cursor=pointer]:
+          - /url: /supplier
+          - img [ref=e13]
+          - text: Dashboard
+        - link "Orders" [ref=e20] [cursor=pointer]:
+          - /url: /supplier/orders
+          - img [ref=e21]
+          - text: Orders
+        - link "Messages" [ref=e25] [cursor=pointer]:
+          - /url: /supplier/messages
+          - img [ref=e26]
+          - text: Messages
+        - link "Payments" [ref=e29] [cursor=pointer]:
+          - /url: /supplier/payments
+          - img [ref=e30]
+          - text: Payments
+        - link "Products / Services" [ref=e33] [cursor=pointer]:
+          - /url: /supplier/products-services
+          - img [ref=e34]
+          - text: Products / Services
+        - link "Documents" [ref=e39] [cursor=pointer]:
+          - /url: /supplier/documents
+          - img [ref=e40]
+          - text: Documents
+        - link "Account" [ref=e44] [cursor=pointer]:
+          - /url: /supplier/profile
+          - img [ref=e45]
+          - text: Account
+        - link "Users" [ref=e49] [cursor=pointer]:
+          - /url: /supplier/users
+          - img [ref=e50]
+          - text: Users
+        - generic [ref=e55]:
+          - link "Locations" [ref=e56] [cursor=pointer]:
+            - /url: /supplier/locations
+            - img [ref=e57]
+            - text: Locations
+          - generic [ref=e60]: Soon
+        - generic [ref=e61]:
+          - link "Working Hours" [ref=e62] [cursor=pointer]:
+            - /url: /supplier/working-hours
+            - img [ref=e63]
+            - text: Working Hours
+          - generic [ref=e66]: Soon
+        - link "Bank Information" [ref=e68] [cursor=pointer]:
+          - /url: /supplier/bank
+          - img [ref=e69]
+          - text: Bank Information
+        - link "Services" [ref=e72] [cursor=pointer]:
+          - /url: /supplier/services
+          - img [ref=e73]
+          - text: Services
+        - link "Settings" [ref=e78] [cursor=pointer]:
+          - /url: /supplier/settings
+          - img [ref=e79]
+          - text: Settings
+      - generic [ref=e82]:
+        - generic [ref=e83]:
+          - generic [ref=e84]: 🧪 DEV
+          - button "Customer" [ref=e85] [cursor=pointer]:
+            - img [ref=e86]
+            - img [ref=e89]
+            - text: Customer
+          - button "Supplier" [ref=e92] [cursor=pointer]:
+            - img [ref=e93]
+            - img [ref=e96]
+            - text: Supplier
+          - button "Admin" [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+            - img [ref=e105]
+            - text: Admin
+        - button "Logout" [ref=e108] [cursor=pointer]:
+          - img [ref=e109]
+          - text: Logout
+    - generic [ref=e112]:
+      - button "Notifications" [ref=e116] [cursor=pointer]:
+        - img [ref=e117]
+      - main [ref=e120]:
+        - generic [ref=e122]:
+          - navigation [ref=e124]:
+            - link "Available Orders" [ref=e125] [cursor=pointer]:
+              - /url: /supplier/orders/available
+              - img [ref=e126]
+              - text: Available Orders
+            - link "My Orders" [ref=e127] [cursor=pointer]:
+              - /url: /supplier/orders/my-orders
+              - img [ref=e128]
+              - text: My Orders
+          - generic [ref=e133]:
+            - generic [ref=e135]:
+              - heading "Orders" [level=2] [ref=e136]
+              - paragraph [ref=e137]: Manage and assign yourself to orders
+            - generic [ref=e141]:
+              - img [ref=e142]
+              - textbox "Search orders..." [ref=e145]
+            - table [ref=e149]:
+              - rowgroup [ref=e150]:
+                - row "Order Address / Postcode Skip Size Permit Delivery Date Days to Delivery Days to Collection Your Price Actions" [ref=e151]:
+                  - cell "Order" [ref=e152]
+                  - cell "Address / Postcode" [ref=e153]
+                  - cell "Skip Size" [ref=e154]
+                  - cell "Permit" [ref=e155]
+                  - cell "Delivery Date" [ref=e156]
+                  - cell "Days to Delivery" [ref=e157]
+                  - cell "Days to Collection" [ref=e158]
+                  - cell "Your Price" [ref=e159]
+                  - cell "Actions" [ref=e160]
+              - rowgroup [ref=e161]:
+                - row "#2629 14 Apr 2026 75 Albury Road, Aberdeen AB11 6TP 4 yarder skip - 16 Apr 2026 Tomorrow 8 days £210.24 Take" [ref=e162] [cursor=pointer]:
+                  - cell "#2629 14 Apr 2026" [ref=e163]:
+                    - generic [ref=e164]:
+                      - generic [ref=e165]:
+                        - generic [ref=e166]: "#2629"
+                        - button [ref=e167]:
+                          - img [ref=e168]
+                      - generic [ref=e171]: 14 Apr 2026
+                  - cell "75 Albury Road, Aberdeen AB11 6TP" [ref=e172]:
+                    - generic [ref=e173]:
+                      - generic [ref=e174]:
+                        - generic [ref=e175]: 75 Albury Road, Aberdeen
+                        - button [ref=e176]:
+                          - img [ref=e177]
+                      - generic [ref=e180]:
+                        - generic [ref=e181]: AB11 6TP
+                        - button [ref=e182]:
+                          - img [ref=e183]
+                  - cell "4 yarder skip" [ref=e186]:
+                    - generic [ref=e187]: 4 yarder skip
+                  - cell "-" [ref=e188]:
+                    - generic [ref=e189]: "-"
+                  - cell "16 Apr 2026" [ref=e190]:
+                    - generic [ref=e191]: 16 Apr 2026
+                  - cell "Tomorrow" [ref=e192]:
+                    - generic [ref=e193]: Tomorrow
+                  - cell "8 days" [ref=e194]:
+                    - generic [ref=e195]: 8 days
+                  - cell "£210.24" [ref=e196]:
+                    - generic [ref=e197]: £210.24
+                  - cell "Take" [ref=e198]:
+                    - generic [ref=e199]:
+                      - button "View Details" [ref=e200]:
+                        - img [ref=e201]
+                      - button "Take" [ref=e204]
+                - row "#2625 13 Apr 2026 8 The Quadrant, Coventry CV1 2EG 5 yarder skip - 15 Apr 2026 Today 14 days £2.30 Take" [ref=e205] [cursor=pointer]:
+                  - cell "#2625 13 Apr 2026" [ref=e206]:
+                    - generic [ref=e207]:
+                      - generic [ref=e208]:
+                        - generic [ref=e209]: "#2625"
+                        - button [ref=e210]:
+                          - img [ref=e211]
+                      - generic [ref=e214]: 13 Apr 2026
+                  - cell "8 The Quadrant, Coventry CV1 2EG" [ref=e215]:
+                    - generic [ref=e216]:
+                      - generic [ref=e217]:
+                        - generic [ref=e218]: 8 The Quadrant, Coventry
+                        - button [ref=e219]:
+                          - img [ref=e220]
+                      - generic [ref=e223]:
+                        - generic [ref=e224]: CV1 2EG
+                        - button [ref=e225]:
+                          - img [ref=e226]
+                  - cell "5 yarder skip" [ref=e229]:
+                    - generic [ref=e230]: 5 yarder skip
+                  - cell "-" [ref=e231]:
+                    - generic [ref=e232]: "-"
+                  - cell "15 Apr 2026" [ref=e233]:
+                    - generic [ref=e234]: 15 Apr 2026
+                  - cell "Today" [ref=e235]:
+                    - generic [ref=e236]: Today
+                  - cell "14 days" [ref=e237]:
+                    - generic [ref=e238]: 14 days
+                  - cell "£2.30" [ref=e239]:
+                    - generic [ref=e240]: £2.30
+                  - cell "Take" [ref=e241]:
+                    - generic [ref=e242]:
+                      - button "View Details" [ref=e243]:
+                        - img [ref=e244]
+                      - button "Take" [ref=e247]
+                - row "#2615 8 Apr 2026 43 Caledonian Place, Aberdeen AB11 6TR 4 yarder skip Required 17 Apr 2026 2 days 2 days £298.56 Take" [ref=e248] [cursor=pointer]:
+                  - cell "#2615 8 Apr 2026" [ref=e249]:
+                    - generic [ref=e250]:
+                      - generic [ref=e251]:
+                        - generic [ref=e252]: "#2615"
+                        - button [ref=e253]:
+                          - img [ref=e254]
+                      - generic [ref=e257]: 8 Apr 2026
+                  - cell "43 Caledonian Place, Aberdeen AB11 6TR" [ref=e258]:
+                    - generic [ref=e259]:
+                      - generic [ref=e260]:
+                        - generic [ref=e261]: 43 Caledonian Place, Aberdeen
+                        - button [ref=e262]:
+                          - img [ref=e263]
+                      - generic [ref=e266]:
+                        - generic [ref=e267]: AB11 6TR
+                        - button [ref=e268]:
+                          - img [ref=e269]
+                  - cell "4 yarder skip" [ref=e272]:
+                    - generic [ref=e273]: 4 yarder skip
+                  - cell "Required" [ref=e274]:
+                    - generic [ref=e276]: Required
+                  - cell "17 Apr 2026" [ref=e277]:
+                    - generic [ref=e278]: 17 Apr 2026
+                  - cell "2 days" [ref=e279]:
+                    - generic [ref=e280]: 2 days
+                  - cell "2 days" [ref=e281]:
+                    - generic [ref=e282]: 2 days
+                  - cell "£298.56" [ref=e283]:
+                    - generic [ref=e284]: £298.56
+                  - cell "Take" [ref=e285]:
+                    - generic [ref=e286]:
+                      - button "View Details" [ref=e287]:
+                        - img [ref=e288]
+                      - button "Take" [ref=e291]
+                - row "#2607 8 Apr 2026 12 Paradise Street, Coventry CV1 2XY 4 yarder skip - 15 Apr 2026 Today 7 days £163.20 Take" [ref=e292] [cursor=pointer]:
+                  - cell "#2607 8 Apr 2026" [ref=e293]:
+                    - generic [ref=e294]:
+                      - generic [ref=e295]:
+                        - generic [ref=e296]: "#2607"
+                        - button [ref=e297]:
+                          - img [ref=e298]
+                      - generic [ref=e301]: 8 Apr 2026
+                  - cell "12 Paradise Street, Coventry CV1 2XY" [ref=e302]:
+                    - generic [ref=e303]:
+                      - generic [ref=e304]:
+                        - generic [ref=e305]: 12 Paradise Street, Coventry
+                        - button [ref=e306]:
+                          - img [ref=e307]
+                      - generic [ref=e310]:
+                        - generic [ref=e311]: CV1 2XY
+                        - button [ref=e312]:
+                          - img [ref=e313]
+                  - cell "4 yarder skip" [ref=e316]:
+                    - generic [ref=e317]: 4 yarder skip
+                  - cell "-" [ref=e318]:
+                    - generic [ref=e319]: "-"
+                  - cell "15 Apr 2026" [ref=e320]:
+                    - generic [ref=e321]: 15 Apr 2026
+                  - cell "Today" [ref=e322]:
+                    - generic [ref=e323]: Today
+                  - cell "7 days" [ref=e324]:
+                    - generic [ref=e325]: 7 days
+                  - cell "£163.20" [ref=e326]:
+                    - generic [ref=e327]: £163.20
+                  - cell "Take" [ref=e328]:
+                    - generic [ref=e329]:
+                      - button "View Details" [ref=e330]:
+                        - img [ref=e331]
+                      - button "Take" [ref=e334]
+                - row "#2601 7 Apr 2026 7 Laurel Close, Princes Risborough HP27 0UT 8 yarder skip Required 24 Apr 2026 9 days 23 days £766.08 Take" [ref=e335] [cursor=pointer]:
+                  - cell "#2601 7 Apr 2026" [ref=e336]:
+                    - generic [ref=e337]:
+                      - generic [ref=e338]:
+                        - generic [ref=e339]: "#2601"
+                        - button [ref=e340]:
+                          - img [ref=e341]
+                      - generic [ref=e344]: 7 Apr 2026
+                  - cell "7 Laurel Close, Princes Risborough HP27 0UT" [ref=e345]:
+                    - generic [ref=e346]:
+                      - generic [ref=e347]:
+                        - generic [ref=e348]: 7 Laurel Close, Princes Risborough
+                        - button [ref=e349]:
+                          - img [ref=e350]
+                      - generic [ref=e353]:
+                        - generic [ref=e354]: HP27 0UT
+                        - button [ref=e355]:
+                          - img [ref=e356]
+                  - cell "8 yarder skip" [ref=e359]:
+                    - generic [ref=e360]: 8 yarder skip
+                  - cell "Required" [ref=e361]:
+                    - generic [ref=e363]: Required
+                  - cell "24 Apr 2026" [ref=e364]:
+                    - generic [ref=e365]: 24 Apr 2026
+                  - cell "9 days" [ref=e366]:
+                    - generic [ref=e367]: 9 days
+                  - cell "23 days" [ref=e368]:
+                    - generic [ref=e369]: 23 days
+                  - cell "£766.08" [ref=e370]:
+                    - generic [ref=e371]: £766.08
+                  - cell "Take" [ref=e372]:
+                    - generic [ref=e373]:
+                      - button "View Details" [ref=e374]:
+                        - img [ref=e375]
+                      - button "Take" [ref=e378]
+                - row "#2600 7 Apr 2026 17 The Riggs, Prestwick KA9 1BD 6 yarder skip - 15 Apr 2026 Today 7 days £656.64 Take" [ref=e379] [cursor=pointer]:
+                  - cell "#2600 7 Apr 2026" [ref=e380]:
+                    - generic [ref=e381]:
+                      - generic [ref=e382]:
+                        - generic [ref=e383]: "#2600"
+                        - button [ref=e384]:
+                          - img [ref=e385]
+                      - generic [ref=e388]: 7 Apr 2026
+                  - cell "17 The Riggs, Prestwick KA9 1BD" [ref=e389]:
+                    - generic [ref=e390]:
+                      - generic [ref=e391]:
+                        - generic [ref=e392]: 17 The Riggs, Prestwick
+                        - button [ref=e393]:
+                          - img [ref=e394]
+                      - generic [ref=e397]:
+                        - generic [ref=e398]: KA9 1BD
+                        - button [ref=e399]:
+                          - img [ref=e400]
+                  - cell "6 yarder skip" [ref=e403]:
+                    - generic [ref=e404]: 6 yarder skip
+                  - cell "-" [ref=e405]:
+                    - generic [ref=e406]: "-"
+                  - cell "15 Apr 2026" [ref=e407]:
+                    - generic [ref=e408]: 15 Apr 2026
+                  - cell "Today" [ref=e409]:
+                    - generic [ref=e410]: Today
+                  - cell "7 days" [ref=e411]:
+                    - generic [ref=e412]: 7 days
+                  - cell "£656.64" [ref=e413]:
+                    - generic [ref=e414]: £656.64
+                  - cell "Take" [ref=e415]:
+                    - generic [ref=e416]:
+                      - button "View Details" [ref=e417]:
+                        - img [ref=e418]
+                      - button "Take" [ref=e421]
+                - row "#2570 4 Apr 2026 70 Winsham Grove, London SW11 6NE 4 yarder skip - 23 Apr 2026 8 days 22 days £263.04 Take" [ref=e422] [cursor=pointer]:
+                  - cell "#2570 4 Apr 2026" [ref=e423]:
+                    - generic [ref=e424]:
+                      - generic [ref=e425]:
+                        - generic [ref=e426]: "#2570"
+                        - button [ref=e427]:
+                          - img [ref=e428]
+                      - generic [ref=e431]: 4 Apr 2026
+                  - cell "70 Winsham Grove, London SW11 6NE" [ref=e432]:
+                    - generic [ref=e433]:
+                      - generic [ref=e434]:
+                        - generic [ref=e435]: 70 Winsham Grove, London
+                        - button [ref=e436]:
+                          - img [ref=e437]
+                      - generic [ref=e440]:
+                        - generic [ref=e441]: SW11 6NE
+                        - button [ref=e442]:
+                          - img [ref=e443]
+                  - cell "4 yarder skip" [ref=e446]:
+                    - generic [ref=e447]: 4 yarder skip
+                  - cell "-" [ref=e448]:
+                    - generic [ref=e449]: "-"
+                  - cell "23 Apr 2026" [ref=e450]:
+                    - generic [ref=e451]: 23 Apr 2026
+                  - cell "8 days" [ref=e452]:
+                    - generic [ref=e453]: 8 days
+                  - cell "22 days" [ref=e454]:
+                    - generic [ref=e455]: 22 days
+                  - cell "£263.04" [ref=e456]:
+                    - generic [ref=e457]: £263.04
+                  - cell "Take" [ref=e458]:
+                    - generic [ref=e459]:
+                      - button "View Details" [ref=e460]:
+                        - img [ref=e461]
+                      - button "Take" [ref=e464]
+                - row "#2567 3 Apr 2026 124 The Willows, Colchester CO2 8QE 6 yarder skip - 30 Apr 2026 15 days 29 days £323.52 Take" [ref=e465] [cursor=pointer]:
+                  - cell "#2567 3 Apr 2026" [ref=e466]:
+                    - generic [ref=e467]:
+                      - generic [ref=e468]:
+                        - generic [ref=e469]: "#2567"
+                        - button [ref=e470]:
+                          - img [ref=e471]
+                      - generic [ref=e474]: 3 Apr 2026
+                  - cell "124 The Willows, Colchester CO2 8QE" [ref=e475]:
+                    - generic [ref=e476]:
+                      - generic [ref=e477]:
+                        - generic [ref=e478]: 124 The Willows, Colchester
+                        - button [ref=e479]:
+                          - img [ref=e480]
+                      - generic [ref=e483]:
+                        - generic [ref=e484]: CO2 8QE
+                        - button [ref=e485]:
+                          - img [ref=e486]
+                  - cell "6 yarder skip" [ref=e489]:
+                    - generic [ref=e490]: 6 yarder skip
+                  - cell "-" [ref=e491]:
+                    - generic [ref=e492]: "-"
+                  - cell "30 Apr 2026" [ref=e493]:
+                    - generic [ref=e494]: 30 Apr 2026
+                  - cell "15 days" [ref=e495]:
+                    - generic [ref=e496]: 15 days
+                  - cell "29 days" [ref=e497]:
+                    - generic [ref=e498]: 29 days
+                  - cell "£323.52" [ref=e499]:
+                    - generic [ref=e500]: £323.52
+                  - cell "Take" [ref=e501]:
+                    - generic [ref=e502]:
+                      - button "View Details" [ref=e503]:
+                        - img [ref=e504]
+                      - button "Take" [ref=e507]
+                - row "#2566 2 Apr 2026 345 Winsham Grove, London SW11 6NE 6 yarder skip - 23 Apr 2026 8 days 22 days £307.20 Take" [ref=e508] [cursor=pointer]:
+                  - cell "#2566 2 Apr 2026" [ref=e509]:
+                    - generic [ref=e510]:
+                      - generic [ref=e511]:
+                        - generic [ref=e512]: "#2566"
+                        - button [ref=e513]:
+                          - img [ref=e514]
+                      - generic [ref=e517]: 2 Apr 2026
+                  - cell "345 Winsham Grove, London SW11 6NE" [ref=e518]:
+                    - generic [ref=e519]:
+                      - generic [ref=e520]:
+                        - generic [ref=e521]: 345 Winsham Grove, London
+                        - button [ref=e522]:
+                          - img [ref=e523]
+                      - generic [ref=e526]:
+                        - generic [ref=e527]: SW11 6NE
+                        - button [ref=e528]:
+                          - img [ref=e529]
+                  - cell "6 yarder skip" [ref=e532]:
+                    - generic [ref=e533]: 6 yarder skip
+                  - cell "-" [ref=e534]:
+                    - generic [ref=e535]: "-"
+                  - cell "23 Apr 2026" [ref=e536]:
+                    - generic [ref=e537]: 23 Apr 2026
+                  - cell "8 days" [ref=e538]:
+                    - generic [ref=e539]: 8 days
+                  - cell "22 days" [ref=e540]:
+                    - generic [ref=e541]: 22 days
+                  - cell "£307.20" [ref=e542]:
+                    - generic [ref=e543]: £307.20
+                  - cell "Take" [ref=e544]:
+                    - generic [ref=e545]:
+                      - button "View Details" [ref=e546]:
+                        - img [ref=e547]
+                      - button "Take" [ref=e550]
+                - row "#2565 2 Apr 2026 45 Winsham Grove, London SW11 6NE 4 yarder skip - 20 Apr 2026 5 days 19 days £263.04 Take" [ref=e551] [cursor=pointer]:
+                  - cell "#2565 2 Apr 2026" [ref=e552]:
+                    - generic [ref=e553]:
+                      - generic [ref=e554]:
+                        - generic [ref=e555]: "#2565"
+                        - button [ref=e556]:
+                          - img [ref=e557]
+                      - generic [ref=e560]: 2 Apr 2026
+                  - cell "45 Winsham Grove, London SW11 6NE" [ref=e561]:
+                    - generic [ref=e562]:
+                      - generic [ref=e563]:
+                        - generic [ref=e564]: 45 Winsham Grove, London
+                        - button [ref=e565]:
+                          - img [ref=e566]
+                      - generic [ref=e569]:
+                        - generic [ref=e570]: SW11 6NE
+                        - button [ref=e571]:
+                          - img [ref=e572]
+                  - cell "4 yarder skip" [ref=e575]:
+                    - generic [ref=e576]: 4 yarder skip
+                  - cell "-" [ref=e577]:
+                    - generic [ref=e578]: "-"
+                  - cell "20 Apr 2026" [ref=e579]:
+                    - generic [ref=e580]: 20 Apr 2026
+                  - cell "5 days" [ref=e581]:
+                    - generic [ref=e582]: 5 days
+                  - cell "19 days" [ref=e583]:
+                    - generic [ref=e584]: 19 days
+                  - cell "£263.04" [ref=e585]:
+                    - generic [ref=e586]: £263.04
+                  - cell "Take" [ref=e587]:
+                    - generic [ref=e588]:
+                      - button "View Details" [ref=e589]:
+                        - img [ref=e590]
+                      - button "Take" [ref=e593]
+                - row "#2559 2 Apr 2026 35 Winsham Grove, London SW11 6NE 4 yarder skip - 28 Apr 2026 13 days 27 days £263.04 Take" [ref=e594] [cursor=pointer]:
+                  - cell "#2559 2 Apr 2026" [ref=e595]:
+                    - generic [ref=e596]:
+                      - generic [ref=e597]:
+                        - generic [ref=e598]: "#2559"
+                        - button [ref=e599]:
+                          - img [ref=e600]
+                      - generic [ref=e603]: 2 Apr 2026
+                  - cell "35 Winsham Grove, London SW11 6NE" [ref=e604]:
+                    - generic [ref=e605]:
+                      - generic [ref=e606]:
+                        - generic [ref=e607]: 35 Winsham Grove, London
+                        - button [ref=e608]:
+                          - img [ref=e609]
+                      - generic [ref=e612]:
+                        - generic [ref=e613]: SW11 6NE
+                        - button [ref=e614]:
+                          - img [ref=e615]
+                  - cell "4 yarder skip" [ref=e618]:
+                    - generic [ref=e619]: 4 yarder skip
+                  - cell "-" [ref=e620]:
+                    - generic [ref=e621]: "-"
+                  - cell "28 Apr 2026" [ref=e622]:
+                    - generic [ref=e623]: 28 Apr 2026
+                  - cell "13 days" [ref=e624]:
+                    - generic [ref=e625]: 13 days
+                  - cell "27 days" [ref=e626]:
+                    - generic [ref=e627]: 27 days
+                  - cell "£263.04" [ref=e628]:
+                    - generic [ref=e629]: £263.04
+                  - cell "Take" [ref=e630]:
+                    - generic [ref=e631]:
+                      - button "View Details" [ref=e632]:
+                        - img [ref=e633]
+                      - button "Take" [ref=e636]
+                - row "#2555 1 Apr 2026 70 Winsham Grove, London SW11 6NE 8 yarder skip - 30 Apr 2026 15 days 29 days £372.48 Take" [ref=e637] [cursor=pointer]:
+                  - cell "#2555 1 Apr 2026" [ref=e638]:
+                    - generic [ref=e639]:
+                      - generic [ref=e640]:
+                        - generic [ref=e641]: "#2555"
+                        - button [ref=e642]:
+                          - img [ref=e643]
+                      - generic [ref=e646]: 1 Apr 2026
+                  - cell "70 Winsham Grove, London SW11 6NE" [ref=e647]:
+                    - generic [ref=e648]:
+                      - generic [ref=e649]:
+                        - generic [ref=e650]: 70 Winsham Grove, London
+                        - button [ref=e651]:
+                          - img [ref=e652]
+                      - generic [ref=e655]:
+                        - generic [ref=e656]: SW11 6NE
+                        - button [ref=e657]:
+                          - img [ref=e658]
+                  - cell "8 yarder skip" [ref=e661]:
+                    - generic [ref=e662]: 8 yarder skip
+                  - cell "-" [ref=e663]:
+                    - generic [ref=e664]: "-"
+                  - cell "30 Apr 2026" [ref=e665]:
+                    - generic [ref=e666]: 30 Apr 2026
+                  - cell "15 days" [ref=e667]:
+                    - generic [ref=e668]: 15 days
+                  - cell "29 days" [ref=e669]:
+                    - generic [ref=e670]: 29 days
+                  - cell "£372.48" [ref=e671]:
+                    - generic [ref=e672]: £372.48
+                  - cell "Take" [ref=e673]:
+                    - generic [ref=e674]:
+                      - button "View Details" [ref=e675]:
+                        - img [ref=e676]
+                      - button "Take" [ref=e679]
+        - generic [ref=e682]:
+          - generic [ref=e683]: © 2026 All rights reserved.
+          - button "Terms and Conditions" [ref=e685] [cursor=pointer]
+  - button "Open support chat" [ref=e686] [cursor=pointer]:
+    - img [ref=e687]
+```

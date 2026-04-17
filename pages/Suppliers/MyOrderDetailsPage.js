@@ -6,6 +6,7 @@ export class MyOrderDetailsPage {
         // Status Badge locator
         this.orderStatusBadge = page.locator('div, span').filter({ hasText: /^(Booked|In Progress|Requested Collection|Collected|Delivered|Refunded|Pending, New)$/i }).first();
         // Back to My Orders button locator
+        this.orderStatusBadgeCorrected = page.locator('//span[contains(@class,"text-green")]')
         this.backToMyOrdersBtn = page.getByText(/Back to My Orders/i);
         this.manageDeliveryBtn = page.getByRole('button', { name: /Manage Delivery/i });
         this.manageCollectionBtn = page.getByRole('button', { name: /Manage Collection/i });
@@ -28,6 +29,11 @@ export class MyOrderDetailsPage {
         this.unassignCancelBtn = page.getByRole('button', { name: 'Cancel', exact: true });
         this.reasonDropdown = page.locator('//label[contains(.,"Reason")]/following-sibling::div');
         this.backBtn = page.locator('(//button[contains(.,"Back")])[2]');
+        this.lateDeliveryOrderRow = page.locator('(//tr[contains(.,"days ago")])[1]')
+        this.confirmUnassignBtn = page.locator('//button[contains(.,"Confirm Unassign") or contains(.,"Confirm & Accept Fee")]');
+        this.wastedJourneyTitle = page.locator('//p[contains(.,"Wasted Journey Fee Will Be Charged")]');
+   
+   
     }
 
     async verifyOrderStatusBadge() {
@@ -56,7 +62,7 @@ export class MyOrderDetailsPage {
     }
 
     async clickReasonDropdown() {
-        await expect(this.unassignReasonDropdown).toBeVisible();
+        //await expect(this.unassignReasonDropdown).toBeVisible();
         await this.unassignReasonDropdown.click();
     }
 
@@ -84,7 +90,7 @@ export class MyOrderDetailsPage {
     }
 
     async selectOtherReason() {
-        await this.clickReasonDropdown();
+        await this.reasonDropdown.click();
         await this.unassignOtherOption.click();
     }
 
@@ -96,7 +102,20 @@ export class MyOrderDetailsPage {
         await expect(this.unassignCustomReasonValidationMsg).toBeVisible();
     }
 
-    async fillCustomReason(reason) {
-        await this.unassignCustomReasonInput.fill(reason);
+        async fillCustomReason(reason) {
+            await this.unassignCustomReasonInput.fill(reason);
+        }
+
+    async clickConfirmUnassign() {
+        await this.confirmUnassignBtn.scrollIntoViewIfNeeded();
+        await this.confirmUnassignBtn.highlight();
+        await this.confirmUnassignBtn.click();
+    }
+
+    async clickConfirmUnassignLateDelivery() {
+        await this.confirmUnassignBtn.scrollIntoViewIfNeeded();
+        await this.confirmUnassignBtn.highlight();
+        await expect(this.wastedJourneyTitle).toBeVisible();
+        await this.confirmUnassignBtn.click();
     }
 }

@@ -1,0 +1,226 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e7]:
+      - img "We Want Waste" [ref=e9]
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e12] [cursor=pointer]:
+          - /url: /supplier
+          - img [ref=e13]
+          - text: Dashboard
+        - link "Orders" [ref=e20] [cursor=pointer]:
+          - /url: /supplier/orders
+          - img [ref=e21]
+          - text: Orders
+        - link "Messages" [ref=e25] [cursor=pointer]:
+          - /url: /supplier/messages
+          - img [ref=e26]
+          - text: Messages
+        - link "Payments" [ref=e29] [cursor=pointer]:
+          - /url: /supplier/payments
+          - img [ref=e30]
+          - text: Payments
+        - link "Products / Services" [ref=e33] [cursor=pointer]:
+          - /url: /supplier/products-services
+          - img [ref=e34]
+          - text: Products / Services
+        - link "Documents" [ref=e39] [cursor=pointer]:
+          - /url: /supplier/documents
+          - img [ref=e40]
+          - text: Documents
+        - link "Account" [ref=e44] [cursor=pointer]:
+          - /url: /supplier/profile
+          - img [ref=e45]
+          - text: Account
+        - link "Users" [ref=e49] [cursor=pointer]:
+          - /url: /supplier/users
+          - img [ref=e50]
+          - text: Users
+        - generic [ref=e55]:
+          - link "Locations" [ref=e56] [cursor=pointer]:
+            - /url: /supplier/locations
+            - img [ref=e57]
+            - text: Locations
+          - generic [ref=e60]: Soon
+        - generic [ref=e61]:
+          - link "Working Hours" [ref=e62] [cursor=pointer]:
+            - /url: /supplier/working-hours
+            - img [ref=e63]
+            - text: Working Hours
+          - generic [ref=e66]: Soon
+        - link "Bank Information" [ref=e68] [cursor=pointer]:
+          - /url: /supplier/bank
+          - img [ref=e69]
+          - text: Bank Information
+        - link "Services" [ref=e72] [cursor=pointer]:
+          - /url: /supplier/services
+          - img [ref=e73]
+          - text: Services
+        - link "Settings" [ref=e78] [cursor=pointer]:
+          - /url: /supplier/settings
+          - img [ref=e79]
+          - text: Settings
+      - generic [ref=e82]:
+        - generic [ref=e83]:
+          - generic [ref=e84]: 🧪 DEV
+          - button "Customer" [ref=e85] [cursor=pointer]:
+            - img [ref=e86]
+            - img [ref=e89]
+            - text: Customer
+          - button "Supplier" [ref=e92] [cursor=pointer]:
+            - img [ref=e93]
+            - img [ref=e96]
+            - text: Supplier
+          - button "Admin" [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+            - img [ref=e105]
+            - text: Admin
+        - button "Logout" [ref=e108] [cursor=pointer]:
+          - img [ref=e109]
+          - text: Logout
+    - generic [ref=e112]:
+      - button "Notifications" [ref=e116] [cursor=pointer]:
+        - img [ref=e117]
+      - main [ref=e120]:
+        - generic [ref=e122]:
+          - button "Back to Available Orders" [ref=e124] [cursor=pointer]:
+            - img [ref=e125]
+            - text: Back to Available Orders
+          - generic [ref=e127]:
+            - generic [ref=e129]:
+              - generic [ref=e130]:
+                - img [ref=e132]
+                - generic [ref=e135]:
+                  - generic [ref=e136]:
+                    - generic [ref=e137]:
+                      - 'heading "Order #2642" [level=1] [ref=e138]'
+                      - generic [ref=e139]:
+                        - img [ref=e140]
+                        - generic [ref=e143]: Delivering today
+                    - generic [ref=e144]:
+                      - button "Chat" [disabled] [ref=e146]:
+                        - img [ref=e147]
+                        - generic [ref=e149]: Chat
+                      - generic [ref=e150]: Not assigned to this order yet
+                  - generic [ref=e152]: "PO Ref: testingwithsupplier"
+              - generic [ref=e154]:
+                - generic [ref=e156]: Booked
+                - button [disabled] [ref=e158]:
+                  - img [ref=e159]
+            - generic [ref=e164]:
+              - button "Take this Order" [ref=e166] [cursor=pointer]:
+                - img [ref=e167]
+                - generic [ref=e170]: Take this Order
+              - generic [ref=e171]:
+                - generic [ref=e172]:
+                  - button "Manage Delivery" [disabled] [ref=e174]:
+                    - img [ref=e175]
+                    - generic [ref=e180]: Manage Delivery
+                  - generic [ref=e181]: Not assigned to this order yet
+                - generic [ref=e182]:
+                  - button "Manage Collection" [disabled] [ref=e184]:
+                    - img [ref=e185]
+                    - generic [ref=e188]: Manage Collection
+                  - generic [ref=e189]: Not assigned to this order yet
+            - generic [ref=e190]:
+              - generic [ref=e191]:
+                - heading "Delivery Details" [level=3] [ref=e193]
+                - generic [ref=e194]:
+                  - generic [ref=e195]:
+                    - img [ref=e196]
+                    - generic [ref=e199]:
+                      - generic [ref=e200]: Delivery Address
+                      - generic [ref=e201]: 68 Winsham Grove, London
+                      - generic [ref=e202]: SW11 6NE
+                  - generic [ref=e203]:
+                    - img [ref=e204]
+                    - generic [ref=e206]:
+                      - generic [ref=e207]: Delivery & Collection
+                      - generic [ref=e208]:
+                        - paragraph [ref=e209]: "Delivery: 16 Apr 2026"
+                        - paragraph [ref=e210]: "Collection: 30 Apr 2026"
+              - generic [ref=e211]:
+                - heading "Skip Details" [level=3] [ref=e213]
+                - generic [ref=e214]:
+                  - generic [ref=e216]: 4 yarder skip
+                  - generic [ref=e217]:
+                    - heading "Waste Categories" [level=3] [ref=e218]
+                    - generic [ref=e220]:
+                      - img [ref=e222]
+                      - generic [ref=e225]:
+                        - generic [ref=e226]: Construction Waste
+                        - generic [ref=e227]: Building materials and renovation debris.
+            - generic [ref=e228]:
+              - generic [ref=e229]:
+                - img [ref=e230]
+                - heading "Order Images" [level=3] [ref=e234]
+              - generic [ref=e235]:
+                - img [ref=e236]
+                - paragraph [ref=e240]: No images attached to this order
+              - generic [ref=e241]:
+                - button "Add Images" [disabled] [ref=e243]:
+                  - img [ref=e244]
+                  - generic [ref=e245]: Add Images
+                - generic [ref=e246]: Not assigned to this order yet
+            - generic [ref=e248]:
+              - generic [ref=e249]:
+                - img [ref=e250]
+                - heading "Order Items" [level=3] [ref=e253]
+              - generic [ref=e256]:
+                - generic [ref=e257]:
+                  - heading "4 Yard Skip" [level=4] [ref=e259]
+                  - generic [ref=e260]:
+                    - paragraph [ref=e261]: "Type: skip"
+                    - paragraph [ref=e262]: "Quantity: 1"
+                - generic [ref=e263]:
+                  - paragraph [ref=e264]: £274.00
+                  - paragraph [ref=e265]: £274.00 each
+                  - paragraph [ref=e266]: "Qty: 1"
+              - generic [ref=e267]:
+                - heading "Order Summary" [level=4] [ref=e268]
+                - generic [ref=e269]:
+                  - generic [ref=e270]: Subtotal (excl. VAT)
+                  - generic [ref=e271]: £274.00
+                - generic [ref=e272]:
+                  - generic [ref=e273]: VAT (20%)
+                  - generic [ref=e274]: £54.80
+                - generic [ref=e275]:
+                  - generic [ref=e276]: Total
+                  - generic [ref=e277]: £328.80
+            - generic [ref=e278]:
+              - generic:
+                - generic:
+                  - img
+                  - heading "Order History" [level=3]
+                - generic:
+                  - generic:
+                    - heading "Order history" [level=3]
+                    - generic:
+                      - generic:
+                        - button "Chat" [disabled]:
+                          - img
+                          - generic: Chat
+                      - generic: Not assigned to this order yet
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: Order Confirmed
+                              - generic: by Customer
+                            - paragraph: Order created by customer, paid and confirmed
+                          - generic: 16 Apr 2026, 15:20
+              - generic [ref=e280]:
+                - paragraph [ref=e281]: Not assigned to this order yet
+                - paragraph [ref=e282]: Once you are assigned to this order, you will be able to access order history and send messages anytime
+        - generic [ref=e285]:
+          - generic [ref=e286]: © 2026 All rights reserved.
+          - button "Terms and Conditions" [ref=e288] [cursor=pointer]
+  - button "Open support chat" [ref=e289] [cursor=pointer]:
+    - img [ref=e290]
+```

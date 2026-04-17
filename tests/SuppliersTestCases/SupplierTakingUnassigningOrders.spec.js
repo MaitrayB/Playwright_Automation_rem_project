@@ -841,12 +841,14 @@ test.describe('6. Unassigning from Orders', () => {
         });
 
         await test.step('AC-6.2.3: Modal displays reason dropdown with options', async () => {
-            await myOrderDetailsPage.clickReasonDropdown();
+            //await myOrderDetailsPage.clickReasonDropdown();
+            await myOrderDetailsPage.reasonDropdown.click();
             await myOrderDetailsPage.verifyDropdownOptionsVisible();
         });
 
         await test.step('AC-6.2.4 & AC-6.2.8: Reason selection is required & Validation errors display if reason not selected', async () => {
-            await myOrderDetailsPage.closeDropdownWithoutSelecting();
+            //await myOrderDetailsPage.closeDropdownWithoutSelecting();
+            await myOrderDetailsPage.reasonDropdown.click();
             await myOrderDetailsPage.clickContinueToUnassign();
             await myOrderDetailsPage.verifyReasonValidationMessage();
         });
@@ -870,7 +872,7 @@ test.describe('6. Unassigning from Orders', () => {
         });
     });
 
-    test('6.3 Unassign Modal - Step 2: Confirmation', async ({ browser }) => {
+    test('6.3 Unassign Modal - Step 2: Confirmation and unassignment submission', async ({ browser }) => {
         const context = await browser.newContext({
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
@@ -937,6 +939,156 @@ test.describe('6. Unassigning from Orders', () => {
             await myOrderDetailsPage.clickContinueToUnassign();
             await page.waitForTimeout(2000);
         });
+
+
+        await test.step('6.4 Unassign Submission', async () => {
+            await myOrderDetailsPage.clickConfirmUnassign();
+            await page.waitForTimeout(2000);
+            await expect(myOrderDetailsPage.unassignModal).not.toBeVisible();
+            await page.waitForTimeout(2000);
+            
+           
+        });
+
+
+    });
+});
+
+test.describe('7. Late Unassign Detection', () => {
+    test('7. Late Unassign Detection', async ({ browser }) => {
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+
+        // Initialize page objects
+        supplierRegistrationPage = new SupplierRegistrationPage(page);
+        genFunctions = new genericFunctions(page);
+        ordersPage = new OrdersPage(page);
+        myOrdersPage = new MyOrdersPage(page);
+        myOrderDetailsPage = new MyOrderDetailsPage(page);
+
+        await test.step('Supplier login and authenticate', async () => {
+            await genFunctions.goto(page, '/supplier/login');
+            await supplierRegistrationPage.supplierLogin(
+                TestData.credentials.supplier.username,
+                TestData.credentials.supplier.password
+            );
+            await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
+        });
+        await expect(ordersPage.myOrdersTab).toBeVisible();
+        await ordersPage.myOrdersTab.click();
+        await page.waitForLoadState("domcontentloaded");
+
+        await test.step('Navigate to order details page of a booked order', async () => {
+            //await myOrdersPage.clickFirstRowViewIcon();
+            await page.waitForLoadState('domcontentloaded');
+            await myOrderDetailsPage.lateDeliveryOrderRow.highlight();
+            await myOrderDetailsPage.lateDeliveryOrderRow.click();
+        });
+
+        await test.step('Click unassign from orders button', async () => {
+            await myOrderDetailsPage.moreOptionsBtn.click();
+            await page.waitForTimeout(2000);
+            await myOrderDetailsPage.unassignFromOrderBtn.click();
+            await page.waitForTimeout(2000);
+            await expect(myOrderDetailsPage.unassignModal).toBeVisible();
+            await myOrderDetailsPage.unassignModal.highlight();
+        });
+
+        await test.step('Modal shows "Unassign from this order?" title', async () => {
+            await expect(myOrderDetailsPage.unassignModalTitle).toBeVisible();
+            await myOrderDetailsPage.unassignModalTitle.highlight();
+        });
+
+        await test.step('Select reason and click continue to unassign', async () => {
+            await myOrderDetailsPage.reasonDropdown.click();
+            await page.waitForTimeout(2000);
+            await myOrderDetailsPage.unassignDriverAvailabilityOption.click();
+            await myOrderDetailsPage.unassignDriverAvailabilityOption.scrollIntoViewIfNeeded();
+            await myOrderDetailsPage.unassignDriverAvailabilityOption.highlight();
+            await myOrderDetailsPage.clickContinueToUnassign();
+            await page.waitForTimeout(2000);
+        });
+
+
+        await test.step('7.2 Wasted Journey Fee Acceptance', async () => {
+            await myOrderDetailsPage.clickConfirmUnassignLateDelivery();
+            await page.waitForTimeout(3000);
+            await expect(myOrderDetailsPage.unassignModal).not.toBeVisible();
+            await page.waitForTimeout(3000);
+            
+           
+        });
+    });
+
+});
+
+test.describe('8. Order Status Updates', () => {
+    test('8.1 Order Status After Taking', async ({ browser }) => {
+        let orderId;
+        const context = await browser.newContext({
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword
+            },
+            ignoreHTTPSErrors: true
+        });
+        const page = await context.newPage();
+
+        // Initialize page objects
+        supplierRegistrationPage = new SupplierRegistrationPage(page);
+        genFunctions = new genericFunctions(page);
+        ordersPage = new OrdersPage(page);
+        myOrdersPage = new MyOrdersPage(page);
+        myOrderDetailsPage = new MyOrderDetailsPage(page);
+
+        await test.step('Supplier login and authenticate', async () => {
+            await genFunctions.goto(page, '/supplier/login');
+            await supplierRegistrationPage.supplierLogin(
+                TestData.credentials.supplier.username,
+                TestData.credentials.supplier.password
+            );
+            await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
+        });
+        await expect(ordersPage.myOrdersTab).toBeVisible();
+        await ordersPage.myOrdersTab.click();
+        await page.waitForLoadState("domcontentloaded");
+        orderId = await ordersPage.getFirstRowOrderId();
+        console.log("Order ID is "+orderId);
+
+        await test.step('Navigate to order details page of a booked order', async () => {
+            //await myOrdersPage.clickFirstRowViewIcon();
+            await page.waitForLoadState('domcontentloaded');
+            await myOrderDetailsPage.lateDeliveryOrderRow.highlight();
+            await myOrderDetailsPage.lateDeliveryOrderRow.click();
+        });
+
+        await test.step('Verify status as "In progress" after taking', async () => {
+            await myOrderDetailsPage.orderStatusBadgeCorrected.highlight();
+            await myOrderDetailsPage.orderStatusBadgeCorrected.click();
+            await expect.soft(myOrderDetailsPage.orderStatusBadgeCorrected).toHaveText('In Progress');
+            
+        });
+
+        await test.step('Verify order is available under My Orders tab', async () => {
+            await myOrderDetailsPage.backToMyOrdersBtn.click();
+            await page.waitForTimeout(2000);
+            await ordersPage.verifyTakenOrderIDIsVisibleInMyOrdersTab(orderId);
+        });
+
+        await test.step('Verify order is not available under Available Orders tab', async () => {
+            await ordersPage.availableOrdersTab.click();
+            await page.waitForTimeout(2000);
+            await ordersPage.verifyTakenOrderIDIsNotVisibleInAvailableOrdersTab(orderId);
+        
+        });
+
+
     });
 
 });
