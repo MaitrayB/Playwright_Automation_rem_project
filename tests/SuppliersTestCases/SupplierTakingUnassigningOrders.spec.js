@@ -1028,7 +1028,7 @@ test.describe('7. Late Unassign Detection', () => {
 
 });
 
-test.describe('8. Order Status Updates', () => {
+test.describe('8. Order Status Update', () => {
     test('8.1 Order Status After Taking', async ({ browser }) => {
         let orderId;
         const context = await browser.newContext({
