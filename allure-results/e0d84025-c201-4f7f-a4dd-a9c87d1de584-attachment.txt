@@ -1,4 +1,0 @@
-🎯 Selected row index: 869 📦 Postcode: QY8 9HU, WasteType: Commercial Waste
-🧾 Running Logged-in flow for: QY8 9HU, Commercial Waste, Heavywaste -No, Plasterboard -No, Skipsize-8, Not sure
-Skip size looking for:  4
-I'll take it to the tip myself

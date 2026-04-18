@@ -1,2 +1,0 @@
-🎯 Selected row index: 412 📦 Postcode: V2 7FX, WasteType: Household Waste
-🧾 Running Logged-in flow for: V2 7FX, Household Waste, Heavywaste -No, Plasterboard -No, Skipsize-5, Public Property

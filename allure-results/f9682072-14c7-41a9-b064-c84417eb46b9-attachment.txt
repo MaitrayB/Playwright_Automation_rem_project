@@ -1,4 +1,0 @@
-🎯 Selected row index: 344 📦 Postcode: NY4J 5WK, WasteType: Household Waste
-🧾 Running Logged-in flow for: NY4J 5WK, Household Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-10, Public Property
-count:  12
-locator('.flex-1.min-w-0.p-4')
