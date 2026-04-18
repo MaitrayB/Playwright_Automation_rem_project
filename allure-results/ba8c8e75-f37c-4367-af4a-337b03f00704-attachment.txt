@@ -1,0 +1,4 @@
+🎯 Selected row index: 284 📦 Postcode: Y9 3OC, WasteType: Household Waste
+🧾 Running Logged-in flow for: Y9 3OC, Household Waste, Heavywaste -Yes, Plasterboard -No, Skipsize-8, Public Property
+Skip size looking for:  4
+I'll take it to the tip myself

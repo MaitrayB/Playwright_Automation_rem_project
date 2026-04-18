@@ -1,0 +1,2 @@
+🎯 Selected row index: 682 📦 Postcode: A2 5JP, WasteType: Commercial Waste
+🧾 Running Logged-in flow for: A2 5JP, Commercial Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-6, Not sure

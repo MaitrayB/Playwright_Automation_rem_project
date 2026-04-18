@@ -1,0 +1,4 @@
+🎯 Selected row index: 786 📦 Postcode: XA3 4UA, WasteType: Commercial Waste
+🧾 Running Logged-in flow for: XA3 4UA, Commercial Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-6, Not sure
+[]
+count:  0

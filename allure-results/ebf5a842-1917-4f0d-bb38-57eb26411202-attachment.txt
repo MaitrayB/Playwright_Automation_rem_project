@@ -1,0 +1,14 @@
+🎯 Selected row index: 519 📦 Postcode: TP9 5LB, WasteType: Garden Waste
+🧾 Running Logged-in flow for: TP9 5LB, Garden Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-6, Private Property
+[
+  '4 Yard SkipA compact but capable option — our most popular choice for smaller jobs.Next Day14 day hirePrivate property — no permit neededAccepts heavy materials£26017% off£217+VATDetails',
+  '5 Yard SkipA versatile mid-range option — the sweet spot for medium-sized jobs.Next Day14 day hirePrivate property — no permit neededAccepts heavy materials£29817% off£248+VATDetails',
+  '6 Yard SkipA versatile all-rounder for mid-range trade and residential waste removal.Next Day14 day hirePrivate property — no permit neededAccepts heavy materials£32617% off£272+VATDetails',
+  "8 Yard SkipThe builder's skip — our most popular size for trade and residential waste removal.Next Day14 day hirePrivate property — no permit neededAccepts heavy materials£36517% off£304+VATDetails",
+  '20 Yard ROROOne of our largest options — built for major commercial and industrial waste removal.Next Day14 day hirePrivate property — no permit neededAccepts heavy materials£99117% off£826+VATDetails',
+  '10 Yard SkipA high-capacity option for large-scale trade and residential waste removal.Next Day14 day hirePrivate property — no permit neededDoes not accept heavy materials£44017% off£367+VATDetails',
+  '12 Yard SkipOur largest open skip — built for high-volume trade and residential waste removal.Next Day14 day hirePrivate property — no permit neededDoes not accept heavy materials£48217% off£402+VATDetails',
+  '14 Yard SkipBuilt for large-scale projects — ideal for extensive refurbishments and commercial clearances.Next Day14 day hirePrivate property — no permit neededDoes not accept heavy materials£53617% off£447+VATDetails',
+  '16 Yard SkipOne of our largest — designed for serious trade and residential waste removal.Next Day7 day hirePrivate property — no permit neededDoes not accept heavy materials£63017% off£525+VATDetails',
+  '40 Yard ROROOur largest available skip — built for the most demanding projects.Next Day14 day hirePrivate property — no permit neededDoes not accept heavy materials£108417% off£903+VATDetails'
+]

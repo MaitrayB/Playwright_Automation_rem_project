@@ -1,1 +1,0 @@
-Deleting supplier with email: Albert_Walsh@mailinator.com

@@ -1,2 +1,0 @@
-First Row ORDER_ID: 2628
-Order ID is 2628

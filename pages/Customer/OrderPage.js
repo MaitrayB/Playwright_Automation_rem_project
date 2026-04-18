@@ -30,10 +30,14 @@ export class OrderPage {
     this.gardenWasteBtn = page.getByRole('button', { name: 'Garden Waste' });
     this.houseHoldWasteBtn = page.getByRole('button', { name: 'Household Waste' });
 
-    this.plasterboardNobtn = page.locator('xpath=//h4[contains(.,"Do you have any plasterboard")]/../div/label[contains(.,"No")]');
-    this.plasterboardYesbtn = page.locator('xpath=//h4[contains(.,"Do you have any plasterboard")]/../div/label[contains(.,"Yes")]');
-    this.heavyWasteNobtn = page.locator('xpath=//h4[contains(.,"Do you have any heavy waste?")]/../div/label[contains(.,"No")]');
-    this.heavyWasteYesbtn = page.locator('xpath=//h4[contains(.,"Do you have any heavy waste?")]/../div/label[contains(.,"Yes")]');
+    //this.plasterboardNobtn = page.locator('xpath=//h4[contains(.,"Do you have any plasterboard")]/../div/label[contains(.,"No")]');
+    this.plasterboardNobtn = page.getByRole('button', { name: 'No' }).nth(2)
+    //this.plasterboardYesbtn = page.locator('xpath=//h4[contains(.,"Do you have any plasterboard")]/../div/label[contains(.,"Yes")]');
+    this.plasterboardYesbtn = page.getByRole('button', { name: 'Yes' }).nth(1)
+    //this.heavyWasteNobtn = page.locator('xpath=//h4[contains(.,"Do you have any heavy waste?")]/../div/label[contains(.,"No")]');
+    this.heavyWasteNobtn = page.getByRole('button', { name: 'No' }).nth(1)
+    //this.heavyWasteYesbtn = page.locator('xpath=//h4[contains(.,"Do you have any heavy waste?")]/../div/label[contains(.,"Yes")]');
+    this.heavyWasteYesbtn = page.getByRole('button', { name: 'Yes' }).first()
 
     const skipSize = 6;
     this.skipYardBtn = page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
@@ -45,22 +49,32 @@ export class OrderPage {
     this.modifyGuaranteeBtn = page.locator("//div[@class='hidden md:flex items-center space-x-2']/button[contains(.,'Modify Guarantee')]");
     this.paymentPageWrongSkipGuaranteeSection = page.locator("//h3[contains(.,'Wrong Skip Guarantee')]");
 
-    this.noSkipGauranteeBtn = page.getByRole('button', { name: 'No, continue without' });
+    //this.noSkipGauranteeBtn = page.getByRole('button', { name: 'No, continue without' });
+    this.noSkipGauranteeBtn = page.getByRole('button', { name: 'No, don\'t add' })
     this.toneBagtile = page.locator('(//div[contains(.,"Use Tonne Bags")])[last()]');
-    this.nextArrowIcon = page.locator('.p-2 > div:nth-child(2) > div > button')
-    this.privatePropertyBtn = page.getByRole('button', { name: 'Private Property Driveway or' });
+    this.nextArrowIcon = page.locator('.p-2 > div:nth-child(2) > div > button');
+    //this.privatePropertyBtn = page.getByRole('button', { name: 'Private Property Driveway or' });
+    this.privatePropertyBtn = page.getByRole('button', { name: 'View larger image Private' });
     this.dateBtn = page.getByRole('button', { name: '30', exact: true });
-    this.skipCheckbox = page.getByText('Skip this step to upload a photo');
-    this.skipTarpNoBtn = page.locator('//button[contains(.,"No, continue without")]');
+    // this.skipCheckbox = page.getByText('Skip this step to upload a photo');
+    this.skipCheckbox = page.getByRole('button', { name: 'I\'ll skip this for now' });
+    // this.skipTarpNoBtn = page.locator('//button[contains(.,"No, continue without")]');
+    this.skipTarpNoBtn = page.getByRole('button', { name: 'No, continue without' });
     this.skipTarpYesBtn = page.locator('//button[.="Yes, add Skip Tarp"]');
     this.tarpDiv = page.locator("//img[@alt='Skip Tarp']/../div");
 
 
-    this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
-    this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
+    //this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
+    this.publicPropertyBtn = page.getByRole('button', { name: 'View larger image Public' });
+    //this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
+    this.grassVergeBtn = page.getByRole('button', { name: 'View larger image Grass verge' });
     this.grassNoPermitBtn = page.getByText('I maintain this land myself');
     this.grassPopupContinueBtn = page.locator('div').filter({ hasText: /^CancelContinue$/ }).getByRole('button', { name: 'Continue' });
-    this.notsureBtn = page.getByRole('button', { name: 'Unsure We will check for you We\'ll determine if a permit is needed' });
+    //this.notsureBtn = page.getByRole('button', { name: 'Unsure We will check for you We\'ll determine if a permit is needed' });
+    this.notsureBtn = page.getByRole('button', { name: 'Unsure We will check for you' });
+
+    // Disposal Method locators
+    this.disposableMethods = page.locator('.px-4.sm\\:px-5.space-y-2\\.5');
 
     this.noBtn = page.locator('//button[contains(.,"No")]');
     this.upholsteredFurnitureNoBtn = page.locator("//h3[contains(.,'Do you have any')]/../..//button[contains(.,'No')]");
@@ -109,22 +123,27 @@ export class OrderPage {
     await this.page.locator('(//button)[3]').waitFor({ state: 'visible', timeout: 60000 });
     await this.page.locator('(//button)[3]').click();
 
-    if (await this.page.getByRole('button').nth(3).isVisible()) { await this.page.getByRole('button').nth(3).click(); }
+    if (await this.page.getByRole('button', { name: 'Continue' }).isVisible()) { await this.page.getByRole('button', { name: 'Continue' }).click(); }
 
     await this.page.waitForTimeout(2000);
     if (await this.closeBtnFromTermsPage.last().isVisible()) {
       await this.closeBtnFromTermsPage.last().click();
     }
     //see if house and street are not auto filled then fill them
-    if (await this.streetInput.inputValue() === '') {
-      await this.streetInput.fill('Main Street');
+    if (await this.streetInput.isVisible()) {
+      if (await this.streetInput.inputValue() === '') {
+        await this.streetInput.fill('Main Street');
+      }
     }
 
-    if (await this.houseNoInput.inputValue() === '') {
-      await this.houseNoInput.fill('123');
+    if (await this.houseNoInput.isVisible()) {
+      if (await this.houseNoInput.inputValue() === '') {
+        await this.houseNoInput.fill('123');
+      }
     }
-
-    await this.continueBtn.click();
+    if (await this.continueBtn.isVisible()) {
+      await this.continueBtn.click();
+    }
     await this.page.waitForTimeout(1000);
   }
 
@@ -183,62 +202,87 @@ export class OrderPage {
     await this.page.waitForTimeout(1000);
   }
 
-  async selectSkip(skipSize, Plasterboard, ToneBag, SelfDispose, Skiptarp) {
+  async selectItemFromTheList() {
+    //.overflow-y-auto > .px-4  > div > div --> list of the 12 items
+    // getByRole('button', { name: 'None of these' })
+    const listItems = this.page.locator('.overflow-y-auto > .px-4  > div > div');
+    const count = await listItems.count();
+    //console.log('count: ', count);
+    const randomItem = Math.floor(Math.random() * count);
+    await listItems.nth(randomItem).click();
+    await this.page.locator('//button[contains(.,"Continue")]').click();
+  }
 
+  async selectSkip(skipSize /*, ToneBag, SelfDispose*/, Skiptarp, Plasterboard) {
     //skip current test if skip is not available for selection
     const isVisible = await this.noskipMsg.isVisible();
     if (isVisible) {
       return { shouldSkip: true, skipReason: "Update Skip button is disabled - Skipping the test" }
     }
 
-    this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+    // this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+    // await this.page.waitForTimeout(2000);
 
-    await this.page.waitForTimeout(2000);
+    // if (!(await this.skipYardBtn.isVisible())) {
+    //   skipSize = 4;
+    //   this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
 
-    if (!(await this.skipYardBtn.isVisible())) {
-      skipSize = 4;
-      this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+    //   if (!(await this.skipYardBtn.isVisible())) {
+    //     skipSize = 6;
+    //     this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
+    //   }
+    // }
+    // await this.skipYardBtn.waitFor({ state: 'visible' });
+    // await this.skipYardBtn.click();
 
-      if (!(await this.skipYardBtn.isVisible())) {
-        skipSize = 6;
-        this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
-      }
-    }
-    await this.skipYardBtn.waitFor({ state: 'visible' });
-    await this.skipYardBtn.click();
+    // Select skip size
+    console.log('Skip size looking for: ', skipSize);
+    await this.page.locator('.flex-1.min-w-0.p-4').filter({ hasText: String(skipSize) }).first().click();
+    await this.continueBtn.click();
 
-    if (!(await this.modifyGuaranteeBtn.isVisible())) {
-      await this.continueBtn.click();
-      await this.noSkipGauranteeBtn.click();
+    // Select Skip Tarp
+    if (Skiptarp === 'Yes') {
+      await this.skipTarpYesBtn.click();
     }
     else {
-      await this.continueBtn.click();
+      await this.skipTarpNoBtn.click();
     }
 
-    await this.page.waitForTimeout(1000);
-    expect(this.tarpDiv.getByText('Add Skip Tarp (Small) for £15 (one-time)').isVisible()).toBeTruthy();
+    // Select Disposal Method - Plasterboard
+    console.log(Plasterboard);
+    await this.disposableMethods.filter({ hasText: Plasterboard }).first().click();
+    // if (!(await this.modifyGuaranteeBtn.isVisible())) {
+    //   await this.noSkipGauranteeBtn.click();
+    //   await this.continueBtn.click();
+    // }
+    // else {
+    //   await this.continueBtn.click();
+    // }
 
-    /*
-        if (Skiptarp === 'Yes') {
-          await this.skipTarpYesBtn.click();
-        }
-        else {
-          await this.skipTarpNoBtn.click();
-        }*/
+    // await this.page.waitForTimeout(1000);
+    // expect(this.tarpDiv.getByText('Add Skip Tarp (Small) for £15 (one-time)').isVisible()).toBeTruthy();
 
-    if (Plasterboard === 'Yes') {
-      if (ToneBag === 'Yes') {
+    // /*
+    //     if (Skiptarp === 'Yes') {
+    //       await this.skipTarpYesBtn.click();
+    //     }
+    //     else {
+    //       await this.skipTarpNoBtn.click();
+    //     }*/
 
-        await this.confirmBtn.click();
+    // if (Plasterboard === 'Yes') {
+    //   if (ToneBag === 'Yes') {
 
-      }
-      else {
-        await this.nextArrowIcon.click();
-        await this.confirmBtn.click();
-      }
-    }
-    this.skipValue = skipSize;
-    return [this.skipValue, { shouldSkip: false }];
+    //     await this.confirmBtn.click();
+
+    //   }
+    //   else {
+    //     await this.nextArrowIcon.click();
+    //     await this.confirmBtn.click();
+    //   }
+    // }
+    // this.skipValue = skipSize;
+    // return [this.skipValue, { shouldSkip: false }];
   }
 
   async wrongSkipSelection() {

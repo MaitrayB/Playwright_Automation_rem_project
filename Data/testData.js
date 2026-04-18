@@ -51,12 +51,17 @@ export const TestData = {
     'No',
     'Yes'
   ],
-  PlasterBoard: [
+  PlasterBoard1: [
     'No',
     'Yes'
   ],
+  PlasterBoard: [
+    'I\'ll take it to the tip myself',
+    '1 Tonne Bag',
+    'Plasterboard-Only Skip'
+  ],
   SkipSize: [
-    '4', '6', '8', '16', '20', '40'
+    '4', '5', '6', '8', '14', '16', '20', '10', '12', '40'
   ],
   BookingDay: [
     '28'

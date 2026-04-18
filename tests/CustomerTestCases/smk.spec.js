@@ -1188,18 +1188,24 @@ test.describe('Customer side test cases', () => {
 
     await test.step('Continue waste type', async () => {
       //await orderPage.continueWaste(randomRow.HeavyWaste, randomRow.PlasterBoard);
-      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+      await orderPage.continueWaste("Yes", "Yes");
     });
 
-    await test.step('Select skip & property', async () => {
-      //await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose);
-      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No", "No");
-
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
     });
 
     await test.step('Permit check', async () => {
       //await orderPage.permitCheck(randomRow.Placement);
       await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      //await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose);
+      // skipSize, Plasterboard, ToneBag, SelfDispose, Skiptarp
+      // await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No", "No");
+      //skipSize /*, ToneBag, SelfDispose*/, Skiptarp, Plasterboard
+      await orderPage.selectSkip(TestData.SkipSize[0], "No", TestData.PlasterBoard[0]);
     });
 
     await test.step('Choose date', async () => {

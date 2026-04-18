@@ -1,0 +1,4 @@
+🎯 Selected row index: 295 📦 Postcode: Q1D 4GM, WasteType: Household Waste
+🧾 Running Logged-in flow for: Q1D 4GM, Household Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-6, Private Property
+count:  12
+Promise { <pending> }

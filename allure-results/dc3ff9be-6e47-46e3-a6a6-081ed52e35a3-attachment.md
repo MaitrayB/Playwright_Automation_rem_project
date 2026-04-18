@@ -1,0 +1,529 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "Elmer Elmer_Terry@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Elmer
+          - paragraph [ref=e14]: Elmer_Terry@yopmail.com
+        - img [ref=e15]
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - button "Location" [ref=e23] [cursor=pointer]:
+        - img [ref=e25]
+        - generic [ref=e27]: Location
+      - button "Waste" [ref=e28] [cursor=pointer]:
+        - img [ref=e30]
+        - generic [ref=e32]: Waste
+      - button "Place" [ref=e33] [cursor=pointer]:
+        - img [ref=e35]
+        - generic [ref=e37]: Place
+      - button "Offers" [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e44]: Offers
+      - button "Date" [disabled] [ref=e45]:
+        - img [ref=e47]
+        - generic [ref=e49]: Date
+      - button "Pay" [disabled] [ref=e50]:
+        - img [ref=e52]
+        - generic [ref=e54]: Pay
+    - generic [ref=e55]:
+      - generic [ref=e56]:
+        - complementary [ref=e57]:
+          - generic [ref=e58]:
+            - heading "Filters" [level=3] [ref=e60]
+            - generic [ref=e62]:
+              - generic [ref=e63]:
+                - heading "Service" [level=4] [ref=e64]
+                - generic [ref=e65]:
+                  - button "All 10" [ref=e66] [cursor=pointer]:
+                    - generic [ref=e67]: All
+                    - generic [ref=e68]: "10"
+                  - button "Skips 10" [ref=e69] [cursor=pointer]:
+                    - generic [ref=e70]: Skips
+                    - generic [ref=e71]: "10"
+              - generic [ref=e72]:
+                - heading "Size" [level=4] [ref=e73]
+                - generic [ref=e74]:
+                  - button "All" [ref=e75] [cursor=pointer]
+                  - button "4yd" [ref=e76] [cursor=pointer]
+                  - button "5yd" [ref=e77] [cursor=pointer]
+                  - button "6yd" [ref=e78] [cursor=pointer]
+                  - button "8yd" [ref=e79] [cursor=pointer]
+                  - button "10yd" [ref=e80] [cursor=pointer]
+                  - button "12yd" [ref=e81] [cursor=pointer]
+                  - button "14yd" [ref=e82] [cursor=pointer]
+                  - button "16yd" [ref=e83] [cursor=pointer]
+                  - button "20yd" [ref=e84] [cursor=pointer]
+                  - button "40yd" [ref=e85] [cursor=pointer]
+              - generic [ref=e86]:
+                - heading "Sort by" [level=4] [ref=e87]
+                - generic [ref=e88]:
+                  - button "Recommended" [ref=e89] [cursor=pointer]
+                  - 'button "Price: Low → High" [ref=e90] [cursor=pointer]'
+                  - 'button "Price: High → Low" [ref=e91] [cursor=pointer]'
+                  - button "Fastest Delivery" [ref=e92] [cursor=pointer]
+                  - button "Longest Hire" [ref=e93] [cursor=pointer]
+              - generic [ref=e94]:
+                - heading "Your requirements" [level=4] [ref=e95]
+                - generic [ref=e96]:
+                  - generic [ref=e97]:
+                    - img [ref=e98]
+                    - text: Private property
+                  - generic [ref=e100]:
+                    - img [ref=e101]
+                    - text: Heavy waste
+        - generic [ref=e106]:
+          - button "Your Order 3/5" [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]:
+              - img [ref=e112]
+              - generic [ref=e116]: Your Order
+              - generic [ref=e117]: 3/5
+            - img [ref=e119]
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - heading "Choose Your Offer" [level=2] [ref=e123]
+              - paragraph [ref=e124]: 10 results for LE10 2DD
+            - button "Recommended" [ref=e126] [cursor=pointer]:
+              - img [ref=e127]
+              - text: Recommended
+              - img [ref=e130]
+          - generic [ref=e132]:
+            - generic [ref=e133] [cursor=pointer]:
+              - generic [ref=e134]:
+                - img [ref=e135]
+                - generic [ref=e137]: Recommended for you
+              - generic [ref=e138]:
+                - generic [ref=e139]:
+                  - img "4 yard skip" [ref=e140]
+                  - generic:
+                    - generic: 4yd
+                  - button "View larger image" [ref=e141]:
+                    - img [ref=e142]
+                - generic [ref=e147]:
+                  - generic [ref=e148]:
+                    - heading "4 Yard Skip" [level=3] [ref=e151]
+                    - paragraph [ref=e152]: A compact but capable option — our most popular choice for smaller jobs.
+                    - generic [ref=e153]:
+                      - generic [ref=e154]:
+                        - img [ref=e155]
+                        - text: Next Day
+                      - generic "Platform pricing" [ref=e158]:
+                        - img [ref=e159]
+                    - generic [ref=e164]:
+                      - img [ref=e165]
+                      - text: 14 day hire
+                    - generic [ref=e168]:
+                      - generic [ref=e169]:
+                        - img [ref=e170]
+                        - generic [ref=e173]: Private property — no permit needed
+                      - generic [ref=e174]:
+                        - img [ref=e175]
+                        - generic [ref=e178]: Accepts heavy materials
+                  - generic [ref=e179]:
+                    - generic [ref=e180]:
+                      - generic [ref=e181]:
+                        - generic [ref=e182]: £260
+                        - generic [ref=e183]:
+                          - img [ref=e184]
+                          - text: 17% off
+                      - paragraph [ref=e187]: £217
+                      - paragraph [ref=e188]: +VAT
+                    - button "Details" [ref=e189]:
+                      - img [ref=e190]
+                      - text: Details
+                      - img [ref=e192]
+            - generic [ref=e195] [cursor=pointer]:
+              - generic [ref=e196]:
+                - img "5 yard skip" [ref=e197]
+                - generic:
+                  - generic: 5yd
+                - button "View larger image" [ref=e198]:
+                  - img [ref=e199]
+              - generic [ref=e204]:
+                - generic [ref=e205]:
+                  - heading "5 Yard Skip" [level=3] [ref=e208]
+                  - paragraph [ref=e209]: A versatile mid-range option — the sweet spot for medium-sized jobs.
+                  - generic [ref=e210]:
+                    - generic [ref=e211]:
+                      - img [ref=e212]
+                      - text: Next Day
+                    - generic "Platform pricing" [ref=e215]:
+                      - img [ref=e216]
+                  - generic [ref=e221]:
+                    - img [ref=e222]
+                    - text: 14 day hire
+                  - generic [ref=e225]:
+                    - generic [ref=e226]:
+                      - img [ref=e227]
+                      - generic [ref=e230]: Private property — no permit needed
+                    - generic [ref=e231]:
+                      - img [ref=e232]
+                      - generic [ref=e235]: Accepts heavy materials
+                - generic [ref=e236]:
+                  - generic [ref=e237]:
+                    - generic [ref=e238]:
+                      - generic [ref=e239]: £298
+                      - generic [ref=e240]:
+                        - img [ref=e241]
+                        - text: 17% off
+                    - paragraph [ref=e244]: £248
+                    - paragraph [ref=e245]: +VAT
+                  - button "Details" [ref=e246]:
+                    - img [ref=e247]
+                    - text: Details
+                    - img [ref=e249]
+            - button "Wrong Skip Guarantee Wrong Skip Guarantee Popular Ordered the wrong size? We'll upgrade you to the next size at no extra cost. No delays, no reorders — just peace of mind. £29.95 £19.97 +VAT Save 33% Add Protection" [ref=e251] [cursor=pointer]:
+              - generic [ref=e256]:
+                - img "Wrong Skip Guarantee" [ref=e258]
+                - generic [ref=e259]:
+                  - generic [ref=e260]:
+                    - img [ref=e262]
+                    - heading "Wrong Skip Guarantee" [level=3] [ref=e264]
+                    - generic [ref=e265]: Popular
+                  - paragraph [ref=e266]: Ordered the wrong size? We'll upgrade you to the next size at no extra cost. No delays, no reorders — just peace of mind.
+                  - generic [ref=e267]:
+                    - generic [ref=e268]:
+                      - generic [ref=e269]: £29.95
+                      - generic [ref=e270]: £19.97
+                      - generic [ref=e271]: +VAT
+                    - generic [ref=e272]:
+                      - img [ref=e273]
+                      - text: Save 33%
+                - generic [ref=e277]:
+                  - text: Add Protection
+                  - img [ref=e278]
+            - generic [ref=e281] [cursor=pointer]:
+              - generic [ref=e282]:
+                - img "6 yard skip" [ref=e283]
+                - generic:
+                  - generic: 6yd
+                - button "View larger image" [ref=e284]:
+                  - img [ref=e285]
+              - generic [ref=e290]:
+                - generic [ref=e291]:
+                  - heading "6 Yard Skip" [level=3] [ref=e294]
+                  - paragraph [ref=e295]: A versatile all-rounder for mid-range trade and residential waste removal.
+                  - generic [ref=e296]:
+                    - generic [ref=e297]:
+                      - img [ref=e298]
+                      - text: Next Day
+                    - generic "Platform pricing" [ref=e301]:
+                      - img [ref=e302]
+                  - generic [ref=e307]:
+                    - img [ref=e308]
+                    - text: 14 day hire
+                  - generic [ref=e311]:
+                    - generic [ref=e312]:
+                      - img [ref=e313]
+                      - generic [ref=e316]: Private property — no permit needed
+                    - generic [ref=e317]:
+                      - img [ref=e318]
+                      - generic [ref=e321]: Accepts heavy materials
+                - generic [ref=e322]:
+                  - generic [ref=e323]:
+                    - generic [ref=e324]:
+                      - generic [ref=e325]: £326
+                      - generic [ref=e326]:
+                        - img [ref=e327]
+                        - text: 17% off
+                    - paragraph [ref=e330]: £272
+                    - paragraph [ref=e331]: +VAT
+                  - button "Details" [ref=e332]:
+                    - img [ref=e333]
+                    - text: Details
+                    - img [ref=e335]
+            - generic [ref=e338] [cursor=pointer]:
+              - generic [ref=e339]:
+                - img "8 yard skip" [ref=e340]
+                - generic:
+                  - generic: 8yd
+                - button "View larger image" [ref=e341]:
+                  - img [ref=e342]
+              - generic [ref=e347]:
+                - generic [ref=e348]:
+                  - heading "8 Yard Skip" [level=3] [ref=e351]
+                  - paragraph [ref=e352]: The builder's skip — our most popular size for trade and residential waste removal.
+                  - generic [ref=e353]:
+                    - generic [ref=e354]:
+                      - img [ref=e355]
+                      - text: Next Day
+                    - generic "Platform pricing" [ref=e358]:
+                      - img [ref=e359]
+                  - generic [ref=e364]:
+                    - img [ref=e365]
+                    - text: 14 day hire
+                  - generic [ref=e368]:
+                    - generic [ref=e369]:
+                      - img [ref=e370]
+                      - generic [ref=e373]: Private property — no permit needed
+                    - generic [ref=e374]:
+                      - img [ref=e375]
+                      - generic [ref=e378]: Accepts heavy materials
+                - generic [ref=e379]:
+                  - generic [ref=e380]:
+                    - generic [ref=e381]:
+                      - generic [ref=e382]: £365
+                      - generic [ref=e383]:
+                        - img [ref=e384]
+                        - text: 17% off
+                    - paragraph [ref=e387]: £304
+                    - paragraph [ref=e388]: +VAT
+                  - button "Details" [ref=e389]:
+                    - img [ref=e390]
+                    - text: Details
+                    - img [ref=e392]
+            - generic [ref=e395] [cursor=pointer]:
+              - generic [ref=e396]:
+                - img "20 yard skip" [ref=e397]
+                - generic:
+                  - generic: 20yd RORO
+                - button "View larger image" [ref=e398]:
+                  - img [ref=e399]
+              - generic [ref=e404]:
+                - generic [ref=e405]:
+                  - heading "20 Yard RORO" [level=3] [ref=e408]
+                  - paragraph [ref=e409]: One of our largest options — built for major commercial and industrial waste removal.
+                  - generic [ref=e410]:
+                    - generic [ref=e411]:
+                      - img [ref=e412]
+                      - text: Next Day
+                    - generic "Platform pricing" [ref=e415]:
+                      - img [ref=e416]
+                  - generic [ref=e421]:
+                    - img [ref=e422]
+                    - text: 14 day hire
+                  - generic [ref=e425]:
+                    - generic [ref=e426]:
+                      - img [ref=e427]
+                      - generic [ref=e430]: Private property — no permit needed
+                    - generic [ref=e431]:
+                      - img [ref=e432]
+                      - generic [ref=e435]: Accepts heavy materials
+                - generic [ref=e436]:
+                  - generic [ref=e437]:
+                    - generic [ref=e438]:
+                      - generic [ref=e439]: £991
+                      - generic [ref=e440]:
+                        - img [ref=e441]
+                        - text: 17% off
+                    - paragraph [ref=e444]: £826
+                    - paragraph [ref=e445]: +VAT
+                  - button "Details" [ref=e446]:
+                    - img [ref=e447]
+                    - text: Details
+                    - img [ref=e449]
+            - generic [ref=e452] [cursor=pointer]:
+              - generic [ref=e453]:
+                - img "10 yard skip" [ref=e454]
+                - generic:
+                  - generic: 10yd
+                - button "View larger image" [ref=e455]:
+                  - img [ref=e456]
+              - generic [ref=e461]:
+                - generic [ref=e462]:
+                  - heading "10 Yard Skip" [level=3] [ref=e465]
+                  - paragraph [ref=e466]: A high-capacity option for large-scale trade and residential waste removal.
+                  - generic [ref=e467]:
+                    - generic [ref=e468]:
+                      - img [ref=e469]
+                      - text: Next Day
+                    - generic "Platform pricing" [ref=e472]:
+                      - img [ref=e473]
+                  - generic [ref=e478]:
+                    - img [ref=e479]
+                    - text: 14 day hire
+                  - generic [ref=e482]:
+                    - generic [ref=e483]:
+                      - img [ref=e484]
+                      - generic [ref=e487]: Private property — no permit needed
+                    - generic [ref=e488]:
+                      - img [ref=e489]
+                      - generic [ref=e492]: Does not accept heavy materials
+                - generic [ref=e493]:
+                  - generic [ref=e494]:
+                    - generic [ref=e495]:
+                      - generic [ref=e496]: £440
+                      - generic [ref=e497]:
+                        - img [ref=e498]
+                        - text: 17% off
+                    - paragraph [ref=e501]: £367
+                    - paragraph [ref=e502]: +VAT
+                  - button "Details" [ref=e503]:
+                    - img [ref=e504]
+                    - text: Details
+                    - img [ref=e506]
+            - generic [ref=e509] [cursor=pointer]:
+              - generic [ref=e510]:
+                - img "12 yard skip" [ref=e511]
+                - generic:
+                  - generic: 12yd
+                - button "View larger image" [ref=e512]:
+                  - img [ref=e513]
+              - generic [ref=e518]:
+                - generic [ref=e519]:
+                  - heading "12 Yard Skip" [level=3] [ref=e522]
+                  - paragraph [ref=e523]: Our largest open skip — built for high-volume trade and residential waste removal.
+                  - generic [ref=e524]:
+                    - generic [ref=e525]:
+                      - img [ref=e526]
+                      - text: Next Day
+                    - generic "Platform pricing" [ref=e529]:
+                      - img [ref=e530]
+                  - generic [ref=e535]:
+                    - img [ref=e536]
+                    - text: 14 day hire
+                  - generic [ref=e539]:
+                    - generic [ref=e540]:
+                      - img [ref=e541]
+                      - generic [ref=e544]: Private property — no permit needed
+                    - generic [ref=e545]:
+                      - img [ref=e546]
+                      - generic [ref=e549]: Does not accept heavy materials
+                - generic [ref=e550]:
+                  - generic [ref=e551]:
+                    - generic [ref=e552]:
+                      - generic [ref=e553]: £482
+                      - generic [ref=e554]:
+                        - img [ref=e555]
+                        - text: 17% off
+                    - paragraph [ref=e558]: £402
+                    - paragraph [ref=e559]: +VAT
+                  - button "Details" [ref=e560]:
+                    - img [ref=e561]
+                    - text: Details
+                    - img [ref=e563]
+            - generic [ref=e566] [cursor=pointer]:
+              - generic [ref=e567]:
+                - img "14 yard skip" [ref=e568]
+                - generic:
+                  - generic: 14yd
+                - button "View larger image" [ref=e569]:
+                  - img [ref=e570]
+              - generic [ref=e575]:
+                - generic [ref=e576]:
+                  - heading "14 Yard Skip" [level=3] [ref=e579]
+                  - paragraph [ref=e580]: Built for large-scale projects — ideal for extensive refurbishments and commercial clearances.
+                  - generic [ref=e581]:
+                    - generic [ref=e582]:
+                      - img [ref=e583]
+                      - text: Next Day
+                    - generic "Platform pricing" [ref=e586]:
+                      - img [ref=e587]
+                  - generic [ref=e592]:
+                    - img [ref=e593]
+                    - text: 14 day hire
+                  - generic [ref=e596]:
+                    - generic [ref=e597]:
+                      - img [ref=e598]
+                      - generic [ref=e601]: Private property — no permit needed
+                    - generic [ref=e602]:
+                      - img [ref=e603]
+                      - generic [ref=e606]: Does not accept heavy materials
+                - generic [ref=e607]:
+                  - generic [ref=e608]:
+                    - generic [ref=e609]:
+                      - generic [ref=e610]: £536
+                      - generic [ref=e611]:
+                        - img [ref=e612]
+                        - text: 17% off
+                    - paragraph [ref=e615]: £447
+                    - paragraph [ref=e616]: +VAT
+                  - button "Details" [ref=e617]:
+                    - img [ref=e618]
+                    - text: Details
+                    - img [ref=e620]
+            - generic [ref=e623] [cursor=pointer]:
+              - generic [ref=e624]:
+                - img "16 yard skip" [ref=e625]
+                - generic:
+                  - generic: 16yd
+                - button "View larger image" [ref=e626]:
+                  - img [ref=e627]
+              - generic [ref=e632]:
+                - generic [ref=e633]:
+                  - heading "16 Yard Skip" [level=3] [ref=e636]
+                  - paragraph [ref=e637]: One of our largest — designed for serious trade and residential waste removal.
+                  - generic [ref=e638]:
+                    - generic [ref=e639]:
+                      - img [ref=e640]
+                      - text: Next Day
+                    - generic "Platform pricing" [ref=e643]:
+                      - img [ref=e644]
+                  - generic [ref=e649]:
+                    - img [ref=e650]
+                    - text: 7 day hire
+                  - generic [ref=e653]:
+                    - generic [ref=e654]:
+                      - img [ref=e655]
+                      - generic [ref=e658]: Private property — no permit needed
+                    - generic [ref=e659]:
+                      - img [ref=e660]
+                      - generic [ref=e663]: Does not accept heavy materials
+                - generic [ref=e664]:
+                  - generic [ref=e665]:
+                    - generic [ref=e666]:
+                      - generic [ref=e667]: £630
+                      - generic [ref=e668]:
+                        - img [ref=e669]
+                        - text: 17% off
+                    - paragraph [ref=e672]: £525
+                    - paragraph [ref=e673]: +VAT
+                  - button "Details" [ref=e674]:
+                    - img [ref=e675]
+                    - text: Details
+                    - img [ref=e677]
+            - generic [ref=e680] [cursor=pointer]:
+              - generic [ref=e681]:
+                - img "40 yard skip" [ref=e682]
+                - generic:
+                  - generic: 40yd RORO
+                - button "View larger image" [ref=e683]:
+                  - img [ref=e684]
+              - generic [ref=e689]:
+                - generic [ref=e690]:
+                  - heading "40 Yard RORO" [level=3] [ref=e693]
+                  - paragraph [ref=e694]: Our largest available skip — built for the most demanding projects.
+                  - generic [ref=e695]:
+                    - generic [ref=e696]:
+                      - img [ref=e697]
+                      - text: Next Day
+                    - generic "Platform pricing" [ref=e700]:
+                      - img [ref=e701]
+                  - generic [ref=e706]:
+                    - img [ref=e707]
+                    - text: 14 day hire
+                  - generic [ref=e710]:
+                    - generic [ref=e711]:
+                      - img [ref=e712]
+                      - generic [ref=e715]: Private property — no permit needed
+                    - generic [ref=e716]:
+                      - img [ref=e717]
+                      - generic [ref=e720]: Does not accept heavy materials
+                - generic [ref=e721]:
+                  - generic [ref=e722]:
+                    - generic [ref=e723]:
+                      - generic [ref=e724]: £1084
+                      - generic [ref=e725]:
+                        - img [ref=e726]
+                        - text: 17% off
+                    - paragraph [ref=e729]: £903
+                    - paragraph [ref=e730]: +VAT
+                  - button "Details" [ref=e731]:
+                    - img [ref=e732]
+                    - text: Details
+                    - img [ref=e734]
+      - generic [ref=e738]:
+        - paragraph [ref=e741]: Select an offer to continue
+        - generic [ref=e742]:
+          - button "Chat with us" [ref=e743] [cursor=pointer]:
+            - img [ref=e744]
+            - text: Chat
+          - button "Back" [ref=e746] [cursor=pointer]
+          - button "Continue" [disabled] [ref=e747]:
+            - text: Continue
+            - img [ref=e748]
+```

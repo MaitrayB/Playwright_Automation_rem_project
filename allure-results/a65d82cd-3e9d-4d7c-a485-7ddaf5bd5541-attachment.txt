@@ -1,0 +1,2 @@
+🎯 Selected row index: 3 📦 Postcode: R6 4DT, WasteType: Construction Waste
+🧾 Running Logged-in flow for: R6 4DT, Construction Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-4, Public Property
