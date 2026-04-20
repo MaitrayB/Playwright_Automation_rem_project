@@ -119,11 +119,15 @@ export class OrderPage {
   async enterPostcode(postcode) {
     await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
-    //await this.page.getByRole('button').nth(3).click();
     await this.page.locator('(//button)[3]').waitFor({ state: 'visible', timeout: 60000 });
     await this.page.locator('(//button)[3]').click();
 
-    if (await this.page.getByRole('button', { name: 'Continue' }).isVisible()) { await this.page.getByRole('button', { name: 'Continue' }).click(); }
+    if (await this.page.locator('.mt-2').isVisible()) {
+      await this.page.locator('.mt-2 button').waitFor({ state: 'visible', timeout: 60000 });
+      const text = await this.page.locator('.mt-2 button').textContent();
+      console.log('text: ', text);
+      await this.page.locator('.mt-2 button').nth(1).click();
+    }
 
     await this.page.waitForTimeout(2000);
     if (await this.closeBtnFromTermsPage.last().isVisible()) {
@@ -141,6 +145,11 @@ export class OrderPage {
         await this.houseNoInput.fill('123');
       }
     }
+
+    if (await this.page.getByRole('button', { name: 'Continue' }).isVisible()) {
+      await this.page.getByRole('button', { name: 'Continue' }).click();
+    }
+
     if (await this.continueBtn.isVisible()) {
       await this.continueBtn.click();
     }
@@ -249,8 +258,18 @@ export class OrderPage {
     }
 
     // Select Disposal Method - Plasterboard
-    console.log(Plasterboard);
-    await this.disposableMethods.filter({ hasText: Plasterboard }).first().click();
+    console.log('Disposal method to select: ', Plasterboard);
+
+    // Locate the specific button inside the container that matches the Plasterboard text
+    const selectedMethodBtn = this.disposableMethods.locator('button').filter({ hasText: Plasterboard }).first();
+
+    // Extract its text for logging to ensure we got the right one
+    const selectedMethodText = await selectedMethodBtn.textContent();
+    console.log('selectedMethod: ', selectedMethodText?.trim());
+
+    // Click the selected option
+    await selectedMethodBtn.click();
+    await this.page.getByRole('button', { name: 'Confirm & Continue' }).click();
     // if (!(await this.modifyGuaranteeBtn.isVisible())) {
     //   await this.noSkipGauranteeBtn.click();
     //   await this.continueBtn.click();
@@ -339,8 +358,7 @@ export class OrderPage {
   }
 
   async chooseDate(Day) {
-
-    await this.calendarNextArrow.click();
+    await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
     this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
     await this.page.waitForTimeout(3000);
 
