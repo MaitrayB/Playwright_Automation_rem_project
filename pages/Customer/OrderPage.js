@@ -209,6 +209,8 @@ export class OrderPage {
 
     await this.continueBtn.click();
     await this.page.waitForTimeout(1000);
+
+    return { HeavyWaste, PlasterBoard };
   }
 
   async selectItemFromTheList() {
@@ -256,20 +258,22 @@ export class OrderPage {
     else {
       await this.skipTarpNoBtn.click();
     }
+    if (this.continueWaste.HeavyWaste === 'Yes' && this.continueWaste.PlasterBoard === 'Yes') {
+      // Select Disposal Method - Plasterboard
+      console.log('Disposal method to select: ', Plasterboard);
 
-    // Select Disposal Method - Plasterboard
-    console.log('Disposal method to select: ', Plasterboard);
+      // Locate the specific button inside the container that matches the Plasterboard text
+      const selectedMethodBtn = this.disposableMethods.locator('button').filter({ hasText: Plasterboard }).first();
 
-    // Locate the specific button inside the container that matches the Plasterboard text
-    const selectedMethodBtn = this.disposableMethods.locator('button').filter({ hasText: Plasterboard }).first();
+      // Extract its text for logging to ensure we got the right one
+      const selectedMethodText = await selectedMethodBtn.textContent();
+      console.log('selectedMethod: ', selectedMethodText?.trim());
 
-    // Extract its text for logging to ensure we got the right one
-    const selectedMethodText = await selectedMethodBtn.textContent();
-    console.log('selectedMethod: ', selectedMethodText?.trim());
+      // Click the selected option
+      await selectedMethodBtn.click();
+      await this.page.getByRole('button', { name: 'Confirm & Continue' }).click();
+    }
 
-    // Click the selected option
-    await selectedMethodBtn.click();
-    await this.page.getByRole('button', { name: 'Confirm & Continue' }).click();
     // if (!(await this.modifyGuaranteeBtn.isVisible())) {
     //   await this.noSkipGauranteeBtn.click();
     //   await this.continueBtn.click();
@@ -360,11 +364,13 @@ export class OrderPage {
   async chooseDate(Day) {
     await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
     this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
-    await this.page.waitForTimeout(3000);
+    //await this.page.waitForTimeout(3000);
+    await this.dateBtn.waitFor({ state: 'visible' });
 
     if (await this.dateBtn.isDisabled()) {
-      Day = Day - 2;
-      this.dateBtn = this.page.getByRole('button', { name: Day });
+      Day = parseInt(Day) + parseInt(2);
+      this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
+      await this.dateBtn.waitFor({ state: 'visible' });
       await this.dateBtn.click();
     }
     else {

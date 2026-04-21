@@ -24,6 +24,7 @@ export class DashboardPage {
     this.orderNumber = page.locator("//span[contains(., '#')]");
     this.orderId = '';
     this.existingOrderNumber = page.getByText('Order #');
+    this.commercialAccountPopUp = page.locator('div').filter({ hasText: 'Do you need a commercial' }).nth(5);
   }
 
   async gotoSuccessPage() {
@@ -32,6 +33,15 @@ export class DashboardPage {
     await this.continueToDashboardBtn.waitFor({ state: 'visible', timeout: 60000 });
     await this.continueToDashboardBtn.click();
     await this.page.waitForTimeout(3000);
+  }
+
+  async takeActionOnCommercialAccountPopUp() {
+    const modal = this.page.locator('div').filter({
+      has: this.page.getByRole('heading', { name: 'Do you need a commercial account?' })
+    }).nth(5);
+    await expect(modal).toBeVisible();
+    await modal.getByRole('button', { name: 'No thanks, continue' }).click();
+    await expect(modal).toBeHidden();
   }
 
   async verifyWrongSkipGuarantee() {

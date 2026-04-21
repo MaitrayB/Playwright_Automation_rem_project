@@ -51,11 +51,11 @@ export const TestData = {
     'No',
     'Yes'
   ],
-  PlasterBoard1: [
+  PlasterBoard: [
     'No',
     'Yes'
   ],
-  PlasterBoard: [
+  plasterBoardTypes: [
     'I\'ll take it to the tip myself',
     '1 Tonne Bag',
     'Plasterboard-Only Skip'
