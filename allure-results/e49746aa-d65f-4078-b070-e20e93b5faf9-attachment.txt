@@ -1,0 +1,65 @@
+🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property
+Skip size looking for:  6
+Text to match: 6 Yard Skip
+heavy waste:  No
+plasterboard:  No
+skipName:  6 yarder skip#2391Order againLE11 2LL19 Feb 2026£319.2
+skipName:  6
+Skip size looking for:  6
+Text to match: 6 Yard Skip
+heavy waste:  No
+plasterboard:  No
+locator.waitFor: Target page, context or browser has been closed
+Call log:
+  - waiting for getByRole('checkbox', { name: 'I agree to the terms and' }) to be visible
+
+    at OrderPage.completePayment (/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/pages/Customer/OrderPage.js:511:30)
+    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/tests/CustomerTestCases/smk.spec.js:1017:9
+    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/tests/CustomerTestCases/smk.spec.js:1012:7 {
+  Symbol(step): {
+    location: {
+      file: '/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/pages/Customer/OrderPage.js',
+      line: 511,
+      column: 30,
+      function: 'OrderPage.completePayment'
+    },
+    category: 'pw:api',
+    title: "Wait for selector getByRole('checkbox', { name: 'I agree to the terms and' })",
+    apiName: 'locator.waitFor',
+    params: {
+      selector: 'internal:role=checkbox[name="I agree to the terms and"i]',
+      strict: true,
+      omitReturnValue: true,
+      state: 'visible',
+      timeout: 0
+    },
+    group: undefined,
+    stepId: 'pw:api@144',
+    boxedStack: undefined,
+    steps: [],
+    attachmentIndices: [],
+    info: TestStepInfoImpl {
+      annotations: [],
+      _testInfo: [TestInfoImpl],
+      _stepId: 'pw:api@144',
+      _title: "Wait for selector getByRole('checkbox', { name: 'I agree to the terms and' })",
+      _parentStep: [TestStepInfoImpl],
+      skip: [Function (anonymous)]
+    },
+    complete: [Function: complete],
+    endWallTime: 1777017813717,
+    error: {
+      message: 'Error: locator.waitFor: Target page, context or browser has been closed\n' +
+        'Call log:\n' +
+        "\x1B[2m  - waiting for getByRole('checkbox', { name: 'I agree to the terms and' }) to be visible\x1B[22m\n",
+      stack: 'Error: locator.waitFor: Target page, context or browser has been closed\n' +
+        'Call log:\n' +
+        "\x1B[2m  - waiting for getByRole('checkbox', { name: 'I agree to the terms and' }) to be visible\x1B[22m\n" +
+        '\n' +
+        '    at OrderPage.completePayment (/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/pages/Customer/OrderPage.js:511:30)\n' +
+        '    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/tests/CustomerTestCases/smk.spec.js:1017:9\n' +
+        '    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/tests/CustomerTestCases/smk.spec.js:1012:7',
+      cause: undefined
+    }
+  }
+}

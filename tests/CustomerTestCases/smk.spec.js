@@ -1011,8 +1011,10 @@ test.describe('Customer side test cases', () => {
 
       await test.step('Guest registration', async () => {
         await signUpPage.fillSignUpFormExistingUser();
+
         const skipName = await orderPage.selectSkipAgain();
         await orderPage.selectSkip(skipName, "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
+
         await orderPage.chooseDate(TestData.BookingDay[0]);
         await orderPage.completePayment();
       });

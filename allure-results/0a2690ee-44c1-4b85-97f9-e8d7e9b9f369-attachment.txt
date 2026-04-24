@@ -1,0 +1,62 @@
+🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property
+Skip size looking for:  4
+Text to match: 4 Yard Skip
+heavy waste:  No
+plasterboard:  No
+TypeError: Cannot read properties of undefined (reading 'page')
+    at file:///Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/tests/CustomerTestCases/smk.spec.js:1014:18
+    at TestStepInfoImpl._runStepBody (/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/worker/testInfo.js:476:14)
+    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/common/testType.js:244:20
+    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/common/testType.js:242:18
+    at TestTypeImpl._step (/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/common/testType.js:239:12)
+    at file:///Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/tests/CustomerTestCases/smk.spec.js:1012:7
+    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/worker/workerMain.js:310:9
+    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/worker/testInfo.js:305:11
+    at TimeoutManager.withRunnable (/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/worker/timeoutManager.js:67:14)
+    at TestInfoImpl._runWithTimeout (/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/worker/testInfo.js:303:7)
+    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/worker/workerMain.js:308:7
+    at WorkerMain._runTest (/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/worker/workerMain.js:283:5)
+    at WorkerMain.runTestGroup (/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/worker/workerMain.js:198:11)
+    at process.<anonymous> (/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/node_modules/playwright/lib/common/process.js:65:22) {
+  Symbol(step): {
+    category: 'test.step',
+    title: 'Guest registration',
+    location: {
+      file: '/Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/tests/CustomerTestCases/smk.spec.js',
+      line: 1012,
+      column: 18
+    },
+    box: undefined,
+    stepId: 'test.step@104',
+    group: undefined,
+    boxedStack: undefined,
+    steps: [
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object]
+    ],
+    attachmentIndices: [],
+    info: TestStepInfoImpl {
+      annotations: [],
+      _testInfo: [TestInfoImpl],
+      _stepId: 'test.step@104',
+      _title: 'Guest registration',
+      _parentStep: undefined,
+      skip: [Function (anonymous)]
+    },
+    complete: [Function: complete],
+    endWallTime: 1777036656000,
+    error: {
+      message: "TypeError: Cannot read properties of undefined (reading 'page')",
+      stack: "TypeError: Cannot read properties of undefined (reading 'page')\n" +
+        '    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/tests/CustomerTestCases/smk.spec.js:1014:18\n' +
+        '    at /Users/maitraymacbookpro/Downloads/Playwright_javascript_Projects/REMAutomation/tests/CustomerTestCases/smk.spec.js:1012:7',
+      cause: undefined
+    }
+  }
+}
