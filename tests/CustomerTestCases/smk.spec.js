@@ -992,13 +992,13 @@ test.describe('Customer side test cases', () => {
         await orderPage.selectItemFromTheList();
       });
 
+      await test.step('Permit check', async () => {
+        await orderPage.permitCheck(TestData.Placement[2]);
+      });
+
       await test.step('Select skip & property', async () => {
         //skipSize, Skiptarp, Plasterboard
         await orderPage.selectSkip(TestData.SkipSize[0], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
-      });
-
-      await test.step('Permit check', async () => {
-        await orderPage.permitCheck(TestData.Placement[0]);
       });
 
       await test.step('Choose date', async () => {
@@ -1011,6 +1011,9 @@ test.describe('Customer side test cases', () => {
 
       await test.step('Guest registration', async () => {
         await signUpPage.fillSignUpFormExistingUser();
+        const skipName = await orderPage.selectSkipAgain();
+        await orderPage.selectSkip(skipName, "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
+        await orderPage.chooseDate(TestData.BookingDay[0]);
         await orderPage.completePayment();
       });
 
