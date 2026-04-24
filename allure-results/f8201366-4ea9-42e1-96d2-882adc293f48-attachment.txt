@@ -1,0 +1,52 @@
+🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Grass verge, Skipsize-4
+Skip size looking for:  4
+Text to match: 4 Yard Skip
+heavy waste:  No
+plasterboard:  No
+skipName:  6 yarder skip#2391Order againLE11 2LL19 Feb 2026£319.2
+skipName:  6
+Skip size looking for:  6
+Text to match: 6 Yard Skip
+heavy waste:  undefined
+plasterboard:  undefined
+locator._expect: Target page, context or browser has been closed
+    at genericFunctions.checkOrderEmailReceived (/Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/utils/genericFunctions.js:73:113)
+    at /Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/tests/CustomerTestCases/smk.spec.js:1118:9
+    at /Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/tests/CustomerTestCases/smk.spec.js:1115:7 {
+  [Symbol(step)]: {
+    category: 'expect',
+    apiName: 'expect.toBeVisible',
+    title: 'Expect "toBeVisible"',
+    params: undefined,
+    infectParentStepsWithError: undefined,
+    stepId: 'expect@211',
+    group: undefined,
+    boxedStack: undefined,
+    location: {
+      file: '/Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/utils/genericFunctions.js',
+      line: 73,
+      column: 113,
+      function: 'genericFunctions.checkOrderEmailReceived'
+    },
+    steps: [],
+    attachmentIndices: [],
+    info: TestStepInfoImpl {
+      annotations: [],
+      _testInfo: [TestInfoImpl],
+      _stepId: 'expect@211',
+      _title: 'Expect "toBeVisible"',
+      _parentStep: [TestStepInfoImpl],
+      skip: [Function (anonymous)]
+    },
+    complete: [Function: complete],
+    endWallTime: 1777022831001,
+    error: {
+      message: 'Error: locator._expect: Target page, context or browser has been closed',
+      stack: 'Error: locator._expect: Target page, context or browser has been closed\n' +
+        '    at genericFunctions.checkOrderEmailReceived (/Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/utils/genericFunctions.js:73:113)\n' +
+        '    at /Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/tests/CustomerTestCases/smk.spec.js:1118:9\n' +
+        '    at /Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/tests/CustomerTestCases/smk.spec.js:1115:7',
+      cause: undefined
+    }
+  }
+}

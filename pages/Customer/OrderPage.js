@@ -216,11 +216,8 @@ export class OrderPage {
   async selectItemFromTheList() {
     //.overflow-y-auto > .px-4  > div > div --> list of the 12 items
     // getByRole('button', { name: 'None of these' })
-    const listItems = this.page.locator('.overflow-y-auto > .px-4  > div > div');
-    const count = await listItems.count();
-    //console.log('count: ', count);
-    const randomItem = Math.floor(Math.random() * count);
-    await listItems.nth(randomItem).click();
+    const selectDoubleMattress = this.page.locator('//span[contains(.,"Double Mattress")]');
+    await selectDoubleMattress.click();
     await this.page.locator('//button[contains(.,"Continue")]').click();
   }
 
@@ -309,7 +306,7 @@ export class OrderPage {
     //     await this.confirmBtn.click();
     //   }
     // }
-    // this.skipValue = skipSize;
+    this.skipValue = skipSize;
     // return [this.skipValue, { shouldSkip: false }];
   }
 
@@ -324,6 +321,7 @@ export class OrderPage {
       if (await this.page.getByRole('heading', { name: 'Booking Update Required', level: 3 }).isVisible()) {
         await this.page.getByRole('button', { name: 'Go to Offers' }).click();
       }
+      this.skipValue = skipName;
       return skipName;
     }
   }

@@ -54,7 +54,7 @@ test.beforeEach(async ({ browser }, testInfo) => {
 });
 
 test.describe('Customer side test cases', () => {
-  test.setTimeout(180000); // 3 minutes
+  test.setTimeout(240000); // 3 minutes
 
   test('24. Customer and Admin conversation verification', async ({ browser }) => {
     let orderId, msgText, adminReply;

@@ -1,0 +1,16 @@
+🎯 Selected row index: 771 📦 Postcode: O9 7GL, WasteType: Commercial Waste
+🧾 Running Logged-in flow for: O9 7GL, Commercial Waste, Heavywaste -No, Plasterboard -Yes, Skipsize-40, Private Property
+Skip size looking for:  4
+Disposal method to select:  I'll take it to the tip myself
+selectedMethod:  I'll take it to the tip myselfDrop it at your local Household Waste Recycling Centre. Best if you only have a small amount (a few sheets).£0No charge
+expect(locator).toBeVisible() failed
+
+Locator: getByRole('button', { name: 'My Orders' })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 5000ms
+  - waiting for getByRole('button', { name: 'My Orders' })
+
