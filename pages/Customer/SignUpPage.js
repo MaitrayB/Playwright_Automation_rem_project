@@ -125,10 +125,14 @@ export class SignUpPage {
         const loginPage = new LoginPage(this.page);
 
         await this.page.locator('#firstName').focus();
-        await this.firstNameInput.fill("Navin");
-        await this.lastNameInput.fill("Shah");
-        await this.emailInput.fill(TestData.credentials.customer.username);
-        await this.confirmEmailInput.fill(TestData.credentials.customer.username);
+        // await this.firstNameInput.fill("Navin");
+        // await this.lastNameInput.fill("Shah");
+        // await this.emailInput.fill(TestData.credentials.customer.username);
+        await this.firstNameInput.fill("Dereck");
+        await this.lastNameInput.fill("Berge");
+        await this.emailInput.fill('Dereck_Berge@yopmail.com');
+        //await this.confirmEmailInput.fill(TestData.credentials.customer.username);
+        await this.confirmEmailInput.fill('Dereck_Berge@yopmail.com');
         await this.phoneInput.fill('+44 16977 2987');
         if (await this.continueBtn.isEnabled()) {
             //console.log('Continue button is enabled');

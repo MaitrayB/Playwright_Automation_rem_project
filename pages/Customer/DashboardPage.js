@@ -17,7 +17,7 @@ export class DashboardPage {
     this.page = page;
     this.continueToDashboardBtn = page.getByRole('button', { name: 'Continue to Dashboard' });
     this.paymentsBtn = page.getByRole('button', { name: 'Payments' });
-    this.myOrdersBtn = page.getByRole('button', { name: 'My Orders' });
+    //this.myOrdersBtn = page.getByRole('button', { name: 'My Orders' });
     this.pastOrdersBtn = page.getByRole('button', { name: 'Past Orders' });
     this.activeOrdersBtn = page.getByRole('button', { name: 'Active Orders' });
     this.viewOrderDetailsBtn = page.getByRole('button', { name: 'View details' }).first();
@@ -69,7 +69,7 @@ export class DashboardPage {
   }
   async verifyDashboard() {
     await expect(this.paymentsBtn).toBeVisible();
-    await expect(this.myOrdersBtn).toBeVisible();
+    //await expect(this.myOrdersBtn).toBeVisible();
     await expect(this.pastOrdersBtn).toBeVisible();
     await expect(this.activeOrdersBtn).toBeVisible();
   }

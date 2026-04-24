@@ -22,7 +22,7 @@ export class OrderDeliveryDetailsPage {
         this.deliveryDetailsSec = page.locator('h3:has-text("Delivery Details")');
         this.skipDetailsSec = page.locator('h3:has-text("Skip Details")');
         this.customerInfoSec = page.locator('h3:has-text("Customer Information")');
-        this.orderItemsSec = page.locator('h2:has-text("Order Items")');
+        this.orderItemsSec = page.getByRole('heading', { name: 'Order Items' })//page.locator('h2:has-text("Order Items")');
 
         this.addItemBtn = page.getByRole('button', { name: 'Add Item' });
         this.roadPermitBtn = page.locator("//button[contains(.,'Road Permit')]");

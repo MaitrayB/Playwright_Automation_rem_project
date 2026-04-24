@@ -224,12 +224,12 @@ export class OrderPage {
     await this.page.locator('//button[contains(.,"Continue")]').click();
   }
 
-  async selectSkip(skipSize /*, ToneBag, SelfDispose*/, Skiptarp, Plasterboard) {
+  async selectSkip(skipSize /*, ToneBag, SelfDispose*/, Skiptarp, plasterBoardTypes, HeavyWaste, PlasterBoard) {
     //skip current test if skip is not available for selection
-    const isVisible = await this.noskipMsg.isVisible();
-    if (isVisible) {
-      return { shouldSkip: true, skipReason: "Update Skip button is disabled - Skipping the test" }
-    }
+    // const isVisible = await this.noskipMsg.isVisible();
+    // if (isVisible) {
+    //   return { shouldSkip: true, skipReason: "Update Skip button is disabled - Skipping the test" }
+    // }
 
     // this.skipYardBtn = this.page.locator(`xpath=(//div[contains(.,"${skipSize} Yard Skip")]/../button)[1]`);
     // await this.page.waitForTimeout(2000);
@@ -248,7 +248,10 @@ export class OrderPage {
 
     // Select skip size
     console.log('Skip size looking for: ', skipSize);
-    await this.page.locator('.flex-1.min-w-0.p-4').filter({ hasText: String(skipSize) }).first().click();
+    //console.log('All skip sizes: ', await this.page.locator('.flex-1.min-w-0.p-4 h3').allTextContents());
+    const textToMatch = `${skipSize} Yard Skip`;
+    console.log('Text to match:', textToMatch);
+    await this.page.locator('.flex-1.min-w-0.p-4 h3').filter({ hasText: new RegExp(`^${textToMatch}$`) }).click();
     await this.continueBtn.click();
 
     // Select Skip Tarp
@@ -258,12 +261,14 @@ export class OrderPage {
     else {
       await this.skipTarpNoBtn.click();
     }
-    if (this.continueWaste.HeavyWaste === 'Yes' && this.continueWaste.PlasterBoard === 'Yes') {
+    console.log('heavy waste: ', HeavyWaste);
+    console.log('plasterboard: ', PlasterBoard);
+    if (HeavyWaste === 'Yes' && PlasterBoard === 'Yes') {
       // Select Disposal Method - Plasterboard
-      console.log('Disposal method to select: ', Plasterboard);
+      console.log('Disposal method to select: ', plasterBoardTypes);
 
       // Locate the specific button inside the container that matches the Plasterboard text
-      const selectedMethodBtn = this.disposableMethods.locator('button').filter({ hasText: Plasterboard }).first();
+      const selectedMethodBtn = this.disposableMethods.locator('button').filter({ hasText: plasterBoardTypes }).first();
 
       // Extract its text for logging to ensure we got the right one
       const selectedMethodText = await selectedMethodBtn.textContent();
@@ -308,6 +313,21 @@ export class OrderPage {
     // return [this.skipValue, { shouldSkip: false }];
   }
 
+  async selectSkipAgain() {
+    if (this.page.getByRole('heading', { name: 'Before you start...' }).isVisible()) {
+      //css locator for selecting first skip from this page -> .p-5 .space-y-2 button
+      const text = await this.page.locator('.p-5 .space-y-2 button').first().textContent();
+      console.log('skipName: ', text);
+      const skipName = text.trim().split(' ')[0];
+      console.log('skipName: ', skipName);
+      await this.page.locator('.p-5 .space-y-2 button').first().click();
+      if (await this.page.getByRole('heading', { name: 'Booking Update Required', level: 3 }).isVisible()) {
+        await this.page.getByRole('button', { name: 'Go to Offers' }).click();
+      }
+      return skipName;
+    }
+  }
+
   async wrongSkipSelection() {
     await this.howItWorksBtn.waitFor({ state: 'visible' });
     await this.howItWorksBtn.click();
@@ -321,6 +341,12 @@ export class OrderPage {
   }
 
   //permit check
+
+  async photoToPlaceTheSkip() {
+    await expect(this.page.getByRole('heading', { name: 'Where should we place it?' })).toBeVisible();
+    await this.page.locator('input[type="file"]').setInputFiles('./Data/download.jpeg');
+    await this.page.getByRole('button', { name: 'Continue with photo' }).click();
+  }
   async permitCheck(Placement) {
 
     //if road placement notice is shown then set placement to private property
@@ -331,9 +357,12 @@ export class OrderPage {
     if (Placement === 'Private Property') {
       await this.privatePropertyBtn.click();
       await this.continueBtn.click();
-      await this.skipCheckbox.waitFor({ state: 'visible' });
-      await this.skipCheckbox.click();
-      await this.continueBtn.click();
+      if (await this.page.getByRole('heading', { name: 'Where should we place it?' }).isVisible()) {
+        await this.photoToPlaceTheSkip();
+      }
+      // await this.skipCheckbox.waitFor({ state: 'visible' });
+      // await this.skipCheckbox.click();
+      //await this.continueBtn.click();
     }
     else if (Placement === 'Public Property') {
       await this.publicPropertyBtn.click();
@@ -344,7 +373,6 @@ export class OrderPage {
     else if (Placement === 'Grass verge') {
       await this.grassVergeBtn.waitFor({ state: 'visible' });
       await this.grassVergeBtn.click();
-
       await this.grassNoPermitBtn.waitFor({ state: 'visible' });
       await this.grassNoPermitBtn.click();
       await this.grassPopupContinueBtn.click();
@@ -362,28 +390,31 @@ export class OrderPage {
   }
 
   async chooseDate(Day) {
-    await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
-    this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
-    //await this.page.waitForTimeout(3000);
-    await this.dateBtn.waitFor({ state: 'visible' });
-
-    if (await this.dateBtn.isDisabled()) {
-      Day = parseInt(Day) + parseInt(2);
-      this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
-      await this.dateBtn.waitFor({ state: 'visible' });
-      await this.dateBtn.click();
+    if (await this.page.getByRole('heading', { name: 'Booking with same' }).isVisible()) {
+      await this.continueBtn.click();
     }
     else {
-      await this.dateBtn.click();
-    }
+      await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
+      this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
+      //await this.page.waitForTimeout(3000);
+      await this.dateBtn.waitFor({ state: 'visible' });
 
-    await this.continueBtn.click();
+      if (await this.dateBtn.isDisabled()) {
+        Day = parseInt(Day) + parseInt(2);
+        this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
+        await this.dateBtn.waitFor({ state: 'visible' });
+        await this.dateBtn.click();
+      }
+      else {
+        await this.dateBtn.click();
+      }
+      await this.continueBtn.click();
+    }
 
     await this.page.waitForTimeout(3000);
     if (await this.noBtn.isVisible()) {
       await this.noBtn.click();
     }
-
     await this.page.waitForTimeout(5000);
   }
 

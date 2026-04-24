@@ -54,8 +54,8 @@ export class LoginPage {
       await this.page.getByRole('button', { name: 'No thanks, start a new order' }).click();
     }
 
-    if (await this.closeBtnFromTermsPage.last().isVisible()) {
-      await this.closeBtnFromTermsPage.last().click();
-    }
+    // if (await this.closeBtnFromTermsPage.last().isVisible()) {
+    //   await this.closeBtnFromTermsPage.last().click();
+    // }
   }
 }
