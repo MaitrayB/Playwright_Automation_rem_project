@@ -909,12 +909,12 @@ test.describe('Customer side test cases', () => {
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
 
-    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
+    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto(TestData.baseURL);
 
     await test.step('Enter postcode', async () => {
-      await orderPage.enterPostcode(TestData.postcodes[0]);
+      await orderPage.enterPostcode(TestData.postcodes[1]);
     });
 
     await test.step('Select waste type', async () => {
@@ -925,12 +925,16 @@ test.describe('Customer side test cases', () => {
       await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
     });
 
-    await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No", "No");
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
     });
 
     await test.step('Permit check', async () => {
       await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[0], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Choose date', async () => {
@@ -993,7 +997,7 @@ test.describe('Customer side test cases', () => {
       });
 
       await test.step('Permit check', async () => {
-        await orderPage.permitCheck(TestData.Placement[2]);
+        await orderPage.permitCheck(TestData.Placement[0]);
       });
 
       await test.step('Select skip & property', async () => {
@@ -1011,11 +1015,6 @@ test.describe('Customer side test cases', () => {
 
       await test.step('Guest registration', async () => {
         await signUpPage.fillSignUpFormExistingUser();
-
-        const skipName = await orderPage.selectSkipAgain();
-        await orderPage.selectSkip(skipName, "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
-
-        await orderPage.chooseDate(TestData.BookingDay[0]);
         await orderPage.completePayment();
       });
 
@@ -1099,9 +1098,6 @@ test.describe('Customer side test cases', () => {
 
       await test.step('Guest registration', async () => {
         await signUpPage.fillSignUpFormExistingUser();
-        const skipName = await orderPage.selectSkipAgain();
-        await orderPage.selectSkip(skipName, "No", TestData.plasterBoardTypes[0]);
-        await orderPage.chooseDate(TestData.BookingDay[0]);
         await orderPage.completePayment();
       });
 

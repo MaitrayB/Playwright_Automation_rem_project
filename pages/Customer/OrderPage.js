@@ -49,7 +49,6 @@ export class OrderPage {
     this.modifyGuaranteeBtn = page.locator("//div[@class='hidden md:flex items-center space-x-2']/button[contains(.,'Modify Guarantee')]");
     this.paymentPageWrongSkipGuaranteeSection = page.locator("//h3[contains(.,'Wrong Skip Guarantee')]");
 
-    //this.noSkipGauranteeBtn = page.getByRole('button', { name: 'No, continue without' });
     this.noSkipGauranteeBtn = page.getByRole('button', { name: 'No, don\'t add' })
     this.toneBagtile = page.locator('(//div[contains(.,"Use Tonne Bags")])[last()]');
     this.nextArrowIcon = page.locator('.p-2 > div:nth-child(2) > div > button');
@@ -58,19 +57,16 @@ export class OrderPage {
     this.dateBtn = page.getByRole('button', { name: '30', exact: true });
     // this.skipCheckbox = page.getByText('Skip this step to upload a photo');
     this.skipCheckbox = page.getByRole('button', { name: 'I\'ll skip this for now' });
-    // this.skipTarpNoBtn = page.locator('//button[contains(.,"No, continue without")]');
     this.skipTarpNoBtn = page.getByRole('button', { name: 'No, continue without' });
     this.skipTarpYesBtn = page.locator('//button[.="Yes, add Skip Tarp"]');
     this.tarpDiv = page.locator("//img[@alt='Skip Tarp']/../div");
 
 
-    //this.publicPropertyBtn = page.getByRole('button', { name: 'Public Property Council or' });
     this.publicPropertyBtn = page.getByRole('button', { name: 'View larger image Public' });
     //this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
     this.grassVergeBtn = page.getByRole('button', { name: 'View larger image Grass verge' });
     this.grassNoPermitBtn = page.getByText('I maintain this land myself');
     this.grassPopupContinueBtn = page.locator('div').filter({ hasText: /^CancelContinue$/ }).getByRole('button', { name: 'Continue' });
-    //this.notsureBtn = page.getByRole('button', { name: 'Unsure We will check for you We\'ll determine if a permit is needed' });
     this.notsureBtn = page.getByRole('button', { name: 'Unsure We will check for you' });
 
     // Disposal Method locators
@@ -110,15 +106,20 @@ export class OrderPage {
     this.usethisaddressBtn = page.getByRole('button', { name: 'Use This Address' });
     this.streetinputchangeaddressInput = page.getByPlaceholder('e.g. Main Street');
     this.housenumberchangeaddressInput = page.getByPlaceholder('e.g. 123');
+    this.billingaddressAccordian = page.locator('//h3[contains(.,"Billing Address")]');
 
     this.noskipMsg = page.locator("//p[contains(.,'No skips available')]");
     this.roadplacementNoticeMsg = page.locator("//h4[contains(.,'Road Placement Not Available')]");
+    this.activeOrderPopupClose = page.locator('(//span[contains(.,"Active Order Detected")]/../../..//button)[1]');
+    this.bookingupdatePopupClose = page.locator('(//h3[contains(.,"Booking Update Required")]/../../..//button)[1]');
+    this.activeOrderNoThanksBtn = page.locator('//button[contains(.,"No Thanks")]');
   }
 
   //Postcode selection
   async enterPostcode(postcode) {
     await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
+    await this.page.waitForTimeout(2000);
     await this.page.locator('(//button)[3]').waitFor({ state: 'visible', timeout: 60000 });
     await this.page.locator('(//button)[3]').click();
 
@@ -258,14 +259,14 @@ export class OrderPage {
     else {
       await this.skipTarpNoBtn.click();
     }
-    console.log('heavy waste: ', HeavyWaste);
-    console.log('plasterboard: ', PlasterBoard);
+  
+   
     if (HeavyWaste === 'Yes' && PlasterBoard === 'Yes') {
       // Select Disposal Method - Plasterboard
       console.log('Disposal method to select: ', plasterBoardTypes);
-
+      
       // Locate the specific button inside the container that matches the Plasterboard text
-      const selectedMethodBtn = this.disposableMethods.locator('button').filter({ hasText: plasterBoardTypes }).first();
+      const selectedMethodBtn = this.page.locator(`xpath=//button[contains(.,'${plasterBoardTypes}')]`);
 
       // Extract its text for logging to ensure we got the right one
       const selectedMethodText = await selectedMethodBtn.textContent();
@@ -273,6 +274,7 @@ export class OrderPage {
 
       // Click the selected option
       await selectedMethodBtn.click();
+      await this.page.waitForTimeout(2000);
       await this.page.getByRole('button', { name: 'Confirm & Continue' }).click();
     }
 
@@ -311,7 +313,9 @@ export class OrderPage {
   }
 
   async selectSkipAgain() {
-    if (this.page.getByRole('heading', { name: 'Before you start...' }).isVisible()) {
+
+
+ /*   if (this.page.getByRole('heading', { name: 'Before you start...' }).isVisible()) {
       //css locator for selecting first skip from this page -> .p-5 .space-y-2 button
       const text = await this.page.locator('.p-5 .space-y-2 button').first().textContent();
       console.log('skipName: ', text);
@@ -323,7 +327,7 @@ export class OrderPage {
       }
       this.skipValue = skipName;
       return skipName;
-    }
+    } */
   }
 
   async wrongSkipSelection() {
@@ -341,9 +345,9 @@ export class OrderPage {
   //permit check
 
   async photoToPlaceTheSkip() {
-    await expect(this.page.getByRole('heading', { name: 'Where should we place it?' })).toBeVisible();
+    
     await this.page.locator('input[type="file"]').setInputFiles('./Data/download.jpeg');
-    await this.page.getByRole('button', { name: 'Continue with photo' }).click();
+    await this.page.getByRole('button', { name: 'Continue' }).click();
   }
   async permitCheck(Placement) {
 
@@ -355,12 +359,9 @@ export class OrderPage {
     if (Placement === 'Private Property') {
       await this.privatePropertyBtn.click();
       await this.continueBtn.click();
-      if (await this.page.getByRole('heading', { name: 'Where should we place it?' }).isVisible()) {
-        await this.photoToPlaceTheSkip();
-      }
-      // await this.skipCheckbox.waitFor({ state: 'visible' });
-      // await this.skipCheckbox.click();
-      //await this.continueBtn.click();
+      
+      await this.photoToPlaceTheSkip();
+      
     }
     else if (Placement === 'Public Property') {
       await this.publicPropertyBtn.click();
@@ -432,11 +433,21 @@ export class OrderPage {
   }
 
   async changeBillingAddress() {
-    if (await this.page.getByRole('button', { name: 'No thanks, start a new order' }, { state: 'visible' }).isVisible()) {
-      await this.page.getByRole('button', { name: 'No thanks, start a new order' }).click();
+    
+    await this.page.waitForTimeout(3000);
+
+    if (await this.activeOrderPopupClose.isVisible()) {
+      await this.activeOrderNoThanksBtn.click();
+      await this.page.waitForTimeout(2000);
     }
-    //await this.page.waitForTimeout(3000);
-    //await this.otherBillingAddressRadioOption.waitFor({ state: 'visible' });
+    
+    if (await this.bookingupdatePopupClose.isVisible()) {
+      await this.bookingupdatePopupClose.click();
+      await this.page.waitForTimeout(2000);
+    }
+    
+    await this.billingaddressAccordian.waitFor({ state: 'visible' });
+    await this.billingaddressAccordian.click();
     await this.otherBillingAddressRadioOption.check();
     await this.billingaddressSpan.waitFor({ state: 'visible' });
     await this.billingaddressSpan.click();
@@ -444,8 +455,6 @@ export class OrderPage {
     await this.postcodenewaddressInput.fill('RG10 1BB');
     await this.firstpostcodeOption.waitFor({ state: 'visible' });
     await this.firstpostcodeOption.click();
-    // await this.firstpostcodeOption.waitFor({ state: 'visible' });
-    // await this.firstpostcodeOption.click();
 
     await this.page.waitForTimeout(2000);
 
@@ -474,6 +483,18 @@ export class OrderPage {
     let cname, phone, email;
 
     await this.page.waitForTimeout(2000);
+
+    if (await this.activeOrderPopupClose.isVisible()) {
+      await this.activeOrderNoThanksBtn.click();
+      await this.page.waitForTimeout(2000);
+    }
+    
+    if (await this.bookingupdatePopupClose.isVisible()) {
+      await this.bookingupdatePopupClose.click();
+      await this.page.waitForTimeout(2000);
+    }
+
+    await this.page.waitForTimeout(3000);
     if (await this.cardNumberLocator.isVisible()) {
       await this.cardNumberLocator.fill('4111 1111 1111 1111');
       await this.expiryDate.fill('12/34');

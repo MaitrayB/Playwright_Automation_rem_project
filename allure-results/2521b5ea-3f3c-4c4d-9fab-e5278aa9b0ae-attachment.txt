@@ -1,0 +1,5 @@
+🎯 Selected row index: 67 📦 Postcode: C5 9WV, WasteType: Construction Waste
+page.goto: net::ERR_TIMED_OUT at https://develop.wewantwaste.co.uk/
+Call log:
+  - navigating to "https://develop.wewantwaste.co.uk/", waiting until "load"
+

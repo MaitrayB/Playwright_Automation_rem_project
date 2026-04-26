@@ -1,0 +1,4 @@
+🎯 Selected row index: 427 📦 Postcode: W6 3RV, WasteType: Household Waste
+🧾 Running Guest flow for:  LE11 2LL, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property
+Skip size looking for:  4
+Text to match: 4 Yard Skip

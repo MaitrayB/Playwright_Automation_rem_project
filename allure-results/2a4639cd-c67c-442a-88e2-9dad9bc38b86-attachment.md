@@ -1,0 +1,234 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "Navin navin@yopmail.com" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Navin
+          - paragraph [ref=e14]: navin@yopmail.com
+        - img [ref=e15]
+  - generic [ref=e19]:
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - img "Your current skip on site" [ref=e23]
+          - generic [ref=e24]: Your Skip
+        - generic [ref=e25]:
+          - img "Fresh skip ready for delivery" [ref=e26]
+          - generic [ref=e27]: Fresh Skip
+      - img [ref=e30]
+      - button [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+    - generic [ref=e38]:
+      - generic [ref=e41]: Active Order Detected
+      - heading "Is Your Skip" [level=2] [ref=e42]
+      - heading "Full?" [level=2] [ref=e43]
+      - paragraph [ref=e44]: We noticed you already have a skip on site. If it's full and you need more space, we'll collect it and drop a fresh one — same size or bigger, your choice.
+      - paragraph [ref=e45]: Choose which skip to exchange
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - img [ref=e49]
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - generic [ref=e54]: 8 yarder skip
+              - generic [ref=e55]: "#2744"
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - img [ref=e58]
+                - text: L21 9LH
+              - generic [ref=e61]:
+                - img [ref=e62]
+                - text: 24 Apr 2026
+          - generic [ref=e64]:
+            - generic [ref=e65]: £573.60
+            - button "Exchange" [ref=e66] [cursor=pointer]:
+              - img [ref=e67]
+              - text: Exchange
+        - generic [ref=e70]:
+          - img [ref=e72]
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - generic [ref=e77]: 6 yarder skip
+              - generic [ref=e78]: "#2743"
+            - generic [ref=e79]:
+              - generic [ref=e80]:
+                - img [ref=e81]
+                - text: LA22 9BP
+              - generic [ref=e84]:
+                - img [ref=e85]
+                - text: 24 Apr 2026
+          - generic [ref=e87]:
+            - generic [ref=e88]: £466.80
+            - button "Exchange" [ref=e89] [cursor=pointer]:
+              - img [ref=e90]
+              - text: Exchange
+        - generic [ref=e93]:
+          - img [ref=e95]
+          - generic [ref=e98]:
+            - generic [ref=e99]:
+              - generic [ref=e100]: 6 yarder skip
+              - generic [ref=e101]: "#2729"
+            - generic [ref=e102]:
+              - generic [ref=e103]:
+                - img [ref=e104]
+                - text: LE11 2LL
+              - generic [ref=e107]:
+                - img [ref=e108]
+                - text: 24 Apr 2026
+          - generic [ref=e110]:
+            - generic [ref=e111]: £328.80
+            - button "Exchange" [ref=e112] [cursor=pointer]:
+              - img [ref=e113]
+              - text: Exchange
+    - generic [ref=e116]:
+      - generic [ref=e119]: Or
+      - button "No Thanks — Start a New Order" [ref=e121] [cursor=pointer]:
+        - img [ref=e122]
+        - text: No Thanks — Start a New Order
+  - main [ref=e123]:
+    - generic [ref=e126]:
+      - button "Location" [ref=e129] [cursor=pointer]:
+        - img [ref=e131]
+        - generic [ref=e133]: Location
+      - button "Waste" [ref=e134] [cursor=pointer]:
+        - img [ref=e136]
+        - generic [ref=e138]: Waste
+      - button "Place" [ref=e139] [cursor=pointer]:
+        - img [ref=e141]
+        - generic [ref=e143]: Place
+      - button "Offers" [ref=e144] [cursor=pointer]:
+        - img [ref=e146]
+        - generic [ref=e148]: Offers
+      - button "Date" [ref=e149] [cursor=pointer]:
+        - img [ref=e151]
+        - generic [ref=e153]: Date
+      - button "Pay" [ref=e154] [cursor=pointer]:
+        - img [ref=e156]
+        - generic [ref=e158]: Pay
+    - generic [ref=e160]:
+      - generic [ref=e162]:
+        - heading "Order Summary" [level=2] [ref=e163]
+        - generic [ref=e165]:
+          - generic [ref=e167]:
+            - generic [ref=e168]:
+              - heading "Delivery Address" [level=3] [ref=e169]
+              - button "Edit address" [ref=e170] [cursor=pointer]:
+                - img [ref=e171]
+            - paragraph [ref=e174]: 10 Church Street, Hinckley
+            - paragraph [ref=e175]: LE10 2DD
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - generic [ref=e179]: Delivery & Collection
+              - button "Edit dates" [ref=e180] [cursor=pointer]:
+                - img [ref=e181]
+            - generic [ref=e184]:
+              - paragraph [ref=e185]: "Delivery: Thursday 28 May 2026"
+              - paragraph [ref=e186]: "Collection: Thursday 4 June 2026"
+        - generic [ref=e188]:
+          - generic [ref=e189]:
+            - heading "4 Yard Skip" [level=3] [ref=e190]
+            - paragraph [ref=e191]: 14 day hire period
+          - generic [ref=e192]:
+            - generic [ref=e193]:
+              - paragraph [ref=e195]: £217
+              - paragraph [ref=e196]: + VAT £43.40
+            - button "Edit skip selection" [ref=e197] [cursor=pointer]:
+              - img [ref=e198]
+        - generic [ref=e201]:
+          - heading "Extra Chargeable Items" [level=3] [ref=e202]
+          - generic [ref=e204]:
+            - generic [ref=e206]: Double Mattress
+            - generic [ref=e207]:
+              - generic [ref=e208]: £60.00
+              - button "Remove Double Mattress" [ref=e209] [cursor=pointer]:
+                - img [ref=e210]
+          - generic [ref=e213]:
+            - generic [ref=e214]: Subtotal
+            - generic [ref=e215]:
+              - generic [ref=e216]: £60.00
+              - paragraph [ref=e217]: + VAT £12.00
+        - generic [ref=e219]:
+          - generic [ref=e220]:
+            - heading "Road Permit Fee" [level=3] [ref=e221]
+            - paragraph [ref=e222]: Required for skip placement on public highway
+          - generic [ref=e223]:
+            - generic [ref=e224]:
+              - paragraph [ref=e225]: £84.00
+              - paragraph [ref=e226]: + VAT £16.80
+            - generic [ref=e227]:
+              - button "Remove permit" [ref=e228] [cursor=pointer]:
+                - img [ref=e229]
+              - button "Edit permit" [ref=e232] [cursor=pointer]:
+                - img [ref=e233]
+        - generic [ref=e236]:
+          - heading "Order Breakdown" [level=3] [ref=e237]
+          - generic [ref=e238]:
+            - generic [ref=e239]:
+              - generic [ref=e240]: Subtotal (excl. VAT)
+              - generic [ref=e241]: £361.00
+            - generic [ref=e242]:
+              - generic [ref=e243]: VAT (20%)
+              - generic [ref=e244]: £72.20
+        - generic [ref=e247]:
+          - generic [ref=e248]: "Total Product Cost:"
+          - generic [ref=e249]: £433.20
+        - paragraph [ref=e250]:
+          - text: Learn more about our
+          - button "Buyer Protection Policy" [ref=e251] [cursor=pointer]
+      - generic [ref=e252]:
+        - generic [ref=e253]:
+          - generic [ref=e254]:
+            - generic [ref=e255]:
+              - img [ref=e256]
+              - heading "Payment Details" [level=3] [ref=e258]
+            - generic [ref=e259]:
+              - generic [ref=e261] [cursor=pointer]:
+                - img [ref=e262]
+                - generic [ref=e264]:
+                  - paragraph [ref=e265]: Visa •••• 1111
+                  - paragraph [ref=e266]: Expires 12/2034
+              - button "Add New Payment Method" [ref=e267] [cursor=pointer]:
+                - img [ref=e268]
+                - generic [ref=e269]: Add New Payment Method
+          - button "Billing Address Same as delivery address" [ref=e272] [cursor=pointer]:
+            - generic [ref=e273]:
+              - img [ref=e274]
+              - generic [ref=e277]:
+                - heading "Billing Address" [level=3] [ref=e278]
+                - paragraph [ref=e279]: Same as delivery address
+            - img [ref=e280]
+          - button "Site Contact (optional)" [ref=e284] [cursor=pointer]:
+            - generic [ref=e285]:
+              - img [ref=e286]
+              - heading "Site Contact (optional)" [level=3] [ref=e289]
+            - img [ref=e290]
+          - generic [ref=e294]:
+            - checkbox "I agree to the terms and conditions . You must accept the terms to place your order." [ref=e295]
+            - generic [ref=e296] [cursor=pointer]:
+              - text: I agree to the
+              - button "terms and conditions" [ref=e297]
+              - text: . You must accept the terms to place your order.
+          - button "Complete Payment" [disabled] [ref=e298]:
+            - generic [ref=e299]:
+              - img [ref=e300]
+              - text: Complete Payment
+        - button "Back" [ref=e302] [cursor=pointer]
+  - generic [ref=e304]:
+    - generic [ref=e305]:
+      - button "Close" [ref=e306] [cursor=pointer]:
+        - img [ref=e307]
+      - generic [ref=e310]:
+        - img [ref=e312]
+        - generic [ref=e314]:
+          - heading "Booking Update Required" [level=3] [ref=e315]
+          - paragraph [ref=e316]: Please review the issues below
+    - generic [ref=e319]:
+      - img [ref=e321]
+      - paragraph [ref=e323]: The 4 yard skip you selected is no longer available for your location.
+    - button "Go to Offers" [ref=e326] [cursor=pointer]:
+      - text: Go to Offers
+      - img [ref=e327]
+```

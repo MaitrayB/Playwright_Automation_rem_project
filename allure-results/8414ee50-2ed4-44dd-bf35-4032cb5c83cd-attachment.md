@@ -1,0 +1,102 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - img "We Want Waste" [ref=e8]
+      - button "Login" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - heading "SKIP HIRE" [level=1] [ref=e13]
+      - heading "With A Difference" [level=2] [ref=e14]
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - img [ref=e20]
+        - textbox "Start Typing Your Delivery Postcode Or Address" [ref=e23]: LE10 2DD
+        - button [ref=e24] [cursor=pointer]:
+          - img [ref=e25]
+        - img [ref=e29]
+      - generic [ref=e31]:
+        - button "The Bolt Hole 10 Church Street Burbage Hinckley LE10 2DD" [active] [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+          - generic [ref=e36]:
+            - generic [ref=e37]: The Bolt Hole 10 Church Street
+            - generic [ref=e38]: Burbage Hinckley LE10 2DD
+        - button "18 Church Street Burbage Hinckley LE10 2DD" [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+          - generic [ref=e43]:
+            - generic [ref=e44]: 18 Church Street
+            - generic [ref=e45]: Burbage Hinckley LE10 2DD
+        - button "16B Church Street Burbage Hinckley LE10 2DD" [ref=e46] [cursor=pointer]:
+          - img [ref=e47]
+          - generic [ref=e50]:
+            - generic [ref=e51]: 16B Church Street
+            - generic [ref=e52]: Burbage Hinckley LE10 2DD
+        - button "16A Church Street Burbage Hinckley LE10 2DD" [ref=e53] [cursor=pointer]:
+          - img [ref=e54]
+          - generic [ref=e57]:
+            - generic [ref=e58]: 16A Church Street
+            - generic [ref=e59]: Burbage Hinckley LE10 2DD
+        - button "14 Church Street Burbage Hinckley LE10 2DD" [ref=e60] [cursor=pointer]:
+          - img [ref=e61]
+          - generic [ref=e64]:
+            - generic [ref=e65]: 14 Church Street
+            - generic [ref=e66]: Burbage Hinckley LE10 2DD
+        - button "12 Church Street Burbage Hinckley LE10 2DD" [ref=e67] [cursor=pointer]:
+          - img [ref=e68]
+          - generic [ref=e71]:
+            - generic [ref=e72]: 12 Church Street
+            - generic [ref=e73]: Burbage Hinckley LE10 2DD
+        - button "Congregational Church 10A Church Street Burbage Hinckley LE10 2DD" [ref=e74] [cursor=pointer]:
+          - img [ref=e75]
+          - generic [ref=e78]:
+            - generic [ref=e79]: Congregational Church 10A Church Street
+            - generic [ref=e80]: Burbage Hinckley LE10 2DD
+        - button "10 Church Street Burbage Hinckley LE10 2DD" [ref=e81] [cursor=pointer]:
+          - img [ref=e82]
+          - generic [ref=e85]:
+            - generic [ref=e86]: 10 Church Street
+            - generic [ref=e87]: Burbage Hinckley LE10 2DD
+        - button "8 Church Street Burbage Hinckley LE10 2DD" [ref=e88] [cursor=pointer]:
+          - img [ref=e89]
+          - generic [ref=e92]:
+            - generic [ref=e93]: 8 Church Street
+            - generic [ref=e94]: Burbage Hinckley LE10 2DD
+        - button "6 Church Street Burbage Hinckley LE10 2DD" [ref=e95] [cursor=pointer]:
+          - img [ref=e96]
+          - generic [ref=e99]:
+            - generic [ref=e100]: 6 Church Street
+            - generic [ref=e101]: Burbage Hinckley LE10 2DD
+        - button "4B Church Street Burbage Hinckley LE10 2DD" [ref=e102] [cursor=pointer]:
+          - img [ref=e103]
+          - generic [ref=e106]:
+            - generic [ref=e107]: 4B Church Street
+            - generic [ref=e108]: Burbage Hinckley LE10 2DD
+        - button "4A Church Street Burbage Hinckley LE10 2DD" [ref=e109] [cursor=pointer]:
+          - img [ref=e110]
+          - generic [ref=e113]:
+            - generic [ref=e114]: 4A Church Street
+            - generic [ref=e115]: Burbage Hinckley LE10 2DD
+        - button "4 Church Street Burbage Hinckley LE10 2DD" [ref=e116] [cursor=pointer]:
+          - img [ref=e117]
+          - generic [ref=e120]:
+            - generic [ref=e121]: 4 Church Street
+            - generic [ref=e122]: Burbage Hinckley LE10 2DD
+        - button "2A Church Street Burbage Hinckley LE10 2DD" [ref=e123] [cursor=pointer]:
+          - img [ref=e124]
+          - generic [ref=e127]:
+            - generic [ref=e128]: 2A Church Street
+            - generic [ref=e129]: Burbage Hinckley LE10 2DD
+        - button "2 Church Street Burbage Hinckley LE10 2DD" [ref=e130] [cursor=pointer]:
+          - img [ref=e131]
+          - generic [ref=e134]:
+            - generic [ref=e135]: 2 Church Street
+            - generic [ref=e136]: Burbage Hinckley LE10 2DD
+    - button "Or book with AI assistant" [ref=e138] [cursor=pointer]:
+      - img [ref=e139]
+      - text: Or book with AI assistant
+    - generic [ref=e141]:
+      - generic [ref=e142]: Version 4.1.1 - Development
+      - button "Terms and Conditions" [ref=e144] [cursor=pointer]
+```

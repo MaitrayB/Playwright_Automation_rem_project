@@ -1,0 +1,227 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e6]:
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - img "We Want Waste" [ref=e10]
+          - button "Dashboard" [ref=e11] [cursor=pointer]:
+            - img [ref=e12]
+            - generic [ref=e17]: Dashboard
+          - button "Messages" [ref=e18] [cursor=pointer]:
+            - img [ref=e19]
+            - generic [ref=e21]: Messages
+          - button "Payments 25" [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+            - generic [ref=e25]: Payments
+            - generic [ref=e26]: "25"
+        - generic [ref=e27]:
+          - button "Notifications" [ref=e29] [cursor=pointer]:
+            - img [ref=e30]
+          - button "Navin Shah navin@yopmail.com" [ref=e34] [cursor=pointer]:
+            - generic [ref=e35]:
+              - paragraph [ref=e36]: Navin Shah
+              - paragraph [ref=e37]: navin@yopmail.com
+            - img [ref=e38]
+    - main [ref=e40]:
+      - generic [ref=e42]:
+        - button "Back to Orders" [ref=e44] [cursor=pointer]:
+          - img [ref=e45]
+          - text: Back to Orders
+        - generic [ref=e47]:
+          - generic [ref=e49]:
+            - generic [ref=e50]:
+              - img [ref=e52]
+              - generic [ref=e55]:
+                - generic [ref=e56]:
+                  - 'heading "Order #2744" [level=1] [ref=e57]'
+                  - button "Chat" [ref=e58] [cursor=pointer]:
+                    - img [ref=e59]
+                    - generic [ref=e61]: Chat
+                - generic [ref=e62]:
+                  - img [ref=e63]
+                  - generic [ref=e66]: Delivered
+                - generic [ref=e67]:
+                  - img [ref=e68]
+                  - generic [ref=e71]:
+                    - generic [ref=e72]: "PO Ref: Not set"
+                    - button "Edit PO reference" [ref=e73] [cursor=pointer]:
+                      - img [ref=e74]
+            - generic [ref=e78]:
+              - generic [ref=e80]: Booked
+              - button [ref=e82] [cursor=pointer]:
+                - img [ref=e83]
+          - generic [ref=e89]:
+            - generic [ref=e90]:
+              - button "Manage Delivery" [disabled] [ref=e91]:
+                - img [ref=e92]
+                - generic [ref=e97]: Manage Delivery
+              - generic [ref=e98]: Delivered
+            - button "Manage Collection" [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+              - generic [ref=e104]: Manage Collection
+            - button "Exchange" [ref=e107] [cursor=pointer]:
+              - img [ref=e108]
+              - generic [ref=e111]: Exchange
+              - img [ref=e112]
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - heading "Delivery Details" [level=3] [ref=e117]
+              - generic [ref=e118]:
+                - generic [ref=e119]:
+                  - img [ref=e120]
+                  - generic [ref=e123]:
+                    - generic [ref=e124]: Delivery Address
+                    - generic [ref=e125]: 20 Enstone Avenue, Liverpool
+                    - generic [ref=e126]: L21 9LH
+                - generic [ref=e127]:
+                  - img [ref=e128]
+                  - generic [ref=e130]:
+                    - generic [ref=e131]: Delivery & Collection
+                    - generic [ref=e132]:
+                      - paragraph [ref=e133]: "Delivery: 24 Apr 2026"
+                      - paragraph [ref=e134]: "Collection: 8 May 2026"
+            - generic [ref=e135]:
+              - heading "Skip Details" [level=3] [ref=e137]
+              - generic [ref=e138]:
+                - generic [ref=e140]: 8 yarder skip
+                - generic [ref=e141]:
+                  - heading "Waste Categories" [level=3] [ref=e142]
+                  - generic [ref=e143]:
+                    - generic [ref=e144]:
+                      - img [ref=e146]
+                      - generic [ref=e149]:
+                        - generic [ref=e150]: Construction Waste
+                        - generic [ref=e151]: Building materials and renovation debris.
+                    - generic [ref=e152]:
+                      - img [ref=e154]
+                      - generic [ref=e157]:
+                        - generic [ref=e158]: Household Waste
+                        - generic [ref=e159]: General household items and furniture
+          - generic [ref=e160]:
+            - generic [ref=e161]:
+              - heading "Customer Information" [level=3] [ref=e162]
+              - generic [ref=e163]:
+                - generic [ref=e164]:
+                  - img [ref=e165]
+                  - generic [ref=e168]:
+                    - generic [ref=e169]: Name
+                    - generic [ref=e170]: Navin Shah
+                - generic [ref=e171]:
+                  - img [ref=e172]
+                  - generic [ref=e175]:
+                    - generic [ref=e176]: Email
+                    - generic [ref=e177]: navin@yopmail.com
+                - generic [ref=e178]:
+                  - img [ref=e179]
+                  - generic [ref=e181]:
+                    - generic [ref=e182]: Phone
+                    - generic [ref=e183]: "1333444333"
+            - generic [ref=e184]:
+              - heading "Site Contact" [level=3] [ref=e185]
+              - generic [ref=e186]:
+                - img [ref=e187]
+                - generic [ref=e189]:
+                  - generic [ref=e190]: Same as Customer
+                  - generic [ref=e191]: Site contact information is the same as customer information
+          - generic [ref=e192]:
+            - generic [ref=e193]:
+              - img [ref=e194]
+              - heading "Order Images" [level=3] [ref=e198]
+            - generic [ref=e201]:
+              - img "Order image 1" [ref=e203] [cursor=pointer]
+              - button "Remove image" [ref=e204] [cursor=pointer]:
+                - img [ref=e205]
+            - button "Add Images" [ref=e208] [cursor=pointer]:
+              - img [ref=e209]
+              - generic [ref=e210]: Add Images
+          - generic [ref=e212]:
+            - generic [ref=e213]:
+              - heading "Order Items" [level=2] [ref=e214]
+              - button "Add Item" [disabled] [ref=e215]:
+                - img [ref=e216]
+                - generic [ref=e217]: Add Item
+            - paragraph [ref=e219]: Order editing is only available 24 hours before delivery. Your skip will be delivered on 24/04/2026.
+            - generic [ref=e220]:
+              - generic [ref=e222]:
+                - generic [ref=e223]:
+                  - heading "8 Yard Skip" [level=3] [ref=e225]
+                  - paragraph [ref=e226]: "Quantity: 1"
+                - generic [ref=e227]:
+                  - paragraph [ref=e228]: £278.00
+                  - paragraph [ref=e229]: £278.00 each
+                  - button "Update Skip" [disabled] [ref=e230]
+              - generic [ref=e232]:
+                - generic [ref=e233]:
+                  - heading "Single Mattress" [level=3] [ref=e235]
+                  - paragraph [ref=e236]: "Quantity: 1"
+                - generic [ref=e237]:
+                  - paragraph [ref=e238]: £35.00
+                  - paragraph [ref=e239]: £35.00 each
+              - generic [ref=e241]:
+                - generic [ref=e242]:
+                  - heading "Carpets (Per Room)" [level=3] [ref=e244]
+                  - paragraph [ref=e245]: "Quantity: 1"
+                - generic [ref=e246]:
+                  - paragraph [ref=e247]: £45.00
+                  - paragraph [ref=e248]: £45.00 each
+              - generic [ref=e250]:
+                - generic [ref=e251]:
+                  - heading "Gas Cylinders" [level=3] [ref=e253]
+                  - paragraph [ref=e254]: "Quantity: 1"
+                - generic [ref=e255]:
+                  - paragraph [ref=e256]: £35.00
+                  - paragraph [ref=e257]: £35.00 each
+              - generic [ref=e259]:
+                - generic [ref=e260]:
+                  - 'heading "Rubber Matting (eg: Gym Flooring, Playground Flooring)" [level=3] [ref=e262]'
+                  - paragraph [ref=e263]: "Quantity: 1"
+                - generic [ref=e264]:
+                  - paragraph [ref=e265]: £85.00
+                  - paragraph [ref=e266]: £85.00 each
+              - generic [ref=e267]:
+                - generic [ref=e268]:
+                  - generic [ref=e269]: Subtotal (excl. VAT)
+                  - generic [ref=e270]: £478.00
+                - generic [ref=e271]:
+                  - generic [ref=e272]: VAT (20%)
+                  - generic [ref=e273]: £95.60
+                - generic [ref=e274]:
+                  - generic [ref=e275]: Total
+                  - generic [ref=e276]: £573.60
+          - generic [ref=e277]:
+            - generic [ref=e278]:
+              - generic [ref=e279]:
+                - img [ref=e280]
+                - heading "Issues" [level=3] [ref=e282]
+              - button "Report an Issue" [ref=e283] [cursor=pointer]:
+                - img [ref=e284]
+                - text: Report an Issue
+            - paragraph [ref=e286]: No issues reported.
+          - generic [ref=e287]:
+            - generic [ref=e288]:
+              - img [ref=e289]
+              - heading "Order History" [level=3] [ref=e292]
+            - generic [ref=e293]:
+              - generic [ref=e294]:
+                - heading "Order history" [level=3] [ref=e295]
+                - button "Chat" [ref=e298] [cursor=pointer]:
+                  - img [ref=e299]
+                  - generic [ref=e301]: Chat
+              - generic [ref=e303]:
+                - img [ref=e305]
+                - generic [ref=e309]:
+                  - generic [ref=e310]:
+                    - generic [ref=e311]:
+                      - generic [ref=e312]: Order Confirmed
+                      - generic [ref=e313]: by Customer
+                    - paragraph [ref=e314]: Order created by customer, paid and confirmed
+                  - generic [ref=e315]: 24 Apr 2026, 18:07
+      - generic [ref=e318]:
+        - generic [ref=e319]: © 2026 All rights reserved.
+        - button "Terms and Conditions" [ref=e321] [cursor=pointer]
+  - button "Open support chat" [ref=e322] [cursor=pointer]:
+    - img [ref=e323]
+```

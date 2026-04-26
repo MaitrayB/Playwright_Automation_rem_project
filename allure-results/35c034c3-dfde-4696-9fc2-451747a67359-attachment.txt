@@ -1,0 +1,43 @@
+🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Grass verge, Skipsize-4
+Skip size looking for:  4
+Text to match: 4 Yard Skip
+page.waitForTimeout: Target page, context or browser has been closed
+    at genericFunctions.goToYopmail (/Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/utils/genericFunctions.js:33:25)
+    at /Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/tests/CustomerTestCases/smk.spec.js:1115:28
+    at /Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/tests/CustomerTestCases/smk.spec.js:1114:18 {
+  [Symbol(step)]: {
+    location: {
+      file: '/Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/utils/genericFunctions.js',
+      line: 33,
+      column: 25,
+      function: 'genericFunctions.goToYopmail'
+    },
+    category: 'pw:api',
+    title: 'Wait for timeout',
+    apiName: 'page.waitForTimeout',
+    params: { waitTimeout: 3000 },
+    group: undefined,
+    stepId: 'pw:api@157',
+    boxedStack: undefined,
+    steps: [],
+    attachmentIndices: [],
+    info: TestStepInfoImpl {
+      annotations: [],
+      _testInfo: [TestInfoImpl],
+      _stepId: 'pw:api@157',
+      _title: 'Wait for timeout',
+      _parentStep: [TestStepInfoImpl],
+      skip: [Function (anonymous)]
+    },
+    complete: [Function: complete],
+    endWallTime: 1777201979249,
+    error: {
+      message: 'Error: page.waitForTimeout: Target page, context or browser has been closed',
+      stack: 'Error: page.waitForTimeout: Target page, context or browser has been closed\n' +
+        '    at genericFunctions.goToYopmail (/Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/utils/genericFunctions.js:33:25)\n' +
+        '    at /Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/tests/CustomerTestCases/smk.spec.js:1115:28\n' +
+        '    at /Users/maitray/Downloads/REMAutomation3_myWork/REMAutomation3/tests/CustomerTestCases/smk.spec.js:1114:18',
+      cause: undefined
+    }
+  }
+}

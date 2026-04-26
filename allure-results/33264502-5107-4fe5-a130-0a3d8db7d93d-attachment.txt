@@ -1,0 +1,11 @@
+🎯 Selected row index: 134 📦 Postcode: YD7Z 8TM, WasteType: Construction Waste
+🧾 Running Logged-in flow for:  LE10 2DD, Construction Waste, Heavywaste -Yes, Plasterboard -Yes, Private Property, Skipsize-4, Plasterboard -I'll take it to the tip myself
+Skip size looking for:  4
+Text to match: 4 Yard Skip
+heavy waste:  Yes
+plasterboard:  Yes
+Disposal method to select:  I'll take it to the tip myself
+locator.textContent: Target page, context or browser has been closed
+Call log:
+  - waiting for locator('.px-4.sm\\:px-5.space-y-2\\.5').locator('button').filter({ hasText: 'I\'ll take it to the tip myself' }).first()
+

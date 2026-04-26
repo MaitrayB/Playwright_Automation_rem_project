@@ -56,7 +56,7 @@ export const TestData = {
     'Yes'
   ],
   plasterBoardTypes: [
-    'I\'ll take it to the tip myself',
+    'take it to the tip myself',
     '1 Tonne Bag',
     'Plasterboard-Only Skip'
   ],

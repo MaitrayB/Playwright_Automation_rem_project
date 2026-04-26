@@ -139,9 +139,7 @@ export class SignUpPage {
         await this.page.waitForTimeout(3000);
 
         await this.signInContinueBtn.click();
-        if (await this.page.getByRole('button', { name: 'No thanks, start a new order' }, { state: 'visible' }).isVisible()) {
-            await this.page.getByRole('button', { name: 'No thanks, start a new order' }).click();
-        }
+     
         await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
         await this.page.waitForTimeout(3000);
     }
