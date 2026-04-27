@@ -39,7 +39,7 @@ export class OrderDeliveryDetailsPage {
         this.payBtn = page.locator("(//button[contains(.,'Pay')])[last()]");
         this.roadpermitFeeLbl = page.locator("//h3[contains(.,'Road Permit Fee')]");
         this.verifyOrderHistoryForAddedPermit = page.locator("//p[contains(.,'Road Permit Fee')]");
-        this.verifyWrongSkipGuaranteeLabel = page.locator("//span[contains(., 'Wrong Skip Guarantee')]");
+        this.verifyWrongSkipGuaranteeLabel = page.getByRole('heading', { name: 'Wrong Skip Guarantee' }); //locator("//span[contains(., 'Wrong Skip Guarantee')]");
         this.updateSkipBtn = page.getByRole('button', { name: 'Update Skip' });
         this.checkPrecedingSkipAvailability = page.locator("(//button[contains(.,'Currently Selected')]/../preceding-sibling::div)");
         this.previousSkipBtn = page.locator("(//button[contains(.,'Currently Selected')]/../preceding-sibling::div)[1]");
@@ -119,6 +119,7 @@ export class OrderDeliveryDetailsPage {
         this.verifyRefundRequestedLogHistory = page.getByText("Refund Requested");
         this.verifyRefundRequestStatus = page.locator("//div[contains(@class, 'text-gray-300')]/span[2]");
         this.downgradeRefundRequestedLog = page.getByText('Refund requested: Item Downgraded.').first();
+        this.upgradeSkipRefundRequestedLog = page.getByText('Skip Changed').first();
 
         // Send message feature locators
         this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' }).first();
