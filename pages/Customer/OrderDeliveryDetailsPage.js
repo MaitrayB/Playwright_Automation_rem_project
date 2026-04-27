@@ -118,6 +118,7 @@ export class OrderDeliveryDetailsPage {
         this.RequestSubmissionSuccessMsg = page.getByText("Refund request submitted successfully");
         this.verifyRefundRequestedLogHistory = page.getByText("Refund Requested");
         this.verifyRefundRequestStatus = page.locator("//div[contains(@class, 'text-gray-300')]/span[2]");
+        this.downgradeRefundRequestedLog = page.getByText('Refund requested: Item Downgraded.').first();
 
         // Send message feature locators
         this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' }).first();

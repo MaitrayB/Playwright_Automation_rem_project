@@ -834,6 +834,8 @@ test.describe('Customer side test cases', () => {
     await test.step('Navigate and Downgrade skip', async () => {
       await dashboardPage.navigateToViewOrderDetails();
       await orderDeliveryDetailsPage.downgradeSkip();
+      await orderDeliveryDetailsPage.downgradeRefundRequestedLog.scrollIntoViewIfNeeded();
+      await expect(orderDeliveryDetailsPage.downgradeRefundRequestedLog).toBeVisible();
     });
   });
 
