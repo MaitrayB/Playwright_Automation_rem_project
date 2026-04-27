@@ -840,9 +840,10 @@ test.describe('Customer side test cases', () => {
   test('6. Place order and add 2 Tonne bags', async () => {
 
     // ✅ Get random CSV row at runtime
-    const randomRow = getRandomRow(csvPath);
+    //const randomRow = getRandomRow(csvPath);
+    let skipValues;
 
-    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[1]}`);
+    console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[2]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto(TestData.baseURL);
 
@@ -855,15 +856,20 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Continue waste type', async () => {
-      await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+      skipValues = await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
     });
 
-    await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
     });
 
     await test.step('Permit check', async () => {
-      await orderPage.permitCheck(TestData.Placement[1]);
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      //skipSize, Skiptarp, Plasterboard
+      await orderPage.selectSkip(TestData.SkipSize[2], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
     });
 
     await test.step('Choose date', async () => {

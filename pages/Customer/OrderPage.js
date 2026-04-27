@@ -245,12 +245,19 @@ export class OrderPage {
     // await this.skipYardBtn.click();
 
     // Select skip size
-    console.log('Skip size looking for: ', skipSize);
-    //console.log('All skip sizes: ', await this.page.locator('.flex-1.min-w-0.p-4 h3').allTextContents());
+    await this.page.locator('.flex-1.min-w-0.p-4 h3').first().waitFor({ state: 'visible' });
+    const skipsAvailable = await this.page.locator('.flex-1.min-w-0.p-4 h3').allInnerTexts();
+    console.log('All skip sizes: ', skipsAvailable);
     const textToMatch = `${skipSize} Yard Skip`;
     console.log('Text to match:', textToMatch);
-    await this.page.locator('.flex-1.min-w-0.p-4 h3').filter({ hasText: new RegExp(`^${textToMatch}$`) }).click();
-    await this.continueBtn.click();
+    if (skipsAvailable.includes(textToMatch)) {
+      await this.page.locator('.flex-1.min-w-0.p-4 h3').filter({ hasText: new RegExp(`^${textToMatch}$`) }).click();
+      await this.continueBtn.click();
+    } else {
+      console.log("skip not found ")
+      await this.page.locator('.flex-1.min-w-0.p-4 h3').first().click();
+      await this.continueBtn.click();
+    }
 
     // Select Skip Tarp
     if (Skiptarp === 'Yes') {
@@ -259,12 +266,12 @@ export class OrderPage {
     else {
       await this.skipTarpNoBtn.click();
     }
-  
-   
+
+
     if (HeavyWaste === 'Yes' && PlasterBoard === 'Yes') {
       // Select Disposal Method - Plasterboard
       console.log('Disposal method to select: ', plasterBoardTypes);
-      
+
       // Locate the specific button inside the container that matches the Plasterboard text
       const selectedMethodBtn = this.page.locator(`xpath=//button[contains(.,'${plasterBoardTypes}')]`);
 
@@ -315,19 +322,19 @@ export class OrderPage {
   async selectSkipAgain() {
 
 
- /*   if (this.page.getByRole('heading', { name: 'Before you start...' }).isVisible()) {
-      //css locator for selecting first skip from this page -> .p-5 .space-y-2 button
-      const text = await this.page.locator('.p-5 .space-y-2 button').first().textContent();
-      console.log('skipName: ', text);
-      const skipName = text.trim().split(' ')[0];
-      console.log('skipName: ', skipName);
-      await this.page.locator('.p-5 .space-y-2 button').first().click();
-      if (await this.page.getByRole('heading', { name: 'Booking Update Required', level: 3 }).isVisible()) {
-        await this.page.getByRole('button', { name: 'Go to Offers' }).click();
-      }
-      this.skipValue = skipName;
-      return skipName;
-    } */
+    /*   if (this.page.getByRole('heading', { name: 'Before you start...' }).isVisible()) {
+         //css locator for selecting first skip from this page -> .p-5 .space-y-2 button
+         const text = await this.page.locator('.p-5 .space-y-2 button').first().textContent();
+         console.log('skipName: ', text);
+         const skipName = text.trim().split(' ')[0];
+         console.log('skipName: ', skipName);
+         await this.page.locator('.p-5 .space-y-2 button').first().click();
+         if (await this.page.getByRole('heading', { name: 'Booking Update Required', level: 3 }).isVisible()) {
+           await this.page.getByRole('button', { name: 'Go to Offers' }).click();
+         }
+         this.skipValue = skipName;
+         return skipName;
+       } */
   }
 
   async wrongSkipSelection() {
@@ -345,7 +352,7 @@ export class OrderPage {
   //permit check
 
   async photoToPlaceTheSkip() {
-    
+
     await this.page.locator('input[type="file"]').setInputFiles('./Data/download.jpeg');
     await this.page.getByRole('button', { name: 'Continue' }).click();
   }
@@ -359,9 +366,9 @@ export class OrderPage {
     if (Placement === 'Private Property') {
       await this.privatePropertyBtn.click();
       await this.continueBtn.click();
-      
+
       await this.photoToPlaceTheSkip();
-      
+
     }
     else if (Placement === 'Public Property') {
       await this.publicPropertyBtn.click();
@@ -433,19 +440,19 @@ export class OrderPage {
   }
 
   async changeBillingAddress() {
-    
+
     await this.page.waitForTimeout(3000);
 
     if (await this.activeOrderPopupClose.isVisible()) {
       await this.activeOrderNoThanksBtn.click();
       await this.page.waitForTimeout(2000);
     }
-    
+
     if (await this.bookingupdatePopupClose.isVisible()) {
       await this.bookingupdatePopupClose.click();
       await this.page.waitForTimeout(2000);
     }
-    
+
     await this.billingaddressAccordian.waitFor({ state: 'visible' });
     await this.billingaddressAccordian.click();
     await this.otherBillingAddressRadioOption.check();
@@ -488,7 +495,7 @@ export class OrderPage {
       await this.activeOrderNoThanksBtn.click();
       await this.page.waitForTimeout(2000);
     }
-    
+
     if (await this.bookingupdatePopupClose.isVisible()) {
       await this.bookingupdatePopupClose.click();
       await this.page.waitForTimeout(2000);

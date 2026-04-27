@@ -64,7 +64,7 @@ export const TestData = {
     '4', '5', '6', '8', '14', '16', '20', '10', '12', '40'
   ],
   BookingDay: [
-    '28'
+    '29'
   ],
   Placement: [
     'Private Property',

@@ -29,10 +29,10 @@ export class OrderDeliveryDetailsPage {
         this.permitAndDeliveryOption = page.getByRole('radio', { name: 'Add Permit & Update Delivery' });
         this.permitConfirnBtn = page.getByRole('button', { name: 'Confirm' });
 
-        this.tonneBagBtn = page.locator("//button[contains(.,'Tonne Bag')]");
-        this.addQuantity = page.locator("//div[@class='flex items-center space-x-4']/button[2]");
-        this.verifyTonneBagLabel = page.locator('h3:has-text("Tonne Bag")');
-        this.verifyTotalQuantity = page.locator("//p[contains(.,'Quantity: 2')]");
+        this.tonneBagBtn = page.getByRole('button', { name: '1 Tonne Bag We supply a tonne' }); //page.locator("//button[contains(.,'Tonne Bag')]");
+        //this.addQuantity = page.locator("//div[@class='flex items-center space-x-4']/button[2]");
+        this.verifyTonneBagLabel = page.getByRole('heading', { name: 'Plasterboard Tonne Bag' });
+        this.verifyTotalQuantity = page.getByText('Quantity:').nth(2);
         this.skipTarpLbl = page.locator("//h3[contains(.,'Skip Tarp')]");
 
         this.addBtnPopup = page.locator("(//button[contains(.,'Add Item')])[last()]");
@@ -161,7 +161,7 @@ export class OrderDeliveryDetailsPage {
         await this.tonneBagBtn.waitFor({ state: 'visible' });
         await this.tonneBagBtn.click();
         await this.page.waitForTimeout(1000);
-        await this.addQuantity.click();
+        //await this.addQuantity.click();
         await this.addBtnPopup.click();
         await this.page.waitForTimeout(1000);
         await this.payBtn.click();
