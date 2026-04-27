@@ -1,3 +1,0 @@
-🎯 Selected row index: 698 📦 Postcode: X2M 4AZ, WasteType: Commercial Waste
-🧾 Running Guest flow for:  X2M 4AZ, Commercial Waste, Heavywaste -Yes, Plasterboard -Yes, Skipsize-6, Not sure
-Skip size looking for:  6

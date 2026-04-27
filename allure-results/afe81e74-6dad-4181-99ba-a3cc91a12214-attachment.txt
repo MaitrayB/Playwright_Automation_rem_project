@@ -1,6 +1,0 @@
-🎯 Selected row index: 386 📦 Postcode: XA3 4UA, WasteType: Household Waste
-🧾 Running Logged-in flow for:  LE10 2DD, Construction Waste, Heavywaste -Yes, Plasterboard -Yes, Private Property, Skipsize-4, Plasterboard -I'll take it to the tip myself
-locator.waitFor: Target page, context or browser has been closed
-Call log:
-  - waiting for getByRole('button', { name: 'Construction Waste Building' }) to be visible
-

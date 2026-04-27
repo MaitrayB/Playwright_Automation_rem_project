@@ -1,5 +1,0 @@
-🎯 Selected row index: 786 📦 Postcode: XA3 4UA, WasteType: Commercial Waste
-page.goto: net::ERR_CONNECTION_CLOSED at https://develop.wewantwaste.co.uk/
-Call log:
-  - navigating to "https://develop.wewantwaste.co.uk/", waiting until "load"
-

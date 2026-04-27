@@ -1,2 +1,0 @@
-🎯 Selected row index: 834 📦 Postcode: M3 7KM, WasteType: Commercial Waste
-🧾 Running Guest flow for:  LE10 2DD, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property

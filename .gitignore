@@ -1,5 +1,7 @@
 node_modules/
 reports/
 test-results/
+allure-results/
+allure-report/
 playwright-report/
 .DS_Store

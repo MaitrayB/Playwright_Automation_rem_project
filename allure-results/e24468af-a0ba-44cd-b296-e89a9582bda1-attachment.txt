@@ -1,4 +1,0 @@
-🎯 Selected row index: 859 📦 Postcode: J3K 5XJ, WasteType: Commercial Waste
-🧾 Running Guest flow for:  LE11 2LL, Construction Waste, Heavywaste -No, Plasterboard -No, Skipsize-4, Private Property
-Skip size looking for:  4
-Text to match: 4 Yard Skip
