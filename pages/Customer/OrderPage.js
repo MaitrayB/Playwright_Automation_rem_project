@@ -58,7 +58,7 @@ export class OrderPage {
     this.skipTarpNoBtn = page.getByRole('button', { name: 'No, continue without' });
     this.skipTarpYesBtn = page.locator('//button[.="Yes, add Skip Tarp"]');
     this.tarpDiv = page.locator("//img[@alt='Skip Tarp']/../div");
-
+    this.dateNextMonth = page.locator('//button[contains(.,"→")]');
 
     this.publicPropertyBtn = page.getByRole('button', { name: 'View larger image Public' });
     //this.grassVergeBtn = page.getByRole('button', { name: 'Grass verge / footpath / pavement Between road and property Permit required' });
@@ -393,6 +393,8 @@ export class OrderPage {
     }
     else {
       await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
+      await this.dateNextMonth.click();
+      await this.page.waitForTimeout(1000);
       this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
       //await this.page.waitForTimeout(3000);
       await this.dateBtn.waitFor({ state: 'visible' });
