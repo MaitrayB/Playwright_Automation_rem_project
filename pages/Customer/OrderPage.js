@@ -17,6 +17,7 @@ export class OrderPage {
   constructor(page) {
 
     this.page = page;
+    this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
     this.closeBtnFromTermsPage = page.getByRole('button', { name: 'Close' });
     this.postcodeInput = page.getByRole('textbox', { name: 'Start Typing Your Delivery' });
     this.continueBtn = page.getByRole('button', { name: 'Continue' });
@@ -115,15 +116,21 @@ export class OrderPage {
 
   //Postcode selection
   async enterPostcode(postcode) {
+    await this.page.waitForTimeout(2000);
+    if (await this.cookieAcceptBtn.isVisible()) {
+      await this.cookieAcceptBtn.click();
+    }
     await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
     await this.page.waitForTimeout(2000);
-    await this.page.locator('(//button)[3]').waitFor({ state: 'visible', timeout: 60000 });
-    await this.page.locator('(//button)[3]').click();
+
+    if (await this.page.locator('(//button)[3]').isVisible()) {
+      await this.page.locator('(//button)[3]').click();
+    }
 
     if (await this.page.locator('.mt-2').isVisible()) {
-      await this.page.locator('.mt-2 button').waitFor({ state: 'visible', timeout: 60000 });
-      const text = await this.page.locator('.mt-2 button').textContent();
+      await this.page.locator('.mt-2 button').first().waitFor({ state: 'visible', timeout: 60000 });
+      const text = await this.page.locator('.mt-2 button').first().textContent();
       console.log('text: ', text);
       await this.page.locator('.mt-2 button').nth(1).click();
     }
@@ -396,7 +403,7 @@ export class OrderPage {
       await this.dateNextMonth.click();
       await this.page.waitForTimeout(1000);
       this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
-      //await this.page.waitForTimeout(3000);
+
       await this.dateBtn.waitFor({ state: 'visible' });
 
       if (await this.dateBtn.isDisabled()) {
