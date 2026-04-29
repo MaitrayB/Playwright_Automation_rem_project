@@ -26,8 +26,8 @@ export class OrderDeliveryDetailsPage {
 
         this.addItemBtn = page.getByRole('button', { name: 'Add Item' });
         this.roadPermitBtn = page.locator("//button[contains(.,'Road Permit')]");
-        this.permitAndDeliveryOption = page.getByRole('radio', { name: 'Add Permit & Update Delivery' });
-        this.permitConfirnBtn = page.getByRole('button', { name: 'Confirm' });
+        // this.permitAndDeliveryOption = page.getByRole('radio', { name: 'Add Permit & Update Delivery' });
+        //this.permitConfirnBtn = page.getByRole('button', { name: 'Confirm' });
 
         this.tonneBagBtn = page.getByRole('button', { name: '1 Tonne Bag We supply a tonne' }); //page.locator("//button[contains(.,'Tonne Bag')]");
         //this.addQuantity = page.locator("//div[@class='flex items-center space-x-4']/button[2]");
@@ -151,8 +151,8 @@ export class OrderDeliveryDetailsPage {
         await this.page.waitForTimeout(3000);
         await this.addBtnPopup.click();
         await this.page.waitForTimeout(2000);
-        await this.permitAndDeliveryOption.click();
-        await this.permitConfirnBtn.click();
+        // await this.permitAndDeliveryOption.click();
+        // await this.permitConfirnBtn.click();
         await this.page.getByRole('button', { name: 'Pay £' }).click();
     }
 

@@ -1,0 +1,74 @@
+name: Playwright Tests + Allure Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      testGroup:
+        description: "Select which tests to run"
+        required: true
+        default: "smoke"
+        type: choice
+        options:
+          - smoke
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 📥 Get your code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 🟢 Node setup
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 📦 Install deps
+      - name: Install dependencies
+        run: npm ci
+
+      # 🌐 Install browsers
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      # 🧹 Clean old data
+      - name: Clean Allure files
+        run: npx rimraf reports/allure-results allure-report
+
+      # 📥 Get previous history (for trends)
+      - name: Load Allure history
+        run: |
+          git clone --depth 1 --branch gh-pages https://github.com/${{ github.repository }} gh-pages || true
+          if [ -d "gh-pages/history" ]; then
+            mkdir -p reports/allure-results/history
+            cp -r gh-pages/history/* reports/allure-results/history/
+          fi
+
+      # ▶️ Run tests based on dropdown
+      - name: Run selected tests
+        run: |
+          echo "Selected: ${{ github.event.inputs.testGroup }}"
+
+          if [ "${{ github.event.inputs.testGroup }}" = "1-7" ]; then
+            npx playwright test tests/smk.spec.js --grep "^[1-7]\\."
+
+          elif [ "${{ github.event.inputs.testGroup }}" = "1-50" ]; then
+            npx playwright test tests/smk.spec.js --grep "^(?:[1-9]|[1-4][0-9]|50)\\."
+
+          elif [ "${{ github.event.inputs.testGroup }}" = "smoke" ]; then
+            npx playwright test --grep "@smoke"
+          fi
+
+      # 📊 Generate Allure report
+      - name: Generate Allure Report
+        run: npx allure generate reports/allure-results --clean -o allure-report
+
+      # 🚀 Publish report
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report

@@ -18,7 +18,7 @@ export class OrderPage {
   constructor(page) {
 
     this.page = page;
-    
+
     this.closeBtnFromTermsPage = page.getByRole('button', { name: 'Close' });
     this.postcodeInput = page.getByRole('textbox', { name: 'Start Typing Your Delivery' });
     this.continueBtn = page.getByRole('button', { name: 'Continue' });
@@ -107,17 +107,19 @@ export class OrderPage {
     this.streetinputchangeaddressInput = page.getByPlaceholder('e.g. Main Street');
     this.housenumberchangeaddressInput = page.getByPlaceholder('e.g. 123');
     this.billingaddressAccordian = page.locator('//h3[contains(.,"Billing Address")]');
+    this.addressListBox = page.locator('.space-y-2.max-h-60');
 
     this.noskipMsg = page.locator("//p[contains(.,'No skips available')]");
     this.roadplacementNoticeMsg = page.locator("//h4[contains(.,'Road Placement Not Available')]");
     this.activeOrderPopupClose = page.locator('(//span[contains(.,"Active Order Detected")]/../../..//button)[1]');
     this.bookingupdatePopupClose = page.locator('(//h3[contains(.,"Booking Update Required")]/../../..//button)[1]');
     this.activeOrderNoThanksBtn = page.locator('//button[contains(.,"No Thanks")]');
+    this.selectAddressBtnFromProvidedPostcode = page.locator('.space-y-2.max-h-60 button');
   }
 
   //Postcode selection
   async enterPostcode(postcode) {
-   
+
     await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
     await this.page.waitForTimeout(2000);
@@ -250,9 +252,9 @@ export class OrderPage {
     // Select skip size
     await this.page.locator('.flex-1.min-w-0.p-4 h3').first().waitFor({ state: 'visible' });
     const skipsAvailable = await this.page.locator('.flex-1.min-w-0.p-4 h3').allInnerTexts();
-    console.log('All skip sizes: ', skipsAvailable);
+    //console.log('All skip sizes: ', skipsAvailable);
     const textToMatch = `${skipSize} Yard Skip`;
-    console.log('Text to match:', textToMatch);
+    // console.log('Text to match:', textToMatch);
     if (skipsAvailable.includes(textToMatch)) {
       await this.page.locator('.flex-1.min-w-0.p-4 h3').filter({ hasText: new RegExp(`^${textToMatch}$`) }).click();
       await this.continueBtn.click();
@@ -273,26 +275,21 @@ export class OrderPage {
 
     if (PlasterBoard === 'Yes') {
       // Select Disposal Method - Plasterboard
-      console.log('Disposal method to select: ', plasterBoardTypes);
-
-     
-      if (plasterBoardTypes==TestData.plasterBoardTypes[0])
-      {
+      //console.log('Disposal method to select: ', plasterBoardTypes);
+      if (plasterBoardTypes == TestData.plasterBoardTypes[0]) {
         await this.page.locator("//button[contains(.,'A few bits')]").click();
       }
 
 
-      if (plasterBoardTypes==TestData.plasterBoardTypes[1])
-      {
+      if (plasterBoardTypes == TestData.plasterBoardTypes[1]) {
         await this.page.locator("//button[contains(.,'A room')]").click();
       }
 
-      if (plasterBoardTypes==TestData.plasterBoardTypes[2])
-    {
+      if (plasterBoardTypes == TestData.plasterBoardTypes[2]) {
         await this.page.locator("//button[contains(.,'Lots of it')]").click();
         await this.page.waitForTimeout(1000);
         await this.page.locator("(//h4[contains(.,'What size do you need?')]/..//button)[1]").click();
-     }
+      }
 
       await this.page.waitForTimeout(2000);
       await this.page.getByRole('button', { name: 'Confirm & Continue' }).click();
@@ -473,6 +470,10 @@ export class OrderPage {
     await this.firstpostcodeOption.click();
 
     await this.page.waitForTimeout(2000);
+
+    if (this.addressListBox.isVisible()) {
+      await this.selectAddressBtnFromProvidedPostcode.first().click();
+    }
 
     //see if house and street are not auto filled then fill them
     if (await this.streetinputchangeaddressInput.inputValue() === '') {

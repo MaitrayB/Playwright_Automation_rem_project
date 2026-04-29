@@ -829,7 +829,7 @@ test.describe('Customer side test cases', () => {
     });
   });
 
-  test('7. Downgrading skip for logged-in user', async () => {
+  test('7. Downgrading skip for logged-in user @smoke', async () => {
     // let result;
     await test.step('Go to profile settings', async () => {
 
@@ -846,7 +846,7 @@ test.describe('Customer side test cases', () => {
     });
   });
 
-  test('6. Place order and add 2 Tonne bags', async () => {
+  test('6. Place order and add 2 Tonne bags @smoke', async () => {
 
     // ✅ Get random CSV row at runtime
     //const randomRow = getRandomRow(csvPath);
@@ -919,7 +919,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('5. Change billing address and place order', async () => {
+  test('5. Change billing address and place order @smoke', async () => {
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -988,7 +988,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('4. Place order and add road permit', async () => {
+  test('4. Place order and add road permit @smoke', async () => {
     try {
       let skipValues;
       console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
@@ -1065,7 +1065,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('3. Start order as guest and logs in with existing account', async () => {
+  test('3. Start order as guest and logs in with existing account @smoke', async () => {
     try {
       let skipValues;
       // ✅ Get random CSV row at runtime
@@ -1137,7 +1137,7 @@ test.describe('Customer side test cases', () => {
     }
   });
 
-  test('2. Place an order as Guest User', async () => {
+  test('2. Place an order as Guest User @smoke', async () => {
     let skipValues;
     // ✅ Get random CSV row at runtime
     //const randomRow = getRandomRow(csvPath);
@@ -1207,7 +1207,7 @@ test.describe('Customer side test cases', () => {
     }
   });
 
-  test('1. Place an order as Logged-in User', async () => {
+  test('1. Place an order as Logged-in User @smoke', async () => {
     let skipValues;
     try {
       // ✅ Get random CSV row at runtime

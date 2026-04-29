@@ -25,17 +25,17 @@ export class LoginPage {
     this.signInBtn = page.getByRole('button', { name: 'Sign in' });
     this.signOutBtn = page.getByRole('button', { name: 'Sign Out' });
     this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
+    this.popUPText = page.getByText('We noticed you already have a');
+    this.closeBtnFromIsSkipFullPopUp = page.getByRole('button').nth(1);
   }
 
   async goto(url) {
     await this.page.goto(url);
-    // await this.page.waitForTimeout(1000);
 
     await this.page.waitForTimeout(2000);
     if (await this.cookieAcceptBtn.isVisible()) {
       await this.cookieAcceptBtn.click();
     }
-
   }
 
   async login(email, password) {
@@ -55,6 +55,11 @@ export class LoginPage {
     await this.signInBtn.waitFor({ state: 'visible' });
     await this.signInBtn.click();
     await this.page.waitForTimeout(3000);
+
+    if (await this.popUPText.isVisible()) {
+      await this.closeBtnFromIsSkipFullPopUp.click();
+      //await this.page.getByRole('button', { name: 'No Thanks — Start a New Order' });
+    }
 
     // Handle "No thanks, start a new order" pop-up if it appears
     if (await this.page.getByRole('button', { name: 'No thanks, start a new order' }, { state: 'visible' }).isVisible()) {
