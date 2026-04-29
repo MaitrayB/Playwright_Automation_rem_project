@@ -1,5 +1,6 @@
 import { expect } from "allure-playwright";
 import { genericFunctions } from '../../utils/genericFunctions.js';
+import { TestData } from "../../Data/testData.js";
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -17,7 +18,7 @@ export class OrderPage {
   constructor(page) {
 
     this.page = page;
-    this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
+    
     this.closeBtnFromTermsPage = page.getByRole('button', { name: 'Close' });
     this.postcodeInput = page.getByRole('textbox', { name: 'Start Typing Your Delivery' });
     this.continueBtn = page.getByRole('button', { name: 'Continue' });
@@ -116,10 +117,7 @@ export class OrderPage {
 
   //Postcode selection
   async enterPostcode(postcode) {
-    await this.page.waitForTimeout(2000);
-    if (await this.cookieAcceptBtn.isVisible()) {
-      await this.cookieAcceptBtn.click();
-    }
+   
     await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
     await this.page.waitForTimeout(2000);
@@ -273,19 +271,29 @@ export class OrderPage {
     }
 
 
-    if (HeavyWaste === 'Yes' && PlasterBoard === 'Yes') {
+    if (PlasterBoard === 'Yes') {
       // Select Disposal Method - Plasterboard
       console.log('Disposal method to select: ', plasterBoardTypes);
 
-      // Locate the specific button inside the container that matches the Plasterboard text
-      const selectedMethodBtn = this.page.locator(`xpath=//button[contains(.,'${plasterBoardTypes}')]`);
+     
+      if (plasterBoardTypes==TestData.plasterBoardTypes[0])
+      {
+        await this.page.locator("//button[contains(.,'A few bits')]").click();
+      }
 
-      // Extract its text for logging to ensure we got the right one
-      const selectedMethodText = await selectedMethodBtn.textContent();
-      console.log('selectedMethod: ', selectedMethodText?.trim());
 
-      // Click the selected option
-      await selectedMethodBtn.click();
+      if (plasterBoardTypes==TestData.plasterBoardTypes[1])
+      {
+        await this.page.locator("//button[contains(.,'A room')]").click();
+      }
+
+      if (plasterBoardTypes==TestData.plasterBoardTypes[2])
+    {
+        await this.page.locator("//button[contains(.,'Lots of it')]").click();
+        await this.page.waitForTimeout(1000);
+        await this.page.locator("(//h4[contains(.,'What size do you need?')]/..//button)[1]").click();
+     }
+
       await this.page.waitForTimeout(2000);
       await this.page.getByRole('button', { name: 'Confirm & Continue' }).click();
     }

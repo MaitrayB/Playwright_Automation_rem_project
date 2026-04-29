@@ -24,11 +24,18 @@ export class LoginPage {
     this.passwordInput = page.getByRole('textbox', { name: 'Password' });
     this.signInBtn = page.getByRole('button', { name: 'Sign in' });
     this.signOutBtn = page.getByRole('button', { name: 'Sign Out' });
+    this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
   }
 
   async goto(url) {
     await this.page.goto(url);
     // await this.page.waitForTimeout(1000);
+
+    await this.page.waitForTimeout(2000);
+    if (await this.cookieAcceptBtn.isVisible()) {
+      await this.cookieAcceptBtn.click();
+    }
+
   }
 
   async login(email, password) {

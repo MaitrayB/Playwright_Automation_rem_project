@@ -1143,7 +1143,7 @@ test.describe('Customer side test cases', () => {
     //const randomRow = getRandomRow(csvPath);
     // console.log(`🧾 Running Guest flow for:  ${randomRow.Postcodes}, ${randomRow.WasteType}, Heavywaste -${randomRow.HeavyWaste}, Plasterboard -${randomRow.PlasterBoard}, Skipsize-${randomRow.SkipSize}, ${randomRow.Placement}`);
     try {
-      console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, ${TestData.Placement[1]}, Skipsize-${TestData.SkipSize[1]}, Plasterboard -${TestData.plasterBoardTypes[0]}`);
+      console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[1]}, ${TestData.Placement[1]}, Skipsize-${TestData.SkipSize[1]}, Plasterboard -${TestData.plasterBoardTypes[2]}`);
 
       await loginPage.goto(TestData.baseURL);
 
@@ -1156,7 +1156,7 @@ test.describe('Customer side test cases', () => {
       });
 
       await test.step('Continue waste type', async () => {
-        skipValues = await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+        skipValues = await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[1]);
       });
 
       await test.step('Select item from the list', async () => {
@@ -1170,7 +1170,7 @@ test.describe('Customer side test cases', () => {
       await test.step('Select skip & property', async () => {
         //await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose, "No");
         //skipSize, Skiptarp, Plasterboard
-        await orderPage.selectSkip(TestData.SkipSize[1], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
+        await orderPage.selectSkip(TestData.SkipSize[1], "No", TestData.plasterBoardTypes[2], skipValues.HeavyWaste, skipValues.PlasterBoard);
       });
 
       await test.step('Choose date', async () => {
