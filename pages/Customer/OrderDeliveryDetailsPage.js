@@ -248,12 +248,7 @@ export class OrderDeliveryDetailsPage {
             await this.nextDeliveryChargeBtn.click();
             await this.page.waitForTimeout(2000);
             await this.agreeCheckbox.click();
-            //await this.completePaymentBtn.waitFor({ state: 'visible' });
             await this.completePaymentBtn.click();
-            // await this.page.waitForTimeout(3000);
-            // await this.payBtn.waitFor({ state: 'visible' });
-            // await this.payBtn.click();
-            // await this.page.waitForTimeout(6000);
             await expect(this.dateexendedLlb).toBeVisible();
         }
     }

@@ -431,7 +431,16 @@ export class OrderPage {
   }
 
   async chooseStaticDate(Day) {
+
+
+    await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
+    
     this.dateBtn = this.page.getByRole('button', { name: Day });
+    if (this.dateBtn.isDisabled()) {
+      Day = parseInt(Day) + parseInt(2);
+      this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
+      await this.dateBtn.waitFor({ state: 'visible' });
+    }
     await this.page.waitForTimeout(3000);
 
     await this.dateBtn.click();
