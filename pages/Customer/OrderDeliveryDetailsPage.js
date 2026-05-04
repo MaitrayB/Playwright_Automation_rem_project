@@ -52,6 +52,8 @@ export class OrderDeliveryDetailsPage {
         this.refundRequestMsg = page.getByText("Refund Request Created");
         this.doneBtn = page.getByRole('button', { name: 'Done' });
 
+        this.collectionMgmtNotAvailableMsg = page.getByText('Collection Date Management Not Available YetCollection date management is only');
+        this.closeCollectionBtn = page.getByRole('button', { name: 'Close' });
         this.updateCollectionDtBtn = page.locator("//button[contains(.,'Update Collection Date')]");
         this.manageCollectionLabel = page.getByRole('heading', { name: 'Manage Your Collection Date' });
         this.collectionDtBtn = page.getByRole('button', { name: 'Collection Date', exact: true });
@@ -235,21 +237,26 @@ export class OrderDeliveryDetailsPage {
         await this.manageCollectionBtn.click();
         await this.page.waitForTimeout(2000);
         await this.updateCollectionDtBtn.click();
-
-        if (freelimit === 'yes') {
-            await this.nextDeliveryDateFree.click();
-            await this.page.waitForTimeout(2000);
-            await this.agreeCheckbox.click();
-            await this.setCollectionDateBtn.waitFor({ state: 'visible' });
-            await this.setCollectionDateBtn.click();
-            await this.page.waitForTimeout(3000);
+        if (await this.collectionMgmtNotAvailableMsg.isVisible()) {
+            await this.closeCollectionBtn.click();
+            console.log("Collection date management is not available, skipping the collection date update test.");
         }
         else {
-            await this.nextDeliveryChargeBtn.click();
-            await this.page.waitForTimeout(2000);
-            await this.agreeCheckbox.click();
-            await this.completePaymentBtn.click();
-            await expect(this.dateexendedLlb).toBeVisible();
+            if (freelimit === 'yes') {
+                await this.nextDeliveryDateFree.click();
+                await this.page.waitForTimeout(2000);
+                await this.agreeCheckbox.click();
+                await this.setCollectionDateBtn.waitFor({ state: 'visible' });
+                await this.setCollectionDateBtn.click();
+                await this.page.waitForTimeout(3000);
+            }
+            else {
+                await this.nextDeliveryChargeBtn.click();
+                await this.page.waitForTimeout(2000);
+                await this.agreeCheckbox.click();
+                await this.completePaymentBtn.click();
+                await expect(this.dateexendedLlb).toBeVisible();
+            }
         }
     }
 

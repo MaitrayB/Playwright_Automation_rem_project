@@ -675,10 +675,10 @@ test.describe('Confirm Delivery', () => {
   });
 });
 
-test.describe('Request collection outside 3 days free limit and pay for difference', () => {
+test.describe('Request collection outside specified days free limit and pay for difference', () => {
   test.setTimeout(180000); // 3 minutes
 
-  test('Request collection outside 3 days free limit and pay for difference', async () => {
+  test('Request collection outside specified days free limit and pay for difference', async () => {
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -730,7 +730,7 @@ test.describe('Request collection outside 3 days free limit and pay for differen
   });
 });
 
-test.describe('Request collection within 3 days free limit', () => {
+test.describe('Request collection within specified days free limit', () => {
   test.setTimeout(180000); // 3 minutes
 
   test('Request collection within 3 days free limit', async () => {

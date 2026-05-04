@@ -477,7 +477,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('15. Confirm skip collection', async () => {
+  test('Confirm skip collection', async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -496,12 +496,16 @@ test.describe('Customer side test cases', () => {
       await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
     });
 
-    await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
     });
 
     await test.step('Permit check', async () => {
       await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Choose date', async () => {
@@ -522,14 +526,13 @@ test.describe('Customer side test cases', () => {
       await dashboardPage.navigateToViewOrderDetails();
     });
 
-    await test.step(`Confirm and verify today's delivery`, async () => {
+    await test.step('Confirm skip collection', async () => {
       await orderDeliveryDetailsPage.confirmCollection();
-
     });
 
   });
 
-  test(`14. Missed Delivery for today's date`, async () => {
+  test(`Missed Delivery for today's date`, async () => {
     let dayNumber = new Date().getDate();
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -548,12 +551,16 @@ test.describe('Customer side test cases', () => {
       await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
     });
 
-    await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
     });
 
     await test.step('Permit check', async () => {
       await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Choose date', async () => {
@@ -582,7 +589,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test(`13. Confirm Delivery for today's date`, async () => {
+  test(`Confirm Delivery for today's date`, async () => {
 
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -639,7 +646,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('12. Request collection outside 3 days free limit and pay for difference', async () => {
+  test('Request collection outside 3 days free limit and pay for difference', async () => {
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -658,12 +665,16 @@ test.describe('Customer side test cases', () => {
       await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
     });
 
-    await test.step('Select skip & property', async () => {
-      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
     });
 
     await test.step('Permit check', async () => {
       await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
     });
 
     await test.step('Choose date', async () => {
@@ -690,7 +701,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('11. Request collection within 3 days free limit', async () => {
+  test('Request collection within 3 days free limit', async () => {
 
     console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[2]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -745,7 +756,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('10. Edit User Profile', async () => {
+  test('Edit User Profile', async () => {
     await test.step('Go to profile settings', async () => {
       await loginPage.goto(TestData.baseURL);
       await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
@@ -758,7 +769,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('9. Place an order for Wrong Skip Guarantee and login with existing user', async () => {
+  test('Place an order for Wrong Skip Guarantee and login with existing user', async () => {
     let skipValues;
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -821,7 +832,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('8. Upgrading skip for logged-in user', async () => {
+  test('Upgrading skip for logged-in user', async () => {
     //let result;
     await test.step('Go to profile settings', async () => {
       await loginPage.goto(TestData.baseURL);
@@ -837,7 +848,7 @@ test.describe('Customer side test cases', () => {
     });
   });
 
-  test('7. Downgrading skip for logged-in user @smoke', async () => {
+  test('Downgrading skip for logged-in user @smoke', async () => {
     // let result;
     await test.step('Go to profile settings', async () => {
 
@@ -854,7 +865,7 @@ test.describe('Customer side test cases', () => {
     });
   });
 
-  test('6. Place order and add 2 Tonne bags @smoke', async () => {
+  test('Place order and add 2 Tonne bags @smoke', async () => {
 
     // ✅ Get random CSV row at runtime
     //const randomRow = getRandomRow(csvPath);
@@ -927,7 +938,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('5. Change billing address and place order @smoke', async () => {
+  test('Change billing address and place order @smoke', async () => {
 
     // ✅ Get random CSV row at runtime
     const randomRow = getRandomRow(csvPath);
@@ -996,7 +1007,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('4. Place order and add road permit @smoke', async () => {
+  test('Place order and add road permit @smoke', async () => {
     try {
       let skipValues;
       console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
@@ -1073,7 +1084,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('3. Start order as guest and logs in with existing account @smoke', async () => {
+  test('Start order as guest and logs in with existing account @smoke', async () => {
     try {
       let skipValues;
       // ✅ Get random CSV row at runtime
@@ -1145,7 +1156,7 @@ test.describe('Customer side test cases', () => {
     }
   });
 
-  test('2. Place an order as Guest User @smoke', async () => {
+  test('Place an order as Guest User @smoke', async () => {
     let skipValues;
     // ✅ Get random CSV row at runtime
     //const randomRow = getRandomRow(csvPath);
@@ -1215,7 +1226,7 @@ test.describe('Customer side test cases', () => {
     }
   });
 
-  test('1. Place an order as Logged-in User @smoke', async () => {
+  test('Place an order as Logged-in User @smoke', async () => {
     let skipValues;
     try {
       // ✅ Get random CSV row at runtime
