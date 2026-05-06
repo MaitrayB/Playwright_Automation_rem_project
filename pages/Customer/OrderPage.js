@@ -84,12 +84,13 @@ export class OrderPage {
     this.cvc = stripeFrame.locator('xpath=//input[@id="payment-cvcInput"]');
 
     // Site contact
-    this.siteContactLblOnPymtForm = page.locator('//h3[contains(., "Site Contact")]');
-    this.textBelowSiteContactLbl = page.getByText('Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?');
-    this.yesSiteContactBtn = page.getByRole('button', { name: 'Yes' });
+    // this.siteContactLblOnPymtForm = page.locator('//h3[contains(., "Site Contact")]');
+    this.siteContactLblOnPymtForm = page.getByRole('button', { name: 'Site Contact (optional)' })
+    this.textBelowSiteContactLbl = page.getByText('Do you want to add site');
+    this.yesBtnFrmSiteContactCard = page.getByRole('button', { name: 'Yes' });
     this.defaultSiteContactInDropDown = page.locator("//div[@class='relative z-50']/button");
     this.siteContactDropdown = page.locator("(//p[contains(.,'Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?')]/../..//button)[3]");
-    this.addOtherSiteContactOption = page.getByRole('button', { name: 'Add other site contact' }).nth(1);
+    this.addOtherSiteContactOption = page.getByRole('button', { name: 'Add other site contact' });
     this.addNameInput = page.getByPlaceholder('Enter site contact name');
     this.addPhoneInput = page.getByPlaceholder('Enter site contact phone');
     this.addEmailInput = page.getByPlaceholder('Enter site contact email');
@@ -254,7 +255,7 @@ export class OrderPage {
     const skipsAvailable = await this.page.locator('.flex-1.min-w-0.p-4 h3').allInnerTexts();
     //console.log('All skip sizes: ', skipsAvailable);
     const textToMatch = `${skipSize} Yard Skip`;
-    // console.log('Text to match:', textToMatch);
+    console.log('Text to match:', textToMatch);
     if (skipsAvailable.includes(textToMatch)) {
       await this.page.locator('.flex-1.min-w-0.p-4 h3').filter({ hasText: new RegExp(`^${textToMatch}$`) }).click();
       await this.continueBtn.click();
@@ -434,7 +435,7 @@ export class OrderPage {
 
 
     await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
-    
+
     this.dateBtn = this.page.getByRole('button', { name: Day });
     if (this.dateBtn.isDisabled()) {
       Day = parseInt(Day) + parseInt(2);
@@ -497,9 +498,11 @@ export class OrderPage {
   }
 
   async siteContactOnPymtPage() {
+    await expect(this.siteContactLblOnPymtForm).toBeVisible();
     this.siteContactLblOnPymtForm.scrollIntoViewIfNeeded();
+    await this.siteContactLblOnPymtForm.click();
     await expect(this.textBelowSiteContactLbl).toBeVisible();
-    this.yesSiteContactBtn.click();
+    await this.yesBtnFrmSiteContactCard.click();
   }
 
   //This is parameter destructuring - completePayment({ contactAction } = {})
@@ -546,7 +549,15 @@ export class OrderPage {
       const text = await this.defaultSiteContactInDropDown.textContent();
       console.log(text);
       if (text === 'Add other site contact') {
-        return { success: true, reason: "Existing site contact is not available" }
+        console.log('No default contact, adding new contact');
+        await this.openSiteContactDropdownList.click();
+        await this.addOtherSiteContactOption.nth(1).click();
+        await this.addNameInput.fill(contact.name);
+        await this.addPhoneInput.fill(contact.phone);
+        await this.addEmailInput.fill(contact.email);
+        cname = contact.name;
+        phone = contact.phone;
+        email = contact.email;
       }
       else {
         [cname, phone] = text.split(/\s*•\s*/).map(v => v.trim());
@@ -563,7 +574,7 @@ export class OrderPage {
     await this.completePaymentBtn.click();
 
     return {
-      success: false, data: { cname, phone, email }
+      data: { cname, phone, email }
     };
   }
 }
