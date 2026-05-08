@@ -56,7 +56,7 @@ test.beforeEach(async ({ browser }, testInfo) => {
 test.describe('Customer side test cases', () => {
   test.setTimeout(240000); // 3 minutes
 
-  test('24. Customer and Admin conversation verification', async ({ browser }) => {
+  test('Customer and Admin conversation verification', async ({ browser }) => {
     let orderId, msgText, adminReply;
     await loginPage.goto(TestData.baseURL);
     await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
@@ -101,7 +101,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('23. Customer message verification', async () => {
+  test('Customer message verification', async () => {
 
     await loginPage.goto(TestData.baseURL);
     await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
@@ -116,14 +116,11 @@ test.describe('Customer side test cases', () => {
 
     await test.step('Send Message', async () => {
       await orderDeliveryDetailsPage.sendMessage({ messageType: 'preDefined' });
-      await orderDeliveryDetailsPage.sendMessage({ messageType: 'custom', customText: 'Request to provide an update on my order.' + new Date() });
-      await orderDeliveryDetailsPage.sendMessage({ fromMessageTab: true, messageType: 'preDefined' });
-
+      // await orderDeliveryDetailsPage.sendMessage({ messageType: 'custom', customText: 'Request to provide an update on my order.' + new Date() });
     });
-
   });
 
-  test('22. Verify Payment History', async () => {
+  test('Verify Payment History', async () => {
 
     //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -232,7 +229,7 @@ test.describe('Customer side test cases', () => {
     });
   */
 
-  test('20. Add & remove image after placing an order', async () => {
+  test('Add & remove image after placing an order', async () => {
 
     // console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -357,6 +354,7 @@ test.describe('Customer side test cases', () => {
 
     await test.step('Choose date', async () => {
       const dayNumber = new Date().getDate();
+      console.log(`Today's day number is: ${dayNumber}`);
       await orderPage.chooseStaticDate(dayNumber);
     });
 

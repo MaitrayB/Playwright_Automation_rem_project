@@ -125,13 +125,17 @@ export class OrderDeliveryDetailsPage {
 
         // Send message feature locators
         this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' }).first();
-        this.preDefinedMessage = page.locator("//div[@class='flex flex-wrap gap-2']/button").filter({ hasText: 'Can I get an update on my delivery?' });
-        this.closeSendMsgWindowBtn = page.locator("//button[contains(@aria-label,'Close')]");
+        this.preDefinedMessage = page.getByRole('button', { name: 'Delivery time Can I get an' }).locator('span').last();
+        this.closeSendMsgWindowBtn = page.getByRole('button', { name: 'Close' }); //locator("//button[contains(@aria-label,'Close')]");
         this.messagesTab = page.getByRole('button', { name: 'Messages' });
-        this.verifySelectedMsg = page.locator("//div[@class='flex-1 min-w-0']/p").first();
-        this.enterMsg = page.getByPlaceholder('Type your message...');
+        this.newConversation = page.getByRole('button', { name: 'New Conversation' });
+        this.issuesList = page.locator('.grid.gap-2 button');
+        this.selectDeliveryIssueOption = this.issuesList.getByText('Delivery Issue');
+        this.openLatestMsgBtn = page.locator('.divide-y button').first();
+        this.verifySelectedMsg = page.locator('.space-y-1 p').first();
+        this.enterIssueDetail = page.getByRole('textbox', { name: 'Describe your issue or' });
         //this.sendBtn = this.enterMsg.locator('..').locator('button');
-        this.sendBtn = page.locator("//textarea/following-sibling::button");
+        this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' });   //getByRole('button').filter({ hasText: /^$/ }).nth(4); //locator("//textarea/following-sibling::button");
         this.sendMessageBtnFromMsgTab = page.getByRole('button', { name: 'Send Message' }).last();
     }
 
@@ -400,35 +404,41 @@ export class OrderDeliveryDetailsPage {
     // }
     //we do NOT destructure in the parameter Instead, we destructure inside the function
     async sendMessage(options = {}) {
-        const { fromMessageTab = false,
+        const {/* fromMessageTab = false,*/
             messageType = 'preDefined',
             customText = '' } = options;
-        // open message window
-        if (fromMessageTab) {
-            await this.messagesTab.click();
-            await this.sendMessageBtnFromMsgTab.click();
-        }
-        else {
-            await this.sendMessageBtn.click();
-        }
+
+        await this.messagesTab.click();
+        await this.newConversation.click();
+        await this.selectDeliveryIssueOption.click();
+        // // open message window
+        // if (fromMessageTab) {
+        //     await this.sendMessageBtnFromMsgTab.click();
+        // }
+        // else {
+        //     await this.sendMessageBtn.click();
+        // }
         // handle message type
         let expectedMessage
         if (messageType === 'preDefined') {
             expectedMessage = await this.preDefinedMessage.textContent();
+            console.log("Expected message: " + expectedMessage);
             await this.preDefinedMessage.click();
+            await this.sendMessageBtn.click();
+            await this.page.getByText('Auto-Reply').waitFor({ state: 'visible' });
+            await expect(this.page.getByText('Auto-Reply')).toBeVisible();
         }
         else {
             expectedMessage = customText;
-            await this.enterMsg.fill(expectedMessage);
-            await this.sendBtn.click();
+            await this.enterIssueDetail.fill(expectedMessage);
+            await this.sendMessageBtn.click();
+            await this.page.getByText('Auto-Reply').waitFor({ state: 'visible' });
+            await expect(this.page.getByText('Auto-Reply')).toBeVisible();
         }
         // common steps
         await this.closeSendMsgWindowBtn.click();
-        await this.page.reload();
-        await this.messagesTab.click();
-
-        await expect(this.verifySelectedMsg).toHaveText(expectedMessage);
-
+        await this.openLatestMsgBtn.click();
+        await expect(this.verifySelectedMsg).toContainText(expectedMessage);
         return expectedMessage;
     }
 

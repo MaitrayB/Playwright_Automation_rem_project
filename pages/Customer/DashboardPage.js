@@ -23,7 +23,7 @@ export class DashboardPage {
     this.viewOrderDetailsBtn = page.getByRole('button', { name: 'View details' }).first();
     this.orderNumber = page.locator("//span[contains(., '#')]");
     this.orderId = '';
-    this.existingOrderNumber = page.getByText('Order #');
+    this.existingOrderNumber = page.getByRole('heading', { name: 'Order #' });
     this.commercialAccountPopUp = page.locator('div').filter({ hasText: 'Do you need a commercial' }).nth(5);
   }
 
@@ -76,7 +76,9 @@ export class DashboardPage {
   async navigateToViewOrderDetails() {
     await this.viewOrderDetailsBtn.waitFor({ state: 'visible' });
     await this.viewOrderDetailsBtn.click();
-    const orderId = (await this.existingOrderNumber.innerText()).split('#')[1];
+    const text = await this.existingOrderNumber.textContent();
+    const orderId = await text.split('#')[1];
+    console.log(`Extracted Order ID: ${orderId}`);
     return orderId;
   }
 }

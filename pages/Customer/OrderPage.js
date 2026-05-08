@@ -406,7 +406,7 @@ export class OrderPage {
     }
     else {
       await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
-      await this.dateNextMonth.click();
+      //await this.dateNextMonth.click();
       await this.page.waitForTimeout(1000);
       this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
 
@@ -432,13 +432,13 @@ export class OrderPage {
   }
 
   async chooseStaticDate(Day) {
-
-
     await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
+    this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
+    console.log('Selecting date: ', await this.dateBtn.innerText());
 
-    this.dateBtn = this.page.getByRole('button', { name: Day });
-    if (this.dateBtn.isDisabled()) {
+    if (await this.dateBtn.isDisabled()) {
       Day = parseInt(Day) + parseInt(2);
+      console.log('Date is disabled, selecting date: ', Day);
       this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
       await this.dateBtn.waitFor({ state: 'visible' });
     }

@@ -57,6 +57,7 @@ export class LoginPage {
     await this.page.waitForTimeout(3000);
 
     if (await this.popUPText.isVisible()) {
+      await this.closeBtnFromIsSkipFullPopUp.waitFor({ state: 'visible' });
       await this.closeBtnFromIsSkipFullPopUp.click();
       //await this.page.getByRole('button', { name: 'No Thanks — Start a New Order' });
     }
