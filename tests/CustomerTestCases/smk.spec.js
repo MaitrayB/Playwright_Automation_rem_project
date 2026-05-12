@@ -56,6 +56,25 @@ test.beforeEach(async ({ browser }, testInfo) => {
 test.describe('Customer side test cases', () => {
   test.setTimeout(240000); // 3 minutes
 
+  test('Verify search existing customer message functionality', async () => {
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+
+    await test.step('Go to profile settings', async () => {
+      await profilesettingpage.goToProfileSettingsPage()
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step('Verify existing issue is correctly displayed', async () => {
+      await orderDeliveryDetailsPage.verifySearchMessagesFunctionality();
+    });
+
+  });
+
   test('Customer and Admin conversation verification', async ({ browser }) => {
     let orderId, msgText, adminReply;
     await loginPage.goto(TestData.baseURL);
@@ -115,8 +134,8 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Send Message', async () => {
-      await orderDeliveryDetailsPage.sendMessage({ messageType: 'preDefined' });
-      // await orderDeliveryDetailsPage.sendMessage({ messageType: 'custom', customText: 'Request to provide an update on my order.' + new Date() });
+      // await orderDeliveryDetailsPage.sendMessage({ messageType: 'preDefined' });
+      await orderDeliveryDetailsPage.sendMessage({ messageType: 'custom', customText: 'Request to provide an update on my order.' + new Date() });
     });
   });
 

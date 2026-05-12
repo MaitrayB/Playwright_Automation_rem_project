@@ -46,17 +46,17 @@ export class genericFunctions {
         await this.inboxBtn.click();
         await this.page.waitForTimeout(2000);
 
-        while(await this.inputEmail.isVisible() && attempts < maxAttempts) {
-        await this.page.goto(this.page.url(), { waitUntil: 'domcontentloaded' });
-        await this.page.goto("https://yopmail.com", { timeout: 50000 });
-        await this.page.waitForTimeout(2000);
-        await this.inputEmail.click();
-        await this.inputEmail.fill(email);
-        await this.inboxBtn.click();
-        await this.page.waitForTimeout(2000);
-        await this.inboxBtn.click();
-        await this.page.waitForTimeout(2000);
-        attempts++;
+        while (await this.inputEmail.isVisible() && attempts < maxAttempts) {
+            await this.page.goto(this.page.url(), { waitUntil: 'domcontentloaded' });
+            await this.page.goto("https://yopmail.com", { timeout: 50000 });
+            await this.page.waitForTimeout(2000);
+            await this.inputEmail.click();
+            await this.inputEmail.fill(email);
+            await this.inboxBtn.click();
+            await this.page.waitForTimeout(2000);
+            await this.inboxBtn.click();
+            await this.page.waitForTimeout(2000);
+            attempts++;
         }
     }
 
@@ -122,5 +122,15 @@ export class genericFunctions {
         const localNumber = faker.string.numeric(6);
         const number = `${prefix}${areaCode} ${localNumber}`;
         return number;
+    }
+
+    async clickRandomItem(locator) {
+        const count = await locator.count();
+        if (count === 0) {
+            throw new Error('No items found');
+        }
+        const randomIndex = Math.floor(Math.random() * count);
+        await locator.nth(randomIndex).click();
+        return randomIndex;
     }
 }

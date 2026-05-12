@@ -1,4 +1,5 @@
 import { expect } from "allure-playwright";
+import { genericFunctions } from "../../utils/genericFunctions.js";
 // import { OrderPage } from '../pages/OrderPage.js';
 /*
 Below 2 TYPEDEF lines you need for:
@@ -125,12 +126,12 @@ export class OrderDeliveryDetailsPage {
 
         // Send message feature locators
         this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' }).first();
-        this.preDefinedMessage = page.getByRole('button', { name: 'Delivery time Can I get an' }).locator('span').last();
+        this.preDefinedMessages = page.locator('.justify-end .mb-3 button');
         this.closeSendMsgWindowBtn = page.getByRole('button', { name: 'Close' }); //locator("//button[contains(@aria-label,'Close')]");
         this.messagesTab = page.getByRole('button', { name: 'Messages' });
+        this.searchMessagesTextBox = page.getByRole('textbox', { name: 'Search messages...' });
         this.newConversation = page.getByRole('button', { name: 'New Conversation' });
         this.issuesList = page.locator('.grid.gap-2 button');
-        this.selectDeliveryIssueOption = this.issuesList.getByText('Delivery Issue');
         this.openLatestMsgBtn = page.locator('.divide-y button').first();
         this.verifySelectedMsg = page.locator('.space-y-1 p').first();
         this.enterIssueDetail = page.getByRole('textbox', { name: 'Describe your issue or' });
@@ -393,6 +394,19 @@ export class OrderDeliveryDetailsPage {
         await expect(this.verifyRefundRequestStatus).toHaveText("PENDING");
     }
 
+    async verifySearchMessagesFunctionality() {
+        await this.messagesTab.click();
+        await this.page.locator('.divide-y button div.justify-between').first().waitFor({ state: 'visible' });
+        const firstIssueName = await this.page.locator('.divide-y button div.justify-between').first();
+        console.log("First issue name: " + await firstIssueName.textContent());
+
+        await this.searchMessagesTextBox.fill(await firstIssueName.textContent());
+        await this.page.locator('.divide-y button').first().waitFor({ state: 'visible' });
+        const searchedIssueName = await this.page.locator('.divide-y button div.justify-between').first();
+        console.log("Searched issue name: " + await searchedIssueName.textContent());
+        expect(await searchedIssueName.textContent()).toBe(await firstIssueName.textContent());
+    }
+
     //Send Message
     //Below is parameter destructure
     //     async sendMessage({
@@ -404,13 +418,21 @@ export class OrderDeliveryDetailsPage {
     // }
     //we do NOT destructure in the parameter Instead, we destructure inside the function
     async sendMessage(options = {}) {
+        const genericFunc = new genericFunctions(this.page);
+
         const {/* fromMessageTab = false,*/
             messageType = 'preDefined',
             customText = '' } = options;
 
         await this.messagesTab.click();
         await this.newConversation.click();
-        await this.selectDeliveryIssueOption.click();
+        await this.issuesList.first().waitFor({ state: 'visible' });
+
+        // Click a random issue from the list to open the message window
+        const issuesList = this.issuesList;
+       /* const index  = */ await genericFunc.clickRandomItem(issuesList);
+        // console.log(`Clicked item index: ${index}`);
+
         // // open message window
         // if (fromMessageTab) {
         //     await this.sendMessageBtnFromMsgTab.click();
@@ -420,10 +442,11 @@ export class OrderDeliveryDetailsPage {
         // }
         // handle message type
         let expectedMessage
+        const selectedPreDefinedMessage = this.preDefinedMessages.first().locator('span').last();
         if (messageType === 'preDefined') {
-            expectedMessage = await this.preDefinedMessage.textContent();
-            console.log("Expected message: " + expectedMessage);
-            await this.preDefinedMessage.click();
+            expectedMessage = await selectedPreDefinedMessage.textContent();
+            // console.log("Expected message: " + expectedMessage);
+            await selectedPreDefinedMessage.click();
             await this.sendMessageBtn.click();
             await this.page.getByText('Auto-Reply').waitFor({ state: 'visible' });
             await expect(this.page.getByText('Auto-Reply')).toBeVisible();
