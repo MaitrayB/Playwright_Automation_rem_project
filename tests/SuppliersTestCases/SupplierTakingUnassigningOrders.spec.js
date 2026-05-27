@@ -18,8 +18,9 @@ import { MyOrderDetailsPage } from '../../pages/Suppliers/MyOrderDetailsPage.js'
 
 
 test.describe('1. Requirements to Take Orders', () => {
-    test('Scenario 1: Requirements Check Display when supplier is not verified', async ({ browser }) => {
+    test('Scenario 1: Requirements Check Display when supplier is not verified', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -53,8 +54,9 @@ test.describe('1. Requirements to Take Orders', () => {
 });
 
 test.describe('2. Viewing Available Orders', () => {
-    test('Scenario 2.1 Available Orders Tab', async ({ browser }) => {
+    test('Scenario 2.1 Available Orders Tab', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -108,8 +110,9 @@ test.describe('2. Viewing Available Orders', () => {
         await page.close();
     });
 
-    test('Scenario 2.2 Order Display States', async ({ browser }) => {
+    test('Scenario 2.2 Order Display States', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -139,8 +142,9 @@ test.describe('2. Viewing Available Orders', () => {
 });
 
 test.describe('3. Taking Orders', () => {
-    test('3.1 Take Order Button', async ({ browser }) => {
+    test('3.1 Take Order Button', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -172,8 +176,9 @@ test.describe('3. Taking Orders', () => {
         await page.close();
     });
 
-    test('3.2 Take Order Sheet - Display', async ({ browser }) => {
+    test('3.2 Take Order Sheet - Display', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -277,8 +282,9 @@ test.describe('3. Taking Orders', () => {
         await page.close();
     });
 
-    test('3.3 Take Order Sheet - Requirements Check', async ({ browser }) => {
+    test('3.3 Take Order Sheet - Requirements Check', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -418,8 +424,9 @@ test.describe('3. Taking Orders', () => {
         await page.close();
     });
 
-    test('3.4 Take Order Sheet - Terms and Conditions', async ({ browser }) => {
+    test('3.4 Take Order Sheet - Terms and Conditions', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -491,9 +498,10 @@ test.describe('3. Taking Orders', () => {
         await page.close();
     });
 
-    test('3.5 Take Order Sheet - Order Summary Accuracy', async ({ browser }) => {
+    test('3.5 Take Order Sheet - Order Summary Accuracy', async ({ browser }, testInfo) => {
         let orderId;
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -555,8 +563,9 @@ test.describe('3. Taking Orders', () => {
 });
 
 test.describe('4. Viewing My Orders', () => {
-    test('4.1 My Orders Tab', async ({ browser }) => {
+    test('4.1 My Orders Tab', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -631,9 +640,10 @@ test.describe('4. Viewing My Orders', () => {
 
 test.describe('5. Order Details Page - Taking Orders', () => {
     
-    test('5.1 Take Order Button on Details Page', async ({ browser }) => {
+    test('5.1 Take Order Button on Details Page', async ({ browser }, testInfo) => {
         let orderId;
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -692,8 +702,9 @@ test.describe('5. Order Details Page - Taking Orders', () => {
     });
     
     
-    test('5.2 Order Details After Taking', async ({ browser }) => {
+    test('5.2 Order Details After Taking', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -747,8 +758,9 @@ test.describe('5. Order Details Page - Taking Orders', () => {
 });
 
 test.describe('6. Unassigning from Orders', () => {
-    test('6.1 Unassign Button Access', async ({ browser }) => {
+    test('6.1 Unassign Button Access', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -796,8 +808,9 @@ test.describe('6. Unassigning from Orders', () => {
         });
     });
 
-    test('6.2 Unassign Modal - Step 1: Reason Selection', async ({ browser }) => {
+    test('6.2 Unassign Modal - Step 1: Reason Selection', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -872,8 +885,9 @@ test.describe('6. Unassigning from Orders', () => {
         });
     });
 
-    test('6.3 Unassign Modal - Step 2: Confirmation and unassignment submission', async ({ browser }) => {
+    test('6.3 Unassign Modal - Step 2: Confirmation and unassignment submission', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -955,8 +969,9 @@ test.describe('6. Unassigning from Orders', () => {
 });
 
 test.describe('7. Late Unassign Detection', () => {
-    test('7. Late Unassign Detection', async ({ browser }) => {
+    test('7. Late Unassign Detection', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -1029,9 +1044,10 @@ test.describe('7. Late Unassign Detection', () => {
 });
 
 test.describe('8. Order Status Update', () => {
-    test('8.1 Order Status After Taking', async ({ browser }) => {
+    test('8.1 Order Status After Taking', async ({ browser }, testInfo) => {
         let orderId;
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword

@@ -29,7 +29,9 @@ let page, context;
 // BEFORE EACH TEST 
 
 test.beforeEach(async ({ browser }, testInfo) => {
+  const projectUse = testInfo.project.use;
   context = await browser.newContext({
+    ...projectUse,
     httpCredentials: {
       username: TestData.authCredentials.authUserName,
       password: TestData.authCredentials.authPassword
@@ -55,6 +57,36 @@ test.beforeEach(async ({ browser }, testInfo) => {
 
 test.describe('Customer side test cases', () => {
   test.setTimeout(240000); // 3 minutes
+
+  test('1.1 - Postcode Search', async () => {
+
+    await test.step('AC-1.1.1: Verify postcode search field is visible on booking page', async () => {
+      await loginPage.goto(TestData.baseURL);
+      await orderPage.verifyPostcodeSearchFieldVisible();
+    });
+
+    await test.step('AC-1.1.2: Verify address suggestions appear and can be selected', async () => {
+      await orderPage.typePostcodeAndVerifySuggestions(TestData.postcodes[0]);
+    });
+
+    await test.step('AC-1.1.3: Verify address fields are auto-populated after selection', async () => {
+      await orderPage.verifyAddressFieldsAutoPopulated();
+    });
+
+    await test.step('AC-1.1.4: Verify manual address entry when no results found', async () => {
+      await loginPage.goto(TestData.baseURL);
+      await orderPage.verifyNoResultsAndManualEntry(
+        TestData.noResultPostcode,
+        TestData.manualAddress
+      );
+    });
+
+    await test.step('AC-1.1.5: Verify customer cannot proceed without valid postcode/address', async () => {
+      await loginPage.goto(TestData.baseURL);
+      await orderPage.verifyCannotProceedWithoutAddress();
+    });
+
+  });
 
   test('Verify search existing customer message functionality', async () => {
 
@@ -95,7 +127,9 @@ test.describe('Customer side test cases', () => {
 
     await test.step('Admin replies to customer', async () => {
       console.log('Test status before admin step:', test.info().status);
+      const projectUse = test.info().project.use;
       const agentContext = await browser.newContext({
+        ...projectUse,
         httpCredentials: {
           username: TestData.authCredentials.authUserName,
           password: TestData.authCredentials.authPassword

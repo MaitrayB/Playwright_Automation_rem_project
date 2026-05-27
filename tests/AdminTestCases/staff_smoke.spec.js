@@ -10,8 +10,10 @@ import { TestData } from '../../Data/testData.js';
 
 let page, context;
 
-test.beforeEach(async ({ browser }) => {
+test.beforeEach(async ({ browser }, testInfo) => {
+    const projectUse = testInfo.project.use;
     context = await browser.newContext({
+        ...projectUse,
         httpCredentials: {
             username: TestData.authCredentials.authUserName,
             password: TestData.authCredentials.authPassword

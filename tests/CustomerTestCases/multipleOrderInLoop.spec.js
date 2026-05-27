@@ -14,8 +14,9 @@ test.describe('Place multiple orders', () => {
     let dashboardPage;
     let orderDeliverDetailsPage
 
-    test.beforeEach(async ({ browser }) => {
-        const context = await browser.newContext();
+    test.beforeEach(async ({ browser }, testInfo) => {
+        const projectUse = testInfo.project.use;
+        const context = await browser.newContext({ ...projectUse });
         const page = await context.newPage();
 
         const signUpPage = new SignUpPage(page);

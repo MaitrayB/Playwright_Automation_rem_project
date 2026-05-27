@@ -24,8 +24,9 @@ import { MailinatorPage } from '../../pages/Suppliers/MailinatorPage.js';
 
 test.describe('Supplier Invitations', async () => {
 
-    test('Scenario 1: Blank Invitation', async ({ browser }) => {
+    test('Scenario 1: Blank Invitation', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -50,8 +51,9 @@ test.describe('Supplier Invitations', async () => {
         await context.close();
     });
 
-    test('Scenario 2: Invitation with Company Information', async ({ browser }) => {
+    test('Scenario 2: Invitation with Company Information', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -76,10 +78,11 @@ test.describe('Supplier Invitations', async () => {
         await context.close();
     });
 
-    test('Scenario 3: Supplier Registers via Invitation Link', async ({ browser }) => {
+    test('Scenario 3: Supplier Registers via Invitation Link', async ({ browser }, testInfo) => {
         // let invitedEmail;
 
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -101,7 +104,7 @@ test.describe('Supplier Invitations', async () => {
         expect(supplier.email).toBeTruthy();
 
         // Create second page for email verification
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
 
         yopmailPage = new YopmailPage(emailPage);
@@ -117,6 +120,7 @@ test.describe('Supplier Invitations', async () => {
         // Create authenticated context
         // Create third page for registration
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -170,8 +174,9 @@ test.describe('Supplier Invitations', async () => {
         await registrationContext.close();
     });
 
-    test('Scenario 5: Already Accepted Invitation', async ({ browser }) => {
+    test('Scenario 5: Already Accepted Invitation', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -193,7 +198,7 @@ test.describe('Supplier Invitations', async () => {
         expect(supplierInfo.email).toBeTruthy();
 
         // Access already accepted invitation link
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
         yopmailPage = new YopmailPage(emailPage);
         genFunctions = new genericFunctions(emailPage);
@@ -207,6 +212,7 @@ test.describe('Supplier Invitations', async () => {
 
         // Open invitation link in authenticated context
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -235,8 +241,9 @@ test.describe('Supplier Invitations', async () => {
         await registrationContext.close();
     });
 
-    test('Scenario 6: Supplier Completes Onboarding', async ({ browser }) => {
+    test('Scenario 6: Supplier Completes Onboarding', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -258,7 +265,7 @@ test.describe('Supplier Invitations', async () => {
         expect(email).toBeTruthy();
 
         // Create second page for email verification
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
 
         yopmailPage = new YopmailPage(emailPage);
@@ -273,6 +280,7 @@ test.describe('Supplier Invitations', async () => {
 
         // Create third page for registration
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -329,9 +337,10 @@ test.describe('Supplier Invitations', async () => {
         await registrationContext.close();
     });
 
-    test('Scenario 7 & 8: Supplier Invites Team Member & Team member registers', async ({ browser }) => {
+    test('Scenario 7 & 8: Supplier Invites Team Member & Team member registers', async ({ browser }, testInfo) => {
         // Step 1: Login as supplier admin
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -355,7 +364,7 @@ test.describe('Supplier Invitations', async () => {
         // const companyName = await supplierAccount.companyName();
 
         // Create second page for email verification
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
 
         //yopmailPage = new YopmailPage(emailPage);
@@ -368,6 +377,7 @@ test.describe('Supplier Invitations', async () => {
 
         // Create third page for registration
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword

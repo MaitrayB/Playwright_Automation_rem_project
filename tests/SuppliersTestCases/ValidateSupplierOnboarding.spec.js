@@ -22,8 +22,9 @@ import { MailinatorPage } from '../../pages/Suppliers/MailinatorPage.js';
 
 test.describe('Supplier Onboarding Validation cases', async () => {
 
-    test('Scenario 1: Complete Onboarding Flow', async ({ browser }) => {
+    test('Scenario 1: Complete Onboarding Flow', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -48,7 +49,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         expect(email).toBeTruthy();
 
         // Create second page for email verification
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
 
         mailinatorPage = new MailinatorPage(emailPage);
@@ -59,6 +60,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
 
         // Create third page for registration
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -117,8 +119,9 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await registrationContext.close();
     });
 
-    test('Scenario 2: Pre-filled Data', async ({ browser }) => {
+    test('Scenario 2: Pre-filled Data', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -142,7 +145,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
 
         expect(supplier.email).toBeTruthy();
 
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
         mailinatorPage = new MailinatorPage(emailPage);
 
@@ -150,6 +153,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await mailinatorPage.accessInbox(supplier.email);
 
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -209,8 +213,9 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await registrationContext.close();
     });
 
-    test('Scenario 3: Validation Errors', async ({ browser }) => {
+    test('Scenario 3: Validation Errors', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -233,7 +238,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
 
         expect(supplier.email).toBeTruthy();
 
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
         mailinatorPage = new MailinatorPage(emailPage);
 
@@ -241,6 +246,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await mailinatorPage.accessInbox(supplier.email);
 
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -304,8 +310,9 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await registrationContext.close();
     });
 
-    test('Scenario 4: Terms and Conditions', async ({ browser }) => {
+    test('Scenario 4: Terms and Conditions', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -331,7 +338,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         });
         expect(supplier.email).toBeTruthy();
 
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
         mailinatorPage = new MailinatorPage(emailPage);
 
@@ -340,6 +347,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         const invitationLink = await mailinatorPage.getInvitationLink();
 
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -378,9 +386,10 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         }
     });
 
-    test('Scenario 5: Step Navigation', async ({ browser }) => {
+    test('Scenario 5: Step Navigation', async ({ browser }, testInfo) => {
 
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -406,7 +415,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         });
         expect(supplier.email).toBeTruthy();
 
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
         mailinatorPage = new MailinatorPage(emailPage);
 
@@ -415,6 +424,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         const invitationLink = await mailinatorPage.getInvitationLink();
 
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -452,9 +462,10 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         }
     });
 
-    test('Scenario 6: Incomplete Onboarding Redirect', async ({ browser }) => {
+    test('Scenario 6: Incomplete Onboarding Redirect', async ({ browser }, testInfo) => {
 
         const context = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword
@@ -478,7 +489,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
 
         expect(supplier.email).toBeTruthy();
 
-        const emailContext = await browser.newContext();
+        const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
         mailinatorPage = new MailinatorPage(emailPage);
 
@@ -486,6 +497,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await mailinatorPage.accessInbox(supplier.email);
 
         const registrationContext = await browser.newContext({
+            ...testInfo.project.use,
             httpCredentials: {
                 username: TestData.authCredentials.authUserName,
                 password: TestData.authCredentials.authPassword

@@ -71,5 +71,12 @@ export const TestData = {
     'Public Property',
     'Grass verge',
     'Not sure'
-  ]
+  ],
+  noResultPostcode: 'ZZ99 9ZZ',
+  manualAddress: {
+    houseNumber: '10',
+    streetName: 'Test Street',
+    city: 'Test City',
+    postcode: 'LE10 2DD'
+  }
 };

@@ -9,6 +9,8 @@ export class genericFunctions {
         this.inputEmail = page.locator("//input[contains(@class,'ycptinput')]");
         this.inboxBtn = page.locator("#refreshbut button[class='md']"); //page.locator("//button[@class='md']");
         this.inboxFrame = this.page.frameLocator('#ifmail');
+        this.inboxListFrame = this.page.frameLocator('#ifinbox');
+        this.mobileMailFrame = this.page.frameLocator('#ifmobmail');
         this.usernameInput = page.locator("#email");
         this.passwordInput = page.locator('#password');
         this.signInBtn = page.getByRole('button', { name: 'Sign in' });
@@ -62,16 +64,26 @@ export class genericFunctions {
 
     async checkOrderEmailReceived(orderPage) {
         const emailSubject = "Your Skip Hire Booking Confirmation";
-
-        await this.page.waitForSelector('#ifmail', { state: 'visible' });
-        await expect(this.inboxFrame.getByText(emailSubject)).toBeVisible({ timeout: 30000 }); // Waits up to 30 seconds
-        await this.inboxFrame.getByText(emailSubject).click();
-
         const skip = orderPage.skipValue;
-        //console.log(`skip name: ${skip}`);
 
-        await expect(this.inboxFrame.getByText('You did it…  Here’s your booking details for your skip with ')).toBeVisible();
-        await expect(this.inboxFrame.getByText(`Skip Type: ${skip} yarder skip`)).toBeVisible({ timeout: 3000 });
+        const isMobile = await this.page.locator('#ifmail').count() === 0;
+
+        if (isMobile) {
+            await expect(this.inboxListFrame.getByText(emailSubject).first()).toBeVisible({ timeout: 30000 });
+            await this.inboxListFrame.getByText(emailSubject).first().click();
+            await this.page.waitForSelector('#ifmobmail', { state: 'visible', timeout: 15000 });
+
+            await expect(this.mobileMailFrame.getByText(emailSubject)).toBeVisible({ timeout: 30000 });
+            await expect(this.mobileMailFrame.getByText(/You did it/)).toBeVisible({ timeout: 10000 });
+            await expect(this.mobileMailFrame.getByText(`Skip Type: ${skip} yarder skip`)).toBeVisible({ timeout: 3000 });
+        } else {
+            await this.page.waitForSelector('#ifmail', { state: 'visible' });
+            await expect(this.inboxFrame.getByText(emailSubject)).toBeVisible({ timeout: 30000 });
+            await this.inboxFrame.getByText(emailSubject).click();
+
+            await expect(this.inboxFrame.getByText(/You did it/)).toBeVisible({ timeout: 10000 });
+            await expect(this.inboxFrame.getByText(`Skip Type: ${skip} yarder skip`)).toBeVisible({ timeout: 3000 });
+        }
     };
 
     async getFutureDay(daysToAdd) {

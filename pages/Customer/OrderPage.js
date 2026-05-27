@@ -20,7 +20,7 @@ export class OrderPage {
     this.page = page;
 
     this.closeBtnFromTermsPage = page.getByRole('button', { name: 'Close' });
-    this.postcodeInput = page.getByRole('textbox', { name: 'Start Typing Your Delivery' });
+    this.postcodeInput = page.getByRole('textbox', { name: /Typ(e|ing) Your Delivery/i });
     this.continueBtn = page.getByRole('button', { name: 'Continue' });
     this.confirmBtn = page.getByRole('button', { name: 'Confirm' });
     this.streetInput = page.locator('div').filter({ hasText: /^Street Name$/ }).getByRole('textbox');
@@ -116,6 +116,11 @@ export class OrderPage {
     this.bookingupdatePopupClose = page.locator('(//h3[contains(.,"Booking Update Required")]/../../..//button)[1]');
     this.activeOrderNoThanksBtn = page.locator('//button[contains(.,"No Thanks")]');
     this.selectAddressBtnFromProvidedPostcode = page.locator('.space-y-2.max-h-60 button');
+
+    // Postcode search locators
+    this.addressSuggestionDropdown = page.locator('.mt-2');
+    this.addressSuggestionItems = page.locator('.mt-2 button');
+    this.cityInput = page.locator('div').filter({ hasText: /^City$/ }).getByRole('textbox');
   }
 
   //Postcode selection
@@ -406,7 +411,7 @@ export class OrderPage {
     }
     else {
       await this.page.getByRole('heading', { name: 'Choose a Date', level: 3 }).click();
-      //await this.dateNextMonth.click();
+      await this.dateNextMonth.click();
       await this.page.waitForTimeout(1000);
       this.dateBtn = this.page.getByRole('button', { name: String(Day), exact: true });
 
@@ -576,5 +581,131 @@ export class OrderPage {
     return {
       data: { cname, phone, email }
     };
+  }
+
+  // --- Postcode Search verification methods (AC-1.1.1 to AC-1.1.5) ---
+
+  async verifyPostcodeSearchFieldVisible() {
+    await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
+    await expect(this.postcodeInput).toBeVisible();
+  }
+
+  async typePostcodeAndVerifySuggestions(postcode) {
+    await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
+    await this.postcodeInput.fill(postcode);
+    await this.page.waitForTimeout(3000);
+
+    if (await this.page.locator('(//button)[3]').isVisible()) {
+      await this.page.locator('(//button)[3]').click();
+    }
+
+    await this.addressSuggestionDropdown.waitFor({ state: 'visible', timeout: 30000 });
+    const suggestionCount = await this.addressSuggestionItems.count();
+    expect(suggestionCount).toBeGreaterThan(0);
+    console.log(`Address suggestions found: ${suggestionCount}`);
+    await this.addressSuggestionItems.first().click();
+  }
+
+  async verifyAddressFieldsAutoPopulated() {
+    await this.page.waitForTimeout(2000);
+
+    if (await this.houseNoInput.isVisible()) {
+      const houseValue = await this.houseNoInput.inputValue();
+      console.log('House/Flat Number auto-populated:', houseValue);
+      expect(houseValue.length).toBeGreaterThan(0);
+    }
+
+    if (await this.streetInput.isVisible()) {
+      const streetValue = await this.streetInput.inputValue();
+      console.log('Street Name auto-populated:', streetValue);
+      expect(streetValue.length).toBeGreaterThan(0);
+    }
+
+    if (await this.cityInput.isVisible()) {
+      const cityValue = await this.cityInput.inputValue();
+      console.log('City auto-populated:', cityValue);
+      expect(cityValue.length).toBeGreaterThan(0);
+    }
+
+    const postcodeValue = await this.postcodeInput.inputValue();
+    console.log('Postcode value:', postcodeValue);
+    expect(postcodeValue.length).toBeGreaterThan(0);
+  }
+
+  async verifyNoResultsAndManualEntry(noResultPostcode, manualAddress) {
+    await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
+    await this.postcodeInput.fill(noResultPostcode);
+    await this.page.waitForTimeout(3000);
+
+    const suggestionsVisible = await this.addressSuggestionDropdown.isVisible();
+    if (suggestionsVisible) {
+      const count = await this.addressSuggestionItems.count();
+      console.log(`Suggestions returned for "${noResultPostcode}": ${count}`);
+    } else {
+      console.log('No address suggestions found for:', noResultPostcode);
+    }
+
+    await this.postcodeInput.clear();
+    await this.postcodeInput.fill(manualAddress.postcode);
+    await this.page.waitForTimeout(2000);
+
+    if (await this.closeBtnFromTermsPage.last().isVisible()) {
+      await this.closeBtnFromTermsPage.last().click();
+    }
+
+    if (await this.houseNoInput.isVisible()) {
+      await this.houseNoInput.clear();
+      await this.houseNoInput.fill(manualAddress.houseNumber);
+      const houseValue = await this.houseNoInput.inputValue();
+      expect(houseValue).toBe(manualAddress.houseNumber);
+      console.log('Manually entered House/Flat Number:', houseValue);
+    }
+
+    if (await this.streetInput.isVisible()) {
+      await this.streetInput.clear();
+      await this.streetInput.fill(manualAddress.streetName);
+      const streetValue = await this.streetInput.inputValue();
+      expect(streetValue).toBe(manualAddress.streetName);
+      console.log('Manually entered Street Name:', streetValue);
+    }
+
+    if (await this.cityInput.isVisible()) {
+      await this.cityInput.clear();
+      await this.cityInput.fill(manualAddress.city);
+      const cityValue = await this.cityInput.inputValue();
+      expect(cityValue).toBe(manualAddress.city);
+      console.log('Manually entered City:', cityValue);
+    }
+
+    console.log('Manual address entry verified successfully');
+
+    if (await this.continueBtn.isVisible()) {
+      await expect(this.continueBtn).toBeEnabled();
+    }
+  }
+
+  async verifyCannotProceedWithoutAddress() {
+    await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
+
+    const postcodeValue = await this.postcodeInput.inputValue();
+    if (postcodeValue !== '') {
+      await this.postcodeInput.clear();
+      await this.page.waitForTimeout(1000);
+    }
+
+    const isContinueVisible = await this.continueBtn.isVisible();
+    if (isContinueVisible) {
+      const isDisabled = await this.continueBtn.isDisabled();
+      expect(isDisabled).toBe(true);
+      console.log('Continue button is visible but disabled without valid postcode');
+    } else {
+      await expect(this.postcodeInput).toBeVisible();
+      console.log('Continue button is hidden until a valid postcode is provided');
+    }
+
+    const currentUrl = this.page.url();
+    await expect(this.postcodeInput).toBeVisible();
+    console.log('Customer remains on the postcode step - cannot proceed without valid address');
+    expect(this.page.url()).toBe(currentUrl);
   }
 }

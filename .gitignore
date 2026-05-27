@@ -1,4 +1,5 @@
 node_modules/
+.browsers/
 reports/
 test-results/
 allure-results/
