@@ -7,7 +7,8 @@ export const TestData = {
   credentials: {
     customer: {
       username: 'navin@yopmail.com',
-      password: 'P@ssw0rd'
+      password: 'P@ssw0rd',
+      firstName: 'Navin'
     },
     agent: {
       username: 'mat+admin@remwaste.com',

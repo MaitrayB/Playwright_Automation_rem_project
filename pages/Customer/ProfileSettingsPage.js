@@ -16,10 +16,9 @@ export class ProfileSettingsPage {
     /** @param {Page} page */
     constructor(page) {
         this.page = page;
-        this.profileDropdown = page.locator('button p').filter({ hasText: TestData.credentials.customer.username });
+        this.profileDropdown = page.getByRole('banner').locator('button').filter({ hasText: new RegExp(TestData.credentials.customer.firstName, 'i') }).first();
         this.profileSettingsOption = page.getByRole('button', { name: 'Profile Settings' });
         this.dashboardOption = page.getByRole('button', { name: 'Dashboard' });
-        this.profileSettingsOption = page.getByRole('button', { name: 'Profile Settings' });
 
         this.firstnameInput = page.getByPlaceholder('Enter your first name');
         this.lastnameInput = page.getByPlaceholder('Enter your last name');
@@ -28,7 +27,7 @@ export class ProfileSettingsPage {
     }
 
     async goToProfileSettingsPage() {
-        if (await this.page.getByRole('button', { name: 'No thanks, start a new order' }, { state: 'visible' }).isVisible()) {
+        if (await this.page.getByRole('button', { name: 'No thanks, start a new order' }).isVisible().catch(() => false)) {
             await this.page.getByRole('button', { name: 'No thanks, start a new order' }).click();
         }
         await this.profileDropdown.click();
@@ -37,7 +36,6 @@ export class ProfileSettingsPage {
     }
 
     async editProfileSettings(newFirstName, newLastName, newPhone) {
-        await this.profileDropdown.focus();
         await this.profileDropdown.click();
         await this.profileSettingsOption.waitFor({ state: 'visible' });
         await this.profileSettingsOption.click();
