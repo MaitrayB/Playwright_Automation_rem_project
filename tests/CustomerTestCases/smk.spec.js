@@ -10,6 +10,9 @@ import { genericFunctions } from '../../utils/genericFunctions.js';
 import { ProfileSettingsPage } from '../../pages/Customer/ProfileSettingsPage.js';
 import { AdminLogin } from '../../pages/Admin/AdminLogin.js';
 import { Order_Admin_Page } from '../../pages/Admin/Order_Admin_Page.js';
+import { SupplierRegistrationPage } from '../../pages/Suppliers/SupplierRegistrationPage.js';
+import { OrdersPage as SupplierOrdersPage } from '../../pages/Suppliers/OrdersPage.js';
+import { TakeOrderSheetPage } from '../../pages/Suppliers/TakeOrderSheetPage.js';
 
 const csvPath = './Data/testData.csv';
 
@@ -664,64 +667,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test(`Confirm Delivery for today's date`, async () => {
-    let skipValues;
-    //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
-
-    await loginPage.goto(TestData.baseURL);
-    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
-
-    await test.step('Enter postcode', async () => {
-      await orderPage.enterPostcode(TestData.postcodes[1]);
-    });
-
-    await test.step('Select waste type', async () => {
-      await orderPage.selectWaste(TestData.WasteType[1]);
-    });
-
-    await test.step('Continue waste type', async () => {
-      skipValues = await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
-    });
-
-    await test.step('Select item from the list', async () => {
-      await orderPage.selectItemFromTheList();
-    });
-
-    await test.step('Permit check', async () => {
-      await orderPage.permitCheck(TestData.Placement[0]);
-    });
-
-    await test.step('Select skip & property', async () => {
-      //await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
-      //skipSize, Skiptarp, plasterBoardTypes
-      await orderPage.selectSkip(TestData.SkipSize[1], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
-    });
-
-    await test.step('Choose date', async () => {
-      const dayNumber = new Date().getDate();
-      console.log(`Today's day number is: ${dayNumber}`);
-      await orderPage.chooseStaticDate(dayNumber);
-    });
-
-    await test.step('Complete payment', async () => {
-      await orderPage.completePayment();
-    });
-
-    await test.step('Navigate and verify dashboard', async () => {
-      await dashboardPage.gotoSuccessPage();
-    });
-
-    await test.step('Verify Order Delivery Details', async () => {
-      await dashboardPage.navigateToViewOrderDetails();
-    });
-
-    await test.step(`Confirm and verify today's delivery`, async () => {
-      await orderDeliveryDetailsPage.confirmTodaysDelivery();
-      await orderDeliveryDetailsPage.verifyConfirmDeliveryLabel.scrollIntoViewIfNeeded();
-      await expect(orderDeliveryDetailsPage.verifyConfirmDeliveryLabel).toBeVisible();
-    });
-
-  });
+ 
 
   test('Request collection outside 3 days free limit and pay for difference', async () => {
     let skipValues;
@@ -833,6 +779,66 @@ test.describe('Customer side test cases', () => {
 
     await test.step('Request collection', async () => {
       await orderDeliveryDetailsPage.requestCollection("yes");
+    });
+
+  });
+
+
+  test(`Confirm Delivery for today's date`, async () => {
+    let skipValues;
+    //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
+    });
+
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      skipValues = await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      //await orderPage.selectSkip(TestData.SkipSize[1], TestData.PlasterBoard[0], "No", "No", "No");
+      //skipSize, Skiptarp, plasterBoardTypes
+      await orderPage.selectSkip(TestData.SkipSize[1], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
+    });
+
+    await test.step('Choose date', async () => {
+      const dayNumber = new Date().getDate();
+      console.log(`Today's day number is: ${dayNumber}`);
+      await orderPage.chooseStaticDate(dayNumber);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate and verify dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step(`Confirm and verify today's delivery`, async () => {
+      await orderDeliveryDetailsPage.confirmTodaysDelivery();
+      await orderDeliveryDetailsPage.verifyConfirmDeliveryLabel.scrollIntoViewIfNeeded();
+      await expect(orderDeliveryDetailsPage.verifyConfirmDeliveryLabel).toBeVisible();
     });
 
   });
@@ -1356,6 +1362,82 @@ test.describe('Customer side test cases', () => {
     catch (error) {
       console.log(error.message);
     }
+  });
+});
+
+test.describe('Supplier Take Order', () => {
+  test.setTimeout(180000);
+
+  test('Supplier takes an order from available orders', async ({ browser }, testInfo) => {
+    const supplierContext = await browser.newContext({
+      ...testInfo.project.use,
+      httpCredentials: {
+        username: TestData.authCredentials.authUserName,
+        password: TestData.authCredentials.authPassword
+      },
+      ignoreHTTPSErrors: true
+    });
+    const supplierPage = await supplierContext.newPage();
+    const genFunctions = new genericFunctions(supplierPage);
+    const supplierRegistrationPage = new SupplierRegistrationPage(supplierPage);
+    const supplierOrdersPage = new SupplierOrdersPage(supplierPage);
+    const takeOrderSheetPage = new TakeOrderSheetPage(supplierPage);
+    const cookieAcceptBtn = supplierPage.locator('(//button[contains(.,"Accept All")])[1]');
+
+    let orderId;
+
+    await test.step('Navigate to supplier login and login', async () => {
+      await genFunctions.goto(supplierPage, '/supplier/login');
+      await supplierPage.waitForTimeout(2000);
+      if (await cookieAcceptBtn.isVisible()) {
+        await cookieAcceptBtn.click();
+      }
+      await supplierRegistrationPage.supplierLogin(
+        TestData.credentials.supplier.username,
+        TestData.credentials.supplier.password
+      );
+      if (await supplierRegistrationPage.doItLaterBtn.isVisible()) {
+        await supplierRegistrationPage.doItLaterBtn.click();
+      }
+      await expect(supplierOrdersPage.availableOrdersTab).toBeVisible({ timeout: 15000 });
+    });
+
+    await test.step('Switch to List view and take first available order', async () => {
+      await supplierPage.getByRole('button', { name: 'List' }).click();
+      await supplierPage.waitForTimeout(2000);
+      orderId = await supplierOrdersPage.getFirstRowOrderId();
+      console.log(`Taking order ID: ${orderId}`);
+      await supplierPage.getByRole('button', { name: 'Take' }).first().click();
+      await supplierPage.waitForTimeout(2000);
+    });
+
+    await test.step('Verify Take Order sheet is displayed', async () => {
+      await takeOrderSheetPage.verifySheetDisplayed();
+    });
+
+    await test.step('Scroll and agree to Supplier Protection & Dispute Policy', async () => {
+      await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.supplierProtectionPolicyTab);
+    });
+
+    await test.step('Scroll and agree to ESG weighbridge requirement', async () => {
+      await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.esgWeighbridgeTab);
+    });
+
+    await test.step('Click Take Order button', async () => {
+      await takeOrderSheetPage.takeThisOrderBtn.click();
+      await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible({ timeout: 15000 });
+    });
+
+    await test.step('Verify order is visible in My Orders tab', async () => {
+      await supplierOrdersPage.myOrdersTab.click();
+      await supplierPage.waitForTimeout(3000);
+      const searchBox = supplierPage.getByPlaceholder(/search/i).first();
+      await searchBox.fill(orderId);
+      await supplierPage.waitForTimeout(2000);
+      await expect(supplierPage.getByText(`#${orderId}`).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    await supplierContext.close();
   });
 });
 

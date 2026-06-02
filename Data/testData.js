@@ -2,7 +2,7 @@ export const TestData = {
   baseURL: 'https://develop.wewantwaste.co.uk/',
   authCredentials: {
     authUserName: 'developer',
-    authPassword: 'Wewantwaste11dec'
+    authPassword: 'WeWantWaste01Jun26'
   },
   credentials: {
     customer: {

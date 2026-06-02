@@ -13,7 +13,7 @@ export class TakeOrderSheetPage {
         this.page = page;
 
         // Main container locators with multiple fallbacks
-        this.takeOrderSheet = page.locator('[role="dialog"], [class*="sheet"], [class*="modal"], [class*="drawer"]').first();
+        this.takeOrderSheet = page.locator('[role="dialog"]:has(h2:text("Take this Order"))').first();
 
         //Actioin Required section locators
         this.actionRequiredHeading = page.getByRole('heading', { name: 'Action Required' });
@@ -65,11 +65,16 @@ export class TakeOrderSheetPage {
         this.closeTermsPDFBtn = page.getByText('Close');
         this.termsLink = page.getByRole('link', { name: /terms and conditions/i });
 
+        // Policy accordion/tab locators
+        this.supplierProtectionPolicyTab = page.getByRole('button', { name: /Supplier Protection & Dispute Policy/i });
+        this.esgWeighbridgeTab = page.getByRole('button', { name: /ESG Weighbridge/i });
+        this.iAgreeBtn = page.getByRole('button', { name: 'I Agree' });
+
         // Submit Take Order Sheet button locator
         // this.submitButton = page.locator('#root').getByRole('button', { name: 'Take this Order' });
         this.takeThisOrderBtn = page.locator('button[type="submit"]');//.filter({ hasText: 'Take this Order' });
         this.submitBtnNameDuringSubmission = page.getByRole('button', { name: 'Taking Order...' });
-        this.takeOrderSuccessMsg = page.getByText('Order taken successfully! This order is now on your orders list, and you will be taking care of this order as supplier');
+        this.takeOrderSuccessMsg = page.getByText(/Order taken successfully/i);
     }
 
     async verifySheetDisplayed() {
@@ -189,5 +194,41 @@ export class TakeOrderSheetPage {
 
     async confirmOrder() {
         await this.confirmButton.click();
+    }
+
+    async scrollAndAgreeToPolicy(policyTab) {
+        await policyTab.click();
+        await this.page.waitForTimeout(2000);
+
+        const pdfCanvas = this.takeOrderSheet.locator('canvas').first();
+        if (await pdfCanvas.isVisible()) {
+            await pdfCanvas.evaluate(canvas => {
+                let el = canvas.parentElement;
+                while (el) {
+                    if (el.scrollHeight > el.clientHeight + 10) {
+                        el.scrollTop = el.scrollHeight;
+                        return;
+                    }
+                    el = el.parentElement;
+                }
+            });
+        }
+
+        await this.page.waitForTimeout(2000);
+
+        if (!(await this.iAgreeBtn.isEnabled())) {
+            await this.takeOrderSheet.evaluate(dialog => {
+                const allEls = dialog.querySelectorAll('*');
+                for (const el of allEls) {
+                    if (el.scrollHeight > el.clientHeight + 10) {
+                        el.scrollTop = el.scrollHeight;
+                    }
+                }
+            });
+            await this.page.waitForTimeout(2000);
+        }
+
+        await this.iAgreeBtn.click({ timeout: 15000 });
+        await this.page.waitForTimeout(1000);
     }
 }
