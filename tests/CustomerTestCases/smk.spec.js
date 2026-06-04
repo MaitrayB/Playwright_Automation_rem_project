@@ -13,6 +13,7 @@ import { Order_Admin_Page } from '../../pages/Admin/Order_Admin_Page.js';
 import { SupplierRegistrationPage } from '../../pages/Suppliers/SupplierRegistrationPage.js';
 import { OrdersPage as SupplierOrdersPage } from '../../pages/Suppliers/OrdersPage.js';
 import { TakeOrderSheetPage } from '../../pages/Suppliers/TakeOrderSheetPage.js';
+import { MyOrderDetailsPage } from '../../pages/Suppliers/MyOrderDetailsPage.js';
 
 const csvPath = './Data/testData.csv';
 
@@ -57,6 +58,93 @@ test.beforeEach(async ({ browser }, testInfo) => {
   // Store the page in testInfo so individual tests can access it
   testInfo.page = page;
 });
+
+/**
+ * Supplier takes an order from Available Orders.
+ * @param {import('@playwright/test').Browser} browser
+ * @param {import('@playwright/test').TestInfo} testInfo
+ * @param {string} [orderId] - when provided, takes that specific order; otherwise takes the first available
+ * @param {{ markDelivered?: boolean }} [options] - when true, supplier marks order delivered from My Orders
+ */
+async function supplierTakeOrder(browser, testInfo, orderId, options = {}) {
+  const { markDelivered = false } = options;
+  const supplierContext = await browser.newContext({
+    ...testInfo.project.use,
+    httpCredentials: {
+      username: TestData.authCredentials.authUserName,
+      password: TestData.authCredentials.authPassword
+    },
+    ignoreHTTPSErrors: true
+  });
+  const supplierPage = await supplierContext.newPage();
+  const genFunctionsLocal = new genericFunctions(supplierPage);
+  const supplierRegistrationPage = new SupplierRegistrationPage(supplierPage);
+  const supplierOrdersPage = new SupplierOrdersPage(supplierPage);
+  const takeOrderSheetPage = new TakeOrderSheetPage(supplierPage);
+  const cookieAcceptBtn = supplierPage.locator('(//button[contains(.,"Accept All")])[1]');
+
+  let takenOrderId = orderId;
+
+  await test.step('Navigate to supplier login and login', async () => {
+    await genFunctionsLocal.goto(supplierPage, '/supplier/login');
+    await supplierPage.waitForTimeout(2000);
+    if (await cookieAcceptBtn.isVisible()) {
+      await cookieAcceptBtn.click();
+    }
+    await supplierRegistrationPage.supplierLogin(
+      TestData.credentials.supplier.username,
+      TestData.credentials.supplier.password
+    );
+    if (await supplierRegistrationPage.doItLaterBtn.isVisible()) {
+      await supplierRegistrationPage.doItLaterBtn.click();
+    }
+    await expect(supplierOrdersPage.availableOrdersTab).toBeVisible({ timeout: 15000 });
+  });
+
+  await test.step('Take order from Available Orders', async () => {
+    if (!orderId) {
+      takenOrderId = await supplierOrdersPage.getFirstRowOrderId();
+    }
+
+    console.log(`Taking order ID: ${takenOrderId}`);
+    await supplierOrdersPage.takeAvailableOrder(takenOrderId);
+    await supplierPage.waitForTimeout(2000);
+  });
+
+  await test.step('Verify Take Order sheet is displayed', async () => {
+    await takeOrderSheetPage.verifySheetDisplayed();
+  });
+
+  await test.step('Scroll and agree to Supplier Protection & Dispute Policy', async () => {
+    await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.supplierProtectionPolicyTab);
+  });
+
+  await test.step('Scroll and agree to ESG weighbridge requirement', async () => {
+    await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.esgWeighbridgeTab);
+  });
+
+  await test.step('Click Take Order button', async () => {
+    await takeOrderSheetPage.takeThisOrderBtn.click();
+    await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible({ timeout: 15000 });
+    await supplierPage.waitForTimeout(2000);
+  });
+
+  await test.step('Verify order is visible in My Orders tab', async () => {
+    await supplierOrdersPage.verifyOrderTaken(takenOrderId);
+  });
+
+  if (markDelivered) {
+    const myOrderDetailsPage = new MyOrderDetailsPage(supplierPage);
+
+    await test.step('Mark delivered from My Orders', async () => {
+      await supplierOrdersPage.ensureOnOrderDetailsPage(takenOrderId);
+      await myOrderDetailsPage.markDelivered();
+    });
+  }
+
+  await supplierContext.close();
+  return takenOrderId;
+}
 
 test.describe('Customer side test cases', () => {
   test.setTimeout(240000); // 3 minutes
@@ -607,8 +695,9 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test(`Missed Delivery for today's date`, async () => {
+  test(`Missed Delivery for today's date`, async ({ browser }, testInfo) => {
     let skipValues;
+    let orderId;
     let dayNumber = new Date().getDate();
     //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -656,19 +745,23 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Verify Order Delivery Details', async () => {
-      await dashboardPage.navigateToViewOrderDetails();
+      orderId = await dashboardPage.navigateToViewOrderDetails();
     });
 
-    await test.step(`Confirm and verify today's delivery`, async () => {
+    await test.step('Supplier takes the order', async () => {
+      await supplierTakeOrder(browser, testInfo, orderId);
+    });
+
+    await test.step(`Mark and verify missed delivery for today's date`, async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
       await orderDeliveryDetailsPage.missedDelivery();
       await orderDeliveryDetailsPage.verifyMissedDeliveryLabel.scrollIntoViewIfNeeded();
       await expect(orderDeliveryDetailsPage.verifyMissedDeliveryLabel).toBeVisible();
     });
 
   });
-
- 
-
+  
   test('Request collection outside 3 days free limit and pay for difference', async () => {
     let skipValues;
     // console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
@@ -784,8 +877,9 @@ test.describe('Customer side test cases', () => {
   });
 
 
-  test(`Confirm Delivery for today's date`, async () => {
+  test(`Confirm Delivery for today's date`, async ({ browser }, testInfo) => {
     let skipValues;
+    let orderId;
     //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto(TestData.baseURL);
@@ -832,11 +926,16 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Verify Order Delivery Details', async () => {
-      await dashboardPage.navigateToViewOrderDetails();
+      orderId = await dashboardPage.navigateToViewOrderDetails();
     });
 
-    await test.step(`Confirm and verify today's delivery`, async () => {
-      await orderDeliveryDetailsPage.confirmTodaysDelivery();
+    await test.step('Supplier takes the order and marks delivered', async () => {
+      await supplierTakeOrder(browser, testInfo, orderId, { markDelivered: true });
+    });
+
+    await test.step(`Verify today's delivery confirmed on customer order details`, async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
       await orderDeliveryDetailsPage.verifyConfirmDeliveryLabel.scrollIntoViewIfNeeded();
       await expect(orderDeliveryDetailsPage.verifyConfirmDeliveryLabel).toBeVisible();
     });
@@ -1369,75 +1468,7 @@ test.describe('Supplier Take Order', () => {
   test.setTimeout(180000);
 
   test('Supplier takes an order from available orders', async ({ browser }, testInfo) => {
-    const supplierContext = await browser.newContext({
-      ...testInfo.project.use,
-      httpCredentials: {
-        username: TestData.authCredentials.authUserName,
-        password: TestData.authCredentials.authPassword
-      },
-      ignoreHTTPSErrors: true
-    });
-    const supplierPage = await supplierContext.newPage();
-    const genFunctions = new genericFunctions(supplierPage);
-    const supplierRegistrationPage = new SupplierRegistrationPage(supplierPage);
-    const supplierOrdersPage = new SupplierOrdersPage(supplierPage);
-    const takeOrderSheetPage = new TakeOrderSheetPage(supplierPage);
-    const cookieAcceptBtn = supplierPage.locator('(//button[contains(.,"Accept All")])[1]');
-
-    let orderId;
-
-    await test.step('Navigate to supplier login and login', async () => {
-      await genFunctions.goto(supplierPage, '/supplier/login');
-      await supplierPage.waitForTimeout(2000);
-      if (await cookieAcceptBtn.isVisible()) {
-        await cookieAcceptBtn.click();
-      }
-      await supplierRegistrationPage.supplierLogin(
-        TestData.credentials.supplier.username,
-        TestData.credentials.supplier.password
-      );
-      if (await supplierRegistrationPage.doItLaterBtn.isVisible()) {
-        await supplierRegistrationPage.doItLaterBtn.click();
-      }
-      await expect(supplierOrdersPage.availableOrdersTab).toBeVisible({ timeout: 15000 });
-    });
-
-    await test.step('Switch to List view and take first available order', async () => {
-      await supplierPage.getByRole('button', { name: 'List' }).click();
-      await supplierPage.waitForTimeout(2000);
-      orderId = await supplierOrdersPage.getFirstRowOrderId();
-      console.log(`Taking order ID: ${orderId}`);
-      await supplierPage.getByRole('button', { name: 'Take' }).first().click();
-      await supplierPage.waitForTimeout(2000);
-    });
-
-    await test.step('Verify Take Order sheet is displayed', async () => {
-      await takeOrderSheetPage.verifySheetDisplayed();
-    });
-
-    await test.step('Scroll and agree to Supplier Protection & Dispute Policy', async () => {
-      await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.supplierProtectionPolicyTab);
-    });
-
-    await test.step('Scroll and agree to ESG weighbridge requirement', async () => {
-      await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.esgWeighbridgeTab);
-    });
-
-    await test.step('Click Take Order button', async () => {
-      await takeOrderSheetPage.takeThisOrderBtn.click();
-      await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible({ timeout: 15000 });
-    });
-
-    await test.step('Verify order is visible in My Orders tab', async () => {
-      await supplierOrdersPage.myOrdersTab.click();
-      await supplierPage.waitForTimeout(3000);
-      const searchBox = supplierPage.getByPlaceholder(/search/i).first();
-      await searchBox.fill(orderId);
-      await supplierPage.waitForTimeout(2000);
-      await expect(supplierPage.getByText(`#${orderId}`).first()).toBeVisible({ timeout: 10000 });
-    });
-
-    await supplierContext.close();
+    await supplierTakeOrder(browser, testInfo);
   });
 });
 

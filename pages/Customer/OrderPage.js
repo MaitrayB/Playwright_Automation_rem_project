@@ -124,11 +124,33 @@ export class OrderPage {
   }
 
   //Postcode selection
+  async dismissActiveOrderPopupIfVisible() {
+    const noThanksBtn = this.page.getByRole('button', { name: /No Thanks.*Start a New Order/i });
+    if (await noThanksBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await noThanksBtn.click();
+      await this.page.waitForTimeout(1000);
+      return;
+    }
+
+    if (await this.activeOrderNoThanksBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await this.activeOrderNoThanksBtn.click();
+      await this.page.waitForTimeout(1000);
+      return;
+    }
+
+    if (await this.activeOrderPopupClose.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await this.activeOrderPopupClose.click();
+      await this.page.waitForTimeout(1000);
+    }
+  }
+
   async enterPostcode(postcode) {
 
     await this.postcodeInput.waitFor({ state: 'visible', timeout: 60000 });
     await this.postcodeInput.fill(postcode);
     await this.page.waitForTimeout(2000);
+
+    await this.dismissActiveOrderPopupIfVisible();
 
     if (await this.page.locator('(//button)[3]').isVisible()) {
       await this.page.locator('(//button)[3]').click();

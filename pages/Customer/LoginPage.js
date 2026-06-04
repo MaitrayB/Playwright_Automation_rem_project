@@ -57,9 +57,13 @@ export class LoginPage {
     await this.page.waitForTimeout(3000);
 
     if (await this.popUPText.isVisible()) {
-      await this.closeBtnFromIsSkipFullPopUp.waitFor({ state: 'visible' });
-      await this.closeBtnFromIsSkipFullPopUp.click();
-      //await this.page.getByRole('button', { name: 'No Thanks — Start a New Order' });
+      const noThanksBtn = this.page.getByRole('button', { name: /No Thanks.*Start a New Order/i });
+      if (await noThanksBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await noThanksBtn.click();
+      } else {
+        await this.closeBtnFromIsSkipFullPopUp.waitFor({ state: 'visible' });
+        await this.closeBtnFromIsSkipFullPopUp.click();
+      }
     }
 
     // Handle "No thanks, start a new order" pop-up if it appears

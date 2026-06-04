@@ -15,6 +15,7 @@ export class OrdersPage {
         // Tabs or Orders page
         this.availableOrdersTab = page.getByRole('link', { name: 'Available Orders' });
         this.myOrdersTab = page.getByRole('link', { name: 'My Orders' });
+        this.mobileNavButtons = page.locator('header button, banner button').filter({ has: page.locator('svg') });
 
         //  Search
         this.searchInput = page.getByPlaceholder(/search orders/i);
@@ -101,6 +102,132 @@ export class OrdersPage {
 
     async clickTakeOrderButtonOnDetailsPage() {
         await this.takeThisOrderBtn.click();
+    }
+
+    async ensureListView() {
+        const listViewBtn = this.page.getByRole('button', { name: 'List' });
+        if (await listViewBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await listViewBtn.click();
+            await this.page.waitForTimeout(2000);
+        }
+    }
+
+    async searchOrder(orderId) {
+        const searchBox = this.searchInput.or(this.page.getByPlaceholder(/search/i)).first();
+        await searchBox.waitFor({ state: 'visible', timeout: 15000 });
+        await searchBox.fill(orderId);
+        await this.page.waitForTimeout(2000);
+    }
+
+    async takeAvailableOrder(orderId) {
+        await this.ensureListView();
+
+        if (orderId) {
+            await this.searchOrder(orderId);
+        }
+
+        const tableTakeBtn = this.page.locator('button[title="Take Order"]').first();
+        if (await tableTakeBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await tableTakeBtn.click();
+            return;
+        }
+
+        const takeBtn = this.page.getByRole('button', { name: /^Take$/i }).first();
+        if (await takeBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await takeBtn.click();
+            return;
+        }
+
+        if (orderId) {
+            await this.page.getByText(`#${orderId}`).first().click();
+        } else {
+            await this.clickFirstRowViewIcon();
+        }
+        await this.page.waitForTimeout(1000);
+        await this.clickTakeOrderButtonOnDetailsPage();
+    }
+
+    async openNavigationMenuIfNeeded() {
+        if (await this.myOrdersTab.isVisible({ timeout: 2000 }).catch(() => false)) {
+            return;
+        }
+
+        if (await this.availableOrdersTab.isVisible({ timeout: 2000 }).catch(() => false)) {
+            return;
+        }
+
+        const menuButtonCount = await this.mobileNavButtons.count();
+        for (let i = 0; i < menuButtonCount; i++) {
+            await this.mobileNavButtons.nth(i).click();
+            await this.page.waitForTimeout(1000);
+
+            if (await this.myOrdersTab.or(this.availableOrdersTab).first().isVisible({ timeout: 2000 }).catch(() => false)) {
+                return;
+            }
+        }
+    }
+
+    async navigateToMyOrdersTab() {
+        await this.openNavigationMenuIfNeeded();
+
+        if (await this.myOrdersTab.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await this.myOrdersTab.click();
+            await this.page.waitForTimeout(3000);
+            return;
+        }
+
+        const backBtn = this.page.getByRole('button', { name: /Back to (Available )?Orders/i });
+        if (await backBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await backBtn.click();
+            await this.page.waitForTimeout(2000);
+        }
+
+        await this.openNavigationMenuIfNeeded();
+        await this.myOrdersTab.waitFor({ state: 'visible', timeout: 15000 });
+        await this.myOrdersTab.click();
+        await this.page.waitForTimeout(3000);
+    }
+
+    orderDetailsLocator(orderId) {
+        return this.page.getByText(`Order #${orderId}`).first();
+    }
+
+    async waitForOrderDetailsPage(orderId, timeout = 30000) {
+        await this.orderDetailsLocator(orderId).waitFor({ state: 'visible', timeout });
+    }
+
+    async isOnOrderDetailsPage(orderId) {
+        return this.orderDetailsLocator(orderId).isVisible({ timeout: 5000 });
+    }
+
+    async verifyOrderTaken(orderId) {
+        try {
+            await this.waitForOrderDetailsPage(orderId);
+            await expect(this.orderDetailsLocator(orderId)).toBeVisible();
+            return;
+        } catch {
+            await this.navigateToMyOrdersTab();
+            await this.searchOrder(orderId);
+            await expect(this.page.getByText(`#${orderId}`).first()).toBeVisible({ timeout: 10000 });
+        }
+    }
+
+    async ensureOnOrderDetailsPage(orderId) {
+        try {
+            await this.waitForOrderDetailsPage(orderId);
+            return;
+        } catch {
+            await this.navigateToMyOrdersTab();
+            await this.searchOrder(orderId);
+            await expect(this.page.getByText(`#${orderId}`).first()).toBeVisible({ timeout: 10000 });
+            await this.page.getByText(`#${orderId}`).first().click();
+            await this.page.waitForTimeout(1000);
+            await this.waitForOrderDetailsPage(orderId);
+        }
+    }
+
+    async openMyOrderDetails(orderId) {
+        await this.ensureOnOrderDetailsPage(orderId);
     }
 
     async verifyOrderDetailBeforeTaking() {

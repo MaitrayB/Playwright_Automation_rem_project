@@ -9,6 +9,10 @@ export class MyOrderDetailsPage {
         this.orderStatusBadgeCorrected = page.locator('//span[contains(@class,"text-green")]')
         this.backToMyOrdersBtn = page.getByText(/Back to My Orders/i);
         this.manageDeliveryBtn = page.getByRole('button', { name: /Manage Delivery/i });
+        this.markDeliveredBtn = page.getByRole('button', { name: 'Mark delivered' });
+        this.confirmDeliveryBtn = page.getByRole('button', { name: /Confirm Delivery/i });
+        this.textArea = page.getByPlaceholder('Add a message about this event...');
+        this.submitBtn = page.getByRole('button', { name: 'Submit' });
         this.manageCollectionBtn = page.getByRole('button', { name: /Manage Collection/i });
         this.extraChargeableItemsBtn = page.getByRole('button', { name: /Extra Chargeable Items/i });
         this.moreOptionsBtn = page.locator('button:has(svg.lucide-more-vertical)');
@@ -53,6 +57,27 @@ export class MyOrderDetailsPage {
     async clickBackToMyOrders() {
         await this.backToMyOrdersBtn.waitFor({ state: 'visible' });
         await this.backToMyOrdersBtn.click();
+    }
+
+    async markDelivered(message = "Today's delivery marked by supplier") {
+        if (await this.markDeliveredBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await this.markDeliveredBtn.click();
+        } else {
+            await this.manageDeliveryBtn.scrollIntoViewIfNeeded();
+            await expect(this.manageDeliveryBtn).toBeEnabled({ timeout: 15000 });
+            await this.manageDeliveryBtn.click();
+            await this.page.waitForTimeout(1000);
+            await this.confirmDeliveryBtn.waitFor({ state: 'visible', timeout: 10000 });
+            await this.confirmDeliveryBtn.click();
+        }
+
+        await this.page.waitForTimeout(1000);
+        await this.page.setInputFiles('input[type="file"]', 'Data/test_image.png');
+        await this.page.waitForTimeout(2000);
+        await this.textArea.fill(message);
+        await this.page.waitForTimeout(1000);
+        await this.submitBtn.click();
+        await this.page.waitForTimeout(2000);
     }
 
     // Unassign Modal Methods

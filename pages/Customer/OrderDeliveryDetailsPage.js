@@ -281,7 +281,9 @@ export class OrderDeliveryDetailsPage {
     }
 
     async missedDelivery() {
+        await this.manageDeliveryBtn.scrollIntoViewIfNeeded();
         await this.manageDeliveryBtn.click();
+        await this.page.waitForTimeout(1000);
         await this.missedDeliveryBtn.click();
         await this.page.setInputFiles('input[type="file"]', 'Data/missed_delivery.png')// upload missed delivery image
         await this.textArea.fill('Missed Delivery');
