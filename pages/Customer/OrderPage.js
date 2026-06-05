@@ -88,9 +88,8 @@ export class OrderPage {
     this.siteContactLblOnPymtForm = page.getByRole('button', { name: 'Site Contact (optional)' })
     this.textBelowSiteContactLbl = page.getByText('Do you want to add site');
     this.yesBtnFrmSiteContactCard = page.getByRole('button', { name: 'Yes' });
-    this.defaultSiteContactInDropDown = page.locator("//div[@class='relative z-50']/button");
     this.siteContactDropdown = page.locator("(//p[contains(.,'Do you want to add site contact, to reduce the chances of failed delivery and wasted journey?')]/../..//button)[3]");
-    this.addOtherSiteContactOption = page.getByRole('button', { name: 'Add other site contact' });
+    this.addOtherSiteContactOption = page.locator('button.text-left').filter({ hasText: 'Add other site contact' });
     this.addNameInput = page.getByPlaceholder('Enter site contact name');
     this.addPhoneInput = page.getByPlaceholder('Enter site contact phone');
     this.addEmailInput = page.getByPlaceholder('Enter site contact email');
@@ -532,6 +531,35 @@ export class OrderPage {
     await this.yesBtnFrmSiteContactCard.click();
   }
 
+  async getSiteContactDropdownTrigger() {
+    const primary = this.siteContactDropdown;
+    if (await primary.isVisible()) {
+      return primary;
+    }
+    return this.page.locator("//p[contains(.,'Do you want to add site contact')]/following::button[contains(., '•') or contains(., 'Add other')][1]");
+  }
+
+  async addNewSiteContact(contact) {
+    if (!(await this.addNameInput.isVisible())) {
+      const dropdown = await this.getSiteContactDropdownTrigger();
+      await dropdown.scrollIntoViewIfNeeded();
+      await dropdown.click();
+
+      if (!(await this.addNameInput.isVisible())) {
+        await this.addOtherSiteContactOption.click();
+      }
+    }
+
+    await this.addNameInput.waitFor({ state: 'visible' });
+    await this.addNameInput.fill(contact.name);
+    await this.addPhoneInput.fill(contact.phone);
+    await this.addEmailInput.fill(contact.email);
+  }
+
+  hasExistingSiteContact(dropdownText) {
+    return dropdownText.includes('•') && !dropdownText.includes('Add other site contact');
+  }
+
   //This is parameter destructuring - completePayment({ contactAction } = {})
   async completePayment({ contactAction } = {}) {
     const genfunc = new genericFunctions(this.page);
@@ -560,11 +588,7 @@ export class OrderPage {
 
     if (contactAction === 'Add New Contact') {
       await this.siteContactOnPymtPage();
-      await this.siteContactDropdown.click();
-      await this.addOtherSiteContactOption.click();
-      await this.addNameInput.fill(contact.name);
-      await this.addPhoneInput.fill(contact.phone);
-      await this.addEmailInput.fill(contact.email);
+      await this.addNewSiteContact(contact);
 
       cname = contact.name;
       phone = contact.phone;
@@ -573,22 +597,19 @@ export class OrderPage {
 
     if (contactAction === 'Verify Existing Contact') {
       await this.siteContactOnPymtPage();
-      const text = await this.defaultSiteContactInDropDown.textContent();
-      console.log(text);
-      if (text === 'Add other site contact') {
-        console.log('No default contact, adding new contact');
-        await this.openSiteContactDropdownList.click();
-        await this.addOtherSiteContactOption.nth(1).click();
-        await this.addNameInput.fill(contact.name);
-        await this.addPhoneInput.fill(contact.phone);
-        await this.addEmailInput.fill(contact.email);
+      const dropdown = await this.getSiteContactDropdownTrigger();
+      const text = (await dropdown.textContent())?.trim() ?? '';
+      console.log('Site contact dropdown:', text);
+
+      if (this.hasExistingSiteContact(text)) {
+        [cname, phone] = text.split(/\s*•\s*/).map(v => v.trim());
+        email = `${cname}_${phone}@yopmail.com`;
+      } else {
+        console.log('No existing site contact found, adding new contact');
+        await this.addNewSiteContact(contact);
         cname = contact.name;
         phone = contact.phone;
         email = contact.email;
-      }
-      else {
-        [cname, phone] = text.split(/\s*•\s*/).map(v => v.trim());
-        email = `${cname}_${phone}@yopmail.com`;
       }
     }
     await this.termsCheckbox.waitFor({ state: 'visible' });
