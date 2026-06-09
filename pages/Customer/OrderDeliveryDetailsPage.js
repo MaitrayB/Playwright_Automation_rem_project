@@ -125,19 +125,16 @@ export class OrderDeliveryDetailsPage {
         this.upgradeSkipRefundRequestedLog = page.getByText('Skip Changed').first();
 
         // Send message feature locators
-        this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' }).first();
+        this.orderChatBtn = page.getByRole('heading', { name: /Order #/ }).locator('..').getByRole('button', { name: 'Open chat' });
+        this.startNewChatBtn = page.getByRole('button', { name: 'Start New Chat' });
+        this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' });
         this.preDefinedMessages = page.locator('.justify-end .mb-3 button');
-        this.closeSendMsgWindowBtn = page.getByRole('button', { name: 'Close' }); //locator("//button[contains(@aria-label,'Close')]");
-        this.messagesTab = page.getByRole('button', { name: 'Messages' });
-        this.searchMessagesTextBox = page.getByRole('textbox', { name: 'Search messages...' });
-        this.newConversation = page.getByRole('button', { name: 'New Conversation' });
+        this.closeSendMsgWindowBtn = page.getByRole('button', { name: 'Close' });
+        this.searchChatsTextBox = page.getByPlaceholder('Search chats...');
         this.issuesList = page.locator('.grid.gap-2 button');
         this.openLatestMsgBtn = page.locator('.divide-y button').first();
-        this.verifySelectedMsg = page.locator('.space-y-1 p').first();
+        this.chatMessages = page.locator('.space-y-1 p');
         this.enterIssueDetail = page.getByRole('textbox', { name: 'Describe your issue or' });
-        //this.sendBtn = this.enterMsg.locator('..').locator('button');
-        this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' });   //getByRole('button').filter({ hasText: /^$/ }).nth(4); //locator("//textarea/following-sibling::button");
-        this.sendMessageBtnFromMsgTab = page.getByRole('button', { name: 'Send Message' }).last();
     }
 
     async verifyOrderDeliveryDetails() {
@@ -397,16 +394,22 @@ export class OrderDeliveryDetailsPage {
     }
 
     async verifySearchMessagesFunctionality() {
-        await this.messagesTab.click();
-        await this.page.locator('.divide-y button div.justify-between').first().waitFor({ state: 'visible' });
-        const firstIssueName = await this.page.locator('.divide-y button div.justify-between').first();
-        console.log("First issue name: " + await firstIssueName.textContent());
+        await this.orderChatBtn.click();
+        await this.searchChatsTextBox.waitFor({ state: 'visible' });
+        const chatThreads = this.page.locator('.divide-y button');
+        await chatThreads.first().waitFor({ state: 'visible' });
 
-        await this.searchMessagesTextBox.fill(await firstIssueName.textContent());
-        await this.page.locator('.divide-y button').first().waitFor({ state: 'visible' });
-        const searchedIssueName = await this.page.locator('.divide-y button div.justify-between').first();
-        console.log("Searched issue name: " + await searchedIssueName.textContent());
-        expect(await searchedIssueName.textContent()).toBe(await firstIssueName.textContent());
+        const firstIssueTitle = chatThreads.first().locator('h4');
+        const issueName = (await firstIssueTitle.textContent()).trim();
+        console.log("First issue name: " + issueName);
+
+        await this.searchChatsTextBox.fill(issueName);
+        await chatThreads.first().waitFor({ state: 'visible' });
+
+        const searchedIssueTitle = chatThreads.first().locator('h4');
+        const searchedName = (await searchedIssueTitle.textContent()).trim();
+        console.log("Searched issue name: " + searchedName);
+        expect(searchedName).toBe(issueName);
     }
 
     //Send Message
@@ -422,54 +425,36 @@ export class OrderDeliveryDetailsPage {
     async sendMessage(options = {}) {
         const genericFunc = new genericFunctions(this.page);
 
-        const {/* fromMessageTab = false,*/
+        const {
             messageType = 'preDefined',
             customText = '' } = options;
 
-        await this.messagesTab.click();
-        await this.newConversation.click();
+        await this.orderChatBtn.click();
+        await this.startNewChatBtn.click();
         await this.issuesList.first().waitFor({ state: 'visible' });
+        await genericFunc.clickRandomItem(this.issuesList);
 
-        // Click a random issue from the list to open the message window
-        const issuesList = this.issuesList;
-       /* const index  = */ await genericFunc.clickRandomItem(issuesList);
-        // console.log(`Clicked item index: ${index}`);
-
-        // // open message window
-        // if (fromMessageTab) {
-        //     await this.sendMessageBtnFromMsgTab.click();
-        // }
-        // else {
-        //     await this.sendMessageBtn.click();
-        // }
-        // handle message type
-        let expectedMessage
+        let expectedMessage;
         const selectedPreDefinedMessage = this.preDefinedMessages.first().locator('span').last();
         if (messageType === 'preDefined') {
-            expectedMessage = await selectedPreDefinedMessage.textContent();
-            // console.log("Expected message: " + expectedMessage);
+            expectedMessage = (await selectedPreDefinedMessage.textContent()).trim();
             await selectedPreDefinedMessage.click();
             await this.sendMessageBtn.click();
-            await this.page.getByText('Auto-Reply').waitFor({ state: 'visible' });
-            await expect(this.page.getByText('Auto-Reply')).toBeVisible();
-        }
-        else {
+        } else {
             expectedMessage = customText;
             await this.enterIssueDetail.fill(expectedMessage);
             await this.sendMessageBtn.click();
-            await this.page.getByText('Auto-Reply').waitFor({ state: 'visible' });
-            await expect(this.page.getByText('Auto-Reply')).toBeVisible();
         }
-        // common steps
+
+        await expect(this.page.locator('.overflow-y-auto p').filter({ hasText: expectedMessage })).toBeVisible({ timeout: 10000 });
         await this.closeSendMsgWindowBtn.click();
-        await this.openLatestMsgBtn.click();
-        await expect(this.verifySelectedMsg).toContainText(expectedMessage);
         return expectedMessage;
     }
 
     async verifyAdminReply(adminReply) {
         await this.page.reload();
-        await this.messagesTab.click();
-        await expect(this.verifySelectedMsg).toHaveText(adminReply);
+        await this.orderChatBtn.click();
+        await this.openLatestMsgBtn.click();
+        await expect(this.page.locator('.overflow-y-auto p').filter({ hasText: adminReply })).toBeVisible();
     }
 }

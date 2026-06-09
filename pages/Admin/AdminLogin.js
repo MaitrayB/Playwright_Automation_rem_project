@@ -1,4 +1,4 @@
-import { genericFunctions } from '../../utils/genericFunctions';
+import { genericFunctions } from '../../utils/genericFunctions.js';
 import { expect } from "allure-playwright";
 /*
 Below 2 TYPEDEF lines you need for:
@@ -22,10 +22,14 @@ export class AdminLogin {
         this.signInBtn = page.getByRole('button', { name: 'Sign in' });
         this.landingPageTitle = page.getByRole('heading', { name: 'Orders' });
         this.suppliersLink = page.getByRole('link', { name: 'Suppliers' });
+        this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
     }
     async goto(url) {
-        // const genFunctions = new genericFunctions(this.page);
         await this.page.goto(url);
+        await this.page.waitForTimeout(2000);
+        if (await this.cookieAcceptBtn.isVisible()) {
+            await this.cookieAcceptBtn.click();
+        }
     }
 
     async adminLogin(email, password) {

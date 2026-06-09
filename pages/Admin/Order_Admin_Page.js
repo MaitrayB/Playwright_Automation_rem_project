@@ -17,10 +17,11 @@ export class Order_Admin_Page {
     constructor(page) {
         this.page = page;
         this.searchInput = page.locator("//input[contains(@placeholder,'Search')]");
-        // Order Details Page - admin
-        this.sendMsgBtn = page.getByRole('button', { name: 'Send Message' });
-        this.customerLastMsg = page.locator("//div[contains(@class,'flex justify-start')]").last();
-        this.repliedMsg = page.locator("//div[@class='flex flex-wrap gap-2']/button").filter({ hasText: 'Your order is being prioritized.' });
+        this.orderChatBtn = page.locator('h1, h2, h3').filter({ hasText: /Order #/ }).locator('..').locator('button[title="Open chat"]');
+        this.latestChatThread = page.locator('.divide-y button').first();
+        this.customerLastMsg = page.locator("div[class*='flex justify-start']").last();
+        this.replyInput = page.getByPlaceholder('Type a message...');
+        this.quickReplyBtns = page.locator('div.flex.flex-wrap.gap-2 button');
     }
 
     async getOrderDetails(orderId) {
@@ -38,11 +39,25 @@ export class Order_Admin_Page {
     }
 
     async adminRepliesToCustomer(msgText) {
-        await this.sendMsgBtn.click();
+        await this.orderChatBtn.click();
+        await this.latestChatThread.waitFor({ state: 'visible' });
+        await this.latestChatThread.click();
+        await this.page.waitForTimeout(2000);
+
         const lastCustMsg = await this.customerLastMsg.textContent();
         expect(lastCustMsg).toContain(msgText);
-        const adminReply = await this.repliedMsg.textContent();
-        await this.repliedMsg.click();
+
+        let adminReply;
+        if (await this.quickReplyBtns.count() > 0) {
+            const replyBtn = this.quickReplyBtns.first();
+            adminReply = (await replyBtn.textContent()).trim();
+            await replyBtn.click();
+        } else {
+            adminReply = 'Your order is being prioritized.';
+            await this.replyInput.fill(adminReply);
+            await this.page.locator('button[type="submit"], button:has(svg.lucide-send)').click();
+        }
+        await this.page.waitForTimeout(2000);
         return adminReply;
     }
 }
