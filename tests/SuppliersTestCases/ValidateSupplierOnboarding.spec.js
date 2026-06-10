@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/test.js';
 import { AdminLogin } from '../../pages/Admin/AdminLogin.js';
 import { SuppliersPage } from '../../pages/Admin/SuppliersPage.js';
 import { TestData } from '../../Data/testData.js';

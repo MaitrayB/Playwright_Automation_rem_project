@@ -23,7 +23,7 @@ export class DashboardPage {
     this.viewOrderDetailsBtn = page.getByRole('button', { name: 'View details' }).first();
     this.orderNumber = page.locator("//span[contains(., '#')]");
     this.orderId = '';
-    this.existingOrderNumber = page.getByRole('heading', { name: 'Order #' });
+    this.existingOrderNumber = page.locator('h1, h2, h3').filter({ hasText: /Order #/ });
     this.commercialAccountPopUp = page.locator('div').filter({ hasText: 'Do you need a commercial' }).nth(5);
   }
 

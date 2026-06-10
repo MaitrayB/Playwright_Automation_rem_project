@@ -125,7 +125,7 @@ export class OrderDeliveryDetailsPage {
         this.upgradeSkipRefundRequestedLog = page.getByText('Skip Changed').first();
 
         // Send message feature locators
-        this.orderChatBtn = page.getByRole('heading', { name: /Order #/ }).locator('..').getByRole('button', { name: 'Open chat' });
+        this.orderChatBtn = page.locator('h1, h2, h3').filter({ hasText: /Order #/ }).locator('..').getByRole('button', { name: /^(Chat|Open chat)$/i });
         this.startNewChatBtn = page.getByRole('button', { name: 'Start New Chat' });
         this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' });
         this.preDefinedMessages = page.locator('.justify-end .mb-3 button');

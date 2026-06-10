@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/test.js';
 import { LoginPage } from '../../pages/Customer/LoginPage.js';
 import { OrderPage } from '../../pages/Customer/OrderPage.js';
 import { DashboardPage } from '../../pages/Customer/DashboardPage.js';
@@ -179,7 +179,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('Verify search existing customer message functionality', async () => {
+  test('Customer message verification @chat', async () => {
 
     await loginPage.goto(TestData.baseURL);
     await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
@@ -192,13 +192,13 @@ test.describe('Customer side test cases', () => {
       await dashboardPage.navigateToViewOrderDetails();
     });
 
-    await test.step('Verify existing issue is correctly displayed', async () => {
-      await orderDeliveryDetailsPage.verifySearchMessagesFunctionality();
+    await test.step('Send Message', async () => {
+      // await orderDeliveryDetailsPage.sendMessage({ messageType: 'preDefined' });
+      await orderDeliveryDetailsPage.sendMessage({ messageType: 'custom', customText: 'Request to provide an update on my order.' + new Date() });
     });
-
   });
 
-  test('Customer and Admin conversation verification', async ({ browser }) => {
+  test('Customer and Admin conversation verification @chat', async ({ browser }) => {
     let orderId, msgText, adminReply;
     await loginPage.goto(TestData.baseURL);
     await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
@@ -245,7 +245,7 @@ test.describe('Customer side test cases', () => {
 
   });
 
-  test('Customer message verification', async () => {
+  test('Verify search existing customer message functionality @chat', async () => {
 
     await loginPage.goto(TestData.baseURL);
     await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
@@ -258,12 +258,13 @@ test.describe('Customer side test cases', () => {
       await dashboardPage.navigateToViewOrderDetails();
     });
 
-    await test.step('Send Message', async () => {
-      // await orderDeliveryDetailsPage.sendMessage({ messageType: 'preDefined' });
-      await orderDeliveryDetailsPage.sendMessage({ messageType: 'custom', customText: 'Request to provide an update on my order.' + new Date() });
+    await test.step('Verify existing issue is correctly displayed', async () => {
+      await orderDeliveryDetailsPage.verifySearchMessagesFunctionality();
     });
+
   });
 
+  
   test('Verify Payment History', async () => {
 
     //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);

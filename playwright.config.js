@@ -5,19 +5,35 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.env.PLAYWRIGHT_BROWSERS_PATH = process.env.PLAYWRIGHT_BROWSERS_PATH || path.join(__dirname, '.browsers');
 
+const isCI = !!process.env.CI;
+
 export default defineConfig({
   testDir: './tests',
   timeout: 40 * 2000,
   use: {
-    headless: process.env.CI ? true : false,
+    headless: isCI,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    trace: 'retain-on-failure'
+    trace: 'retain-on-failure',
   },
   outputDir: 'test-results/',
   reporter: [
-    ['html', { outputFolder: 'reports/html' }],
-    ['allure-playwright']
+    ['list'],
+    ['./reporters/summaryReporter.js'],
+    ['html', {
+      outputFolder: 'reports/html',
+      open: isCI ? 'never' : 'on-failure',
+    }],
+    ['junit', { outputFile: 'reports/junit/results.xml' }],
+    ['allure-playwright', {
+      resultsDir: 'allure-results',
+      detail: true,
+      suiteTitle: true,
+      environmentInfo: {
+        node_version: process.version,
+        os: process.platform,
+      },
+    }],
   ],
   projects: [
     {
@@ -26,7 +42,7 @@ export default defineConfig({
         browserName: 'chromium',
         launchOptions: {
           args: ['--start-maximized'],
-          slowMo: process.env.CI ? 0 : 1000
+          slowMo: isCI ? 0 : 1000,
         },
         viewport: null,
       },
@@ -36,7 +52,7 @@ export default defineConfig({
       use: {
         ...devices['Pixel 7'],
         launchOptions: {
-          slowMo: process.env.CI ? 0 : 1000
+          slowMo: isCI ? 0 : 1000,
         },
       },
     },
@@ -45,7 +61,7 @@ export default defineConfig({
       use: {
         ...devices['iPhone 14'],
         launchOptions: {
-          slowMo: process.env.CI ? 0 : 1000
+          slowMo: isCI ? 0 : 1000,
         },
       },
     },
