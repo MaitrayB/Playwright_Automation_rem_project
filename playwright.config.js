@@ -44,7 +44,7 @@ export default defineConfig({
           args: ['--start-maximized'],
           slowMo: isCI ? 0 : 1000,
         },
-        viewport: null,
+        viewport: isCI ? { width: 1920, height: 1080 } : null,
       },
     },
     {

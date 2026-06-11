@@ -147,9 +147,13 @@ export class SuppliersPage {
         const row = tblHelper.getRowByText(email);
         await expect(row).toBeVisible();
 
-        // Use generic action utility
+        // Click the "Actions" button directly on the row (force bypasses collapsed sidebar overlay)
+        const actionsBtn = row.getByRole('button', { name: 'Actions' });
+        await actionsBtn.click({ force: true });
         await this.page.waitForTimeout(1000);
-        await tblHelper.performRowAction(email, 'Delete');
+
+        // Click Delete from the dropdown menu
+        await tblHelper.clickActionOption('Delete');
         await this.page.waitForTimeout(1000);
 
         await expect(this.deleteSupplierPopupHeading).toBeVisible();

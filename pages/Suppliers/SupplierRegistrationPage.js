@@ -50,8 +50,9 @@ export class SupplierRegistrationPage {
         this.completeBtn = page.getByRole('button', { name: 'Complete' });
 
         //Supplier order page locators
-        this.orderPageHeading = page.getByRole('heading', { name: 'Orders' });
+        this.orderPageHeading = page.getByRole('link', { name: 'Available Orders' });
         this.doItLaterBtn = page.getByRole('button', { name: 'Do it later' });
+        this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
     }
 
     async verifyEmailPreFilled(expectedEmail) {
@@ -78,10 +79,14 @@ export class SupplierRegistrationPage {
     }
 
     async supplierLogin(email, password) {
+        if (await this.cookieAcceptBtn.isVisible().catch(() => false)) {
+            await this.cookieAcceptBtn.click();
+        }
         await this.emailInput.waitFor({ state: 'visible', timeout: 20000 });
         await this.emailInput.fill(email);
         await this.passwordInput.fill(password);
         await this.signInBtn.click();
+        await this.orderPageHeading.waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async verifyAcceptedInvitationMsg() {

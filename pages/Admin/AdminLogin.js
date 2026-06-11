@@ -21,7 +21,6 @@ export class AdminLogin {
         this.passwordInput = page.getByPlaceholder('Enter your password');
         this.signInBtn = page.getByRole('button', { name: 'Sign in' });
         this.landingPageTitle = page.getByRole('heading', { name: 'Orders' });
-        this.suppliersLink = page.getByRole('link', { name: 'Suppliers' });
         this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
     }
     async goto(url) {
@@ -43,7 +42,8 @@ export class AdminLogin {
     }
 
     async goToSuppliersPage() {
-        await this.suppliersLink.click();
+        const baseUrl = new URL(this.page.url()).origin;
+        await this.page.goto(`${baseUrl}/super-admin/suppliers`);
         await this.page.waitForSelector('table');
         await expect(this.page.locator('table')).toBeVisible();
     }

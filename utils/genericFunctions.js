@@ -14,14 +14,23 @@ export class genericFunctions {
         this.usernameInput = page.locator("#email");
         this.passwordInput = page.locator('#password');
         this.signInBtn = page.getByRole('button', { name: 'Sign in' });
+        this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
     }
 
     buildURL(path) {
         return `${TestData.baseURL.replace(/\/$/, '')}${path}`;
     }
 
+    async acceptPrivacyPopupIfVisible(page = this.page) {
+        await page.waitForTimeout(2000);
+        if (await page.locator('(//button[contains(.,"Accept All")])[1]').isVisible().catch(() => false)) {
+            await page.locator('(//button[contains(.,"Accept All")])[1]').click();
+        }
+    }
+
     async goto(page, path) {
         await page.goto(this.buildURL(path));
+        await this.acceptPrivacyPopupIfVisible(page);
     }
 
     async autoLogin(username, password) {

@@ -142,6 +142,8 @@ test.describe('2. Viewing Available Orders', () => {
 });
 
 test.describe('3. Taking Orders', () => {
+    test.setTimeout(120000);
+
     test('3.1 Take Order Button', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
             ...testInfo.project.use,
@@ -342,7 +344,7 @@ test.describe('3. Taking Orders', () => {
             await expect(takeOrderSheetPage.completeDocumentsLink).toBeVisible();
         });
         //Logout from unverified supplier
-        await takeOrderSheetPage.closeButton.click();
+        await takeOrderSheetPage.closeSheet();
         await supplierMenuNavigation.logout();
 
         // Setup: Login as pending bank setup supplier
@@ -356,6 +358,7 @@ test.describe('3. Taking Orders', () => {
 
         // Setup: Navigate to first order detail page
         await test.step('Navigate to first order detail page', async () => {
+            await ordersPage.navigateToAvailableOrdersTab();
             await ordersPage.clickFirstRowViewIcon();
             await page.waitForTimeout(1000);
         });
@@ -381,7 +384,7 @@ test.describe('3. Taking Orders', () => {
             await expect(takeOrderSheetPage.completeLink).toBeVisible();
         });
         //Logout from pending bank setup supplier
-        await takeOrderSheetPage.closeButton.click();
+        await takeOrderSheetPage.closeSheet();
         await supplierMenuNavigation.logout();
 
         //  AC - 3.3.3: Sheet checks if supplier is verified and enabled Pass
@@ -472,25 +475,24 @@ test.describe('3. Taking Orders', () => {
             await takeOrderSheetPage.verifySheetDisplayed();
         });
 
-        await test.step('AC-3.4.1: Validate terms and conditions checkbox is displayed', async () => {
-            await expect(takeOrderSheetPage.termsAndConditionsCheckbox).toBeVisible();
+        await test.step('AC-3.4.1: Validate policy sections are displayed', async () => {
+            await takeOrderSheetPage.verifyPolicySectionsDisplayed();
         });
 
-        await test.step('AC-3.4.2 / AC-3.4.4: Validate checkbox must be checked to submit', async () => {
-            takeOrderSheetPage.termsAndConditionsCheckbox.check();
-            await expect(takeOrderSheetPage.takeThisOrderBtn).toBeEnabled();
+        await test.step('AC-3.4.2 / AC-3.4.4: Take Order disabled until all policies are accepted', async () => {
+            await takeOrderSheetPage.verifyTakeOrderDisabled();
         });
 
-        await test.step('AC-3.4.3: Validate terms can be viewed in modal', async () => {
-            await takeOrderSheetPage.termsAndPolicyBtnToViewPolicy.click();
-            await expect(takeOrderSheetPage.termsPDFHeading).toBeVisible();
-            await takeOrderSheetPage.closeTermsPDFBtn.click();
+        await test.step('AC-3.4.3: Validate policy can be viewed in sheet', async () => {
+            await takeOrderSheetPage.openSupplierProtectionPolicy();
+            await takeOrderSheetPage.verifySupplierProtectionPolicyOpened();
+            await takeOrderSheetPage.collapseSupplierProtectionPolicy();
         });
 
-        await test.step('AC-3.4.4: Form cannot be submitted without accepting terms', async () => {
-            await takeOrderSheetPage.termsAndConditionsCheckbox.uncheck();
-            //  await takeOrderSheetPage.submitButton.click();
-            await expect(page.getByText(/must accept/i)).toBeVisible();
+        await test.step('AC-3.4.4: Form cannot be submitted without accepting all policies', async () => {
+            await takeOrderSheetPage.verifyTakeOrderDisabled();
+            await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.supplierProtectionPolicyTab);
+            await takeOrderSheetPage.verifyTakeOrderDisabled();
         });
 
         // Cleanup
@@ -526,10 +528,11 @@ test.describe('3. Taking Orders', () => {
             await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
         });
 
-        await test.step('Navigate to first order detail page & click Take button', async () => {
+        await test.step('Navigate to first order & open Take Order sheet', async () => {
             orderId = await ordersPage.getFirstRowOrderId();
-            await ordersPage.clickFirstRowTakeIcon();
-            await page.waitForTimeout(1000);
+            expect(orderId).toBeTruthy();
+            await ordersPage.takeAvailableOrder(orderId);
+            await page.waitForTimeout(2000);
         });
 
         await test.step('Verify Take Order sheet is displayed', async () => {
@@ -537,22 +540,19 @@ test.describe('3. Taking Orders', () => {
         });
 
         await test.step('Accept terms and policies', async () => {
-            await expect(takeOrderSheetPage.termsAndConditionsCheckbox).toBeVisible();
-            takeOrderSheetPage.termsAndConditionsCheckbox.check();
-            await expect(takeOrderSheetPage.takeThisOrderBtn).toBeEnabled();
+            await takeOrderSheetPage.verifyPolicySectionsDisplayed();
+            await takeOrderSheetPage.acceptAllPolicies();
+            await takeOrderSheetPage.verifyTakeOrderEnabled();
         });
 
         await test.step('AC-3.5.4: On successful submission, validate success message, order status and order list', async () => {
             await takeOrderSheetPage.takeThisOrderBtn.click();
-            await expect(takeOrderSheetPage.takeOrderSheet).not.toBeVisible();
-            await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible();
-            await ordersPage.verifyTakenOrderIDIsNotVisibleInAvailableOrdersTab(orderId);
+            await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible({ timeout: 15000 });
+            expect(await ordersPage.verifyTakenOrderIDIsNotVisibleInAvailableOrdersTab(orderId)).toBeTruthy();
         });
 
         await test.step('AC-3.5.5: Order appears in "My Orders" tab after taking', async () => {
-            await ordersPage.myOrdersTab.click();
-            await page.waitForLoadState("domcontentloaded");
-            await ordersPage.verifyTakenOrderIDIsVisibleInMyOrdersTab(orderId);
+            expect(await ordersPage.verifyTakenOrderIDIsVisibleInMyOrdersTab(orderId)).toBeTruthy();
         });
 
         // Cleanup

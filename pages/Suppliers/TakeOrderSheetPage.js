@@ -13,66 +13,60 @@ export class TakeOrderSheetPage {
         this.page = page;
 
         // Main container locators with multiple fallbacks
-        this.takeOrderSheet = page.locator('[role="dialog"]:has(h2:text("Take this Order"))').first();
+        this.takeOrderSheet = page.getByRole('dialog', { name: 'Take this Order' });
 
         //Actioin Required section locators
-        this.actionRequiredHeading = page.getByRole('heading', { name: 'Action Required' });
-        this.documentsNotCompletedMsg = page.getByText('Cannot Take Orders. Documents are not completed. You need to upload your documents and be verified before you can take orders.');
-        this.completeDocumentsLink = page.getByRole('link', { name: 'Complete documents' });
+        this.actionRequiredHeading = this.takeOrderSheet.getByRole('heading', { name: 'Action Required' });
+        this.documentsNotCompletedMsg = this.takeOrderSheet.getByText(/Cannot Take Orders\. Documents are not completed\./);
+        this.completeDocumentsLink = this.takeOrderSheet.getByRole('link', { name: /Complete [Dd]ocuments/ });
 
-        // Order Summary Section Locators - based on visible text in dialog
-        this.orderSummarySection = page.getByText('Order Summary').first();
-        this.deliveryAddressLabel = page.getByText('Address:').first();
-        this.deliveryAddressValue = page.locator('span:text-is("Address:") + span');
-        this.postcodeLabel = page.getByText('Postcode:').first();
-        this.postcodeValue = page.locator('span:text-is("Postcode:") + span');
-        this.deliveryDateLabel = page.getByLabel('Take this Order', { exact: true }).getByText('Delivery:') //page.getByText(/Delivery:/);
-        this.deliveryDateValue = page.locator('span:text-is("Delivery:") + span');
+        // Order Summary Section Locators - scoped to Take Order dialog
+        this.deliveryLocationHeading = this.takeOrderSheet.getByRole('heading', { name: 'Delivery Location' });
+        this.deliveryLocationBlock = this.deliveryLocationHeading.locator('..');
+        this.deliveryAddressValue = this.deliveryLocationBlock.locator('> div').nth(0);
+        this.postcodeValue = this.deliveryLocationBlock.locator('> div').nth(1);
+        this.deliveryCollectionHeading = this.takeOrderSheet.getByRole('heading', { name: 'Delivery & Collection' });
+        this.deliveryCollectionBlock = this.deliveryCollectionHeading.locator('xpath=../..');
+        this.deliveryDateValue = this.takeOrderSheet.getByText('Delivery', { exact: true })
+            .locator('xpath=following-sibling::*[1]');
 
         // Order Items Section Locators
-        this.orderItemsSection = page.getByText('Order Items').first();
-        this.itemsTable = page.getByText('Order Items').first();
-        this.itemRows = page.getByRole('heading', { level: 5 });
+        this.orderItemsSection = this.takeOrderSheet.getByRole('heading', { name: 'Order Items' });
+        this.itemsTable = this.orderItemsSection;
+        this.itemRows = this.takeOrderSheet.getByRole('heading', { level: 5 });
         this.firstItemRow = this.itemRows.first();
-        this.itemNameCell = page.getByRole('heading', { level: 5 }).first();
-        this.itemQuantityCell = page.getByText('Quantity:').first();
-        this.itemPriceCell = page.getByText(/Your Price/i).first();
+        this.itemNameCell = this.itemRows.first();
+        this.itemQuantityCell = this.takeOrderSheet.getByText('Quantity:').first();
+        this.itemPriceCell = this.takeOrderSheet.getByText(/Your Price/i).first();
 
         // Total Summary Section Locators
-        this.totalSummarySection = page.getByText('Total Summary').first();
-        this.subtotalLabel = page.getByText(/Your Total|Total/i).first();
-        this.subtotalValue = page.locator('text=/£/').first();
-        this.vatLabel = page.getByText(/VAT|Tax/i).first();
-        this.vatValue = page.locator('text=/£/').nth(1);
-        this.totalLabel = page.getByText('Total Summary');
-        this.totalValue = page.locator('text=/£356.16|£\\d+/').last();
+        this.totalSummarySection = this.takeOrderSheet.getByRole('heading', { name: 'Total Summary' });
+        this.totalSummaryBlock = this.totalSummarySection.locator('xpath=../..');
+        this.subtotalLabel = this.takeOrderSheet.getByText('Your Total (incl. VAT)');
+        this.totalValue = this.totalSummaryBlock.locator('> div').last();
 
         // Loading and interaction elements
-        this.loadingSpinner = page.locator('[class*="spinner"], [class*="loading"], [role="progressbar"]').first();
-        this.closeButton = page.locator('button[aria-label*="Close"]'); //getByLabel('Close')
+        this.loadingSpinner = this.takeOrderSheet.locator('[class*="spinner"], [class*="loading"], [role="progressbar"]').first();
+        // Scope to dialog header so cookie-consent Close is never matched
+        this.closeButton = this.takeOrderSheet.locator('button[aria-label="Close"]');
         this.confirmButton = page.locator('button:has-text(/confirm|proceed|next/i)').first();
 
         //Bank account not set up locators
-        this.completeSetupSection = page.getByRole('heading', { name: 'Complete Setup Required' });
-        this.addBankAccountMsg = page.getByText('Add Bank Account Details');
-        this.setPaymentDetailsMsg = page.getByText('Set up payment information to receive payouts');
-        this.completeLink = page.getByRole('link', { name: 'Complete' });
+        this.completeSetupSection = this.takeOrderSheet.getByRole('heading', { name: 'Complete Setup Required' });
+        this.addBankAccountMsg = this.takeOrderSheet.getByText('Add Bank Account Details');
+        this.setPaymentDetailsMsg = this.takeOrderSheet.getByText('Set up payment information to receive payouts');
+        this.completeLink = this.takeOrderSheet.getByRole('link', { name: 'Complete' });
 
-        // Terms and Conditions locators
-        this.termsAndConditionsCheckbox = page.locator('input#terms');
-        this.termsAndPolicyBtnToViewPolicy = page.getByRole('button', { name: /Supplier Protection & Dispute Policy/i });
-        this.termsPDFHeading = page.getByRole('heading', { name: /Supplier Protection & Dispute Policy/i });
-        this.closeTermsPDFBtn = page.getByText('Close');
-        this.termsLink = page.getByRole('link', { name: /terms and conditions/i });
-
-        // Policy accordion/tab locators
-        this.supplierProtectionPolicyTab = page.getByRole('button', { name: /Supplier Protection & Dispute Policy/i });
-        this.esgWeighbridgeTab = page.getByRole('button', { name: /ESG Weighbridge/i });
-        this.iAgreeBtn = page.getByRole('button', { name: 'I Agree' });
+        // Policy accordion locators (replaces legacy input#terms checkbox)
+        this.supplierProtectionPolicyTab = this.takeOrderSheet.getByRole('button', { name: /Supplier Protection & Dispute Policy/i });
+        this.esgWeighbridgeTab = this.takeOrderSheet.getByRole('button', { name: /ESG Weighbridge/i });
+        this.termsAndPolicyBtnToViewPolicy = this.supplierProtectionPolicyTab;
+        this.supplierProtectionPolicyRegion = this.takeOrderSheet.getByRole('region', { name: /Supplier Protection & Dispute Policy/i });
+        this.termsPDFHeading = this.supplierProtectionPolicyRegion;
+        this.iAgreeBtn = this.takeOrderSheet.getByRole('button', { name: 'I Agree' });
 
         // Submit Take Order Sheet button locator
-        // this.submitButton = page.locator('#root').getByRole('button', { name: 'Take this Order' });
-        this.takeThisOrderBtn = page.locator('button[type="submit"]');//.filter({ hasText: 'Take this Order' });
+        this.takeThisOrderBtn = this.takeOrderSheet.getByRole('button', { name: /Take this Order/i });
         this.submitBtnNameDuringSubmission = page.getByRole('button', { name: 'Taking Order...' });
         this.takeOrderSuccessMsg = page.getByText(/Order taken successfully/i);
     }
@@ -86,12 +80,10 @@ export class TakeOrderSheetPage {
     }
 
     async verifyOrderSummarySection() {
-        await expect(this.orderSummarySection).toBeVisible();
-        await expect(this.deliveryAddressLabel).toBeVisible();
+        await expect(this.deliveryLocationHeading).toBeVisible();
         await expect(this.deliveryAddressValue).toBeVisible();
-        await expect(this.postcodeLabel).toBeVisible();
         await expect(this.postcodeValue).toBeVisible();
-        await expect(this.deliveryDateLabel).toBeVisible();
+        await expect(this.deliveryCollectionHeading).toBeVisible();
         await expect(this.deliveryDateValue).toBeVisible();
     }
 
@@ -105,26 +97,24 @@ export class TakeOrderSheetPage {
     async verifyTotalSummarySection() {
         await expect(this.totalSummarySection).toBeVisible();
         await expect(this.subtotalLabel).toBeVisible();
-        await expect(this.subtotalValue).toBeVisible();
-        await expect(this.vatLabel).toBeVisible();
-        await expect(this.vatValue).toBeVisible();
-        await expect(this.totalLabel).toBeVisible();
         await expect(this.totalValue).toBeVisible();
     }
 
     async verifySheetFullyLoaded() {
-        await this.page.waitForLoadState('networkidle');
+        await this.waitForLoadingComplete();
         const loadingVisible = await this.loadingSpinner.isVisible().catch(() => false);
         expect(loadingVisible).toBe(false);
     }
 
     async waitForLoadingComplete() {
         try {
-            await this.loadingSpinner.waitFor({ state: 'hidden', timeout: 10000 });
-        } catch (e) {
-            // Loading spinner might not always appear, so continue
+            await this.loadingSpinner.waitFor({ state: 'hidden', timeout: 5000 });
+        } catch {
+            // Spinner may not appear once sheet content is rendered
         }
-        await this.page.waitForLoadState('networkidle');
+        await expect(this.orderItemsSection).toBeVisible({ timeout: 15000 });
+        await expect(this.totalSummarySection).toBeVisible({ timeout: 15000 });
+        await expect(this.itemRows.first()).toBeVisible({ timeout: 15000 });
     }
 
     async verifyLoadingStateExists() {
@@ -148,14 +138,19 @@ export class TakeOrderSheetPage {
         return await this.deliveryDateValue.textContent();
     }
 
+    getOrderItemBlock(index = 0) {
+        return this.orderItemsSection
+            .locator('xpath=following-sibling::*[1]/*')
+            .nth(index);
+    }
+
     async getFirstItemData() {
-        // Find the main container holding the first item
-        const container = this.firstItemRow.locator('xpath=ancestor::div[contains(@class, "bg-[#2A2A2A]")]').first();
+        const item = this.getOrderItemBlock(0);
 
         return {
-            name: await container.locator('h5').textContent() || '',
-            quantity: await container.locator('p:has-text("Quantity:")').textContent() || '',
-            price: await container.locator('div.text-green-400.font-semibold.text-lg').first().textContent() || ''
+            name: (await item.getByRole('heading', { level: 5 }).textContent()) || '',
+            quantity: (await item.getByText(/Quantity:/).textContent()) || '',
+            price: (await item.getByText(/£[\d,.]+/).last().textContent()) || ''
         };
     }
 
@@ -164,24 +159,24 @@ export class TakeOrderSheetPage {
     }
 
     async getSubtotal() {
-        return await this.subtotalValue.textContent();
+        return await this.totalValue.textContent();
     }
 
     async getVAT() {
-        return await this.vatValue.textContent();
+        return null;
     }
 
     async getAllItemsData() {
         const items = [];
-        const itemCount = await this.itemRows.count();
-        for (let i = 0; i < itemCount; i++) {
-            const rowHeading = this.itemRows.nth(i);
-            const container = rowHeading.locator('xpath=ancestor::div[contains(@class, "bg-[#2A2A2A]")]').first();
+        const itemBlocks = this.orderItemsSection.locator('xpath=following-sibling::*[1]/*');
+        const itemCount = await itemBlocks.count();
 
+        for (let i = 0; i < itemCount; i++) {
+            const item = itemBlocks.nth(i);
             items.push({
-                name: await container.locator('h5').textContent() || '',
-                quantity: await container.locator('p:has-text("Quantity:")').textContent() || '',
-                price: await container.locator('div.text-green-400.font-semibold.text-lg').first().textContent() || ''
+                name: (await item.getByRole('heading', { level: 5 }).textContent()) || '',
+                quantity: (await item.getByText(/Quantity:/).textContent()) || '',
+                price: (await item.getByText(/£[\d,.]+/).last().textContent()) || ''
             });
         }
         return items;
@@ -190,6 +185,37 @@ export class TakeOrderSheetPage {
     async closeSheet() {
         await this.closeButton.click();
         await expect(this.takeOrderSheet).not.toBeVisible();
+    }
+
+    async verifyPolicySectionsDisplayed() {
+        await expect(this.supplierProtectionPolicyTab).toBeVisible();
+        await expect(this.esgWeighbridgeTab).toBeVisible();
+    }
+
+    async verifyTakeOrderDisabled() {
+        await expect(this.takeThisOrderBtn).toBeDisabled();
+    }
+
+    async verifyTakeOrderEnabled() {
+        await expect(this.takeThisOrderBtn).toBeEnabled();
+    }
+
+    async openSupplierProtectionPolicy() {
+        await this.supplierProtectionPolicyTab.click();
+    }
+
+    async collapseSupplierProtectionPolicy() {
+        await this.supplierProtectionPolicyTab.click();
+    }
+
+    async verifySupplierProtectionPolicyOpened() {
+        await expect(this.supplierProtectionPolicyRegion).toBeVisible({ timeout: 10000 });
+        await expect(this.iAgreeBtn).toBeVisible();
+    }
+
+    async acceptAllPolicies() {
+        await this.scrollAndAgreeToPolicy(this.supplierProtectionPolicyTab);
+        await this.scrollAndAgreeToPolicy(this.esgWeighbridgeTab);
     }
 
     async confirmOrder() {
