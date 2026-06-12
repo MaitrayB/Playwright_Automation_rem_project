@@ -54,6 +54,25 @@ export class SuppliersPage {
         this.supplierVerifiedSuccessMsg = page.getByText('Supplier verified successfully');
     }
 
+    async isCardView() {
+        const viewport = this.page.viewportSize();
+        if (viewport) {
+            return viewport.width < 1024;
+        }
+        return !(await this.page.locator('main table tbody tr').first().isVisible());
+    }
+
+    async findSupplierCardByEmail(email) {
+        const searchInput = this.page.getByPlaceholder('Search suppliers by name, email, or contact');
+        if (await this.isCardView() && await searchInput.isVisible()) {
+            await searchInput.fill(email);
+            await this.page.waitForTimeout(1000);
+        }
+
+        return this.page.getByText(`Email: ${email}`, { exact: true })
+            .locator('..').locator('..').locator('..');
+    }
+
     async inviteSupplierViaEmailAndPhone(options = {}/*{ invitationType } = {}*/) {
         const { invitationTypeOptions = ['Blank Invitation', 'Invitation with Co. Information'],
             domainName = '' } = options;
@@ -120,20 +139,27 @@ export class SuppliersPage {
             await this.invitationWithInfoSentSuccessMsg.waitFor();
             await expect(this.invitationWithInfoSentSuccessMsg).toBeVisible();
         }
-        // Wait for row to appear using email
-        const row = this.table.getRowByText(emailInput);
-        await expect(row).toBeVisible();
+        let id;
+        if (await this.isCardView()) {
+            const card = await this.findSupplierCardByEmail(emailInput);
+            await expect(card).toBeVisible({ timeout: 15000 });
+            await expect(card.locator('span', { hasText: /^Invited$/ })).toBeVisible();
 
-        // Dynamically get values from table columns
-        const idCell = await tblHelper.getCellByRowTextAndHeader(emailInput, 'ID');
-        const companyCell = await tblHelper.getCellByRowTextAndHeader(emailInput, 'COMPANY');
-        const statusCell = await tblHelper.getCellByRowTextAndHeader(emailInput, 'INVITATION');
+            const cardText = await card.textContent();
+            id = cardText?.match(/#(\d+)/)?.[1];
+            companyName = (await card.locator('p').first().textContent())?.trim();
+        } else {
+            const row = this.table.getRowByText(emailInput);
+            await expect(row).toBeVisible();
 
-        const id = (await idCell.textContent())?.trim();
-        companyName = (await companyCell.textContent())?.trim();
-        //console.log(`inviteSupplierViaEmailAndPhone: Extracted from table - ID: ${id}, Company: ${companyName}, Status: ${(await statusCell.textContent())?.trim()}`);
+            const idCell = await tblHelper.getCellByRowTextAndHeader(emailInput, 'ID');
+            const companyCell = await tblHelper.getCellByRowTextAndHeader(emailInput, 'COMPANY');
+            const statusCell = await tblHelper.getCellByRowTextAndHeader(emailInput, 'INVITATION');
 
-        await expect(statusCell).toHaveText(/Invited/);
+            id = (await idCell.textContent())?.trim();
+            companyName = (await companyCell.textContent())?.trim();
+            await expect(statusCell).toHaveText(/Invited/);
+        }
 
         return { id, email: emailInput, companyName, phone: phoneInput, postcode, hirePeriod };
     }
@@ -143,17 +169,20 @@ export class SuppliersPage {
         const tblHelper = new tableHelper(this.page, 'table.w-full');
         console.log('Deleting supplier with email:', email);
 
-        // Verify row exists
-        const row = tblHelper.getRowByText(email);
-        await expect(row).toBeVisible();
-
-        // Click the "Actions" button directly on the row (force bypasses collapsed sidebar overlay)
-        const actionsBtn = row.getByRole('button', { name: 'Actions' });
-        await actionsBtn.click({ force: true });
+        if (await this.isCardView()) {
+            const card = await this.findSupplierCardByEmail(email);
+            await expect(card).toBeVisible({ timeout: 15000 });
+            await card.getByRole('button', { name: 'Actions' }).click({ force: true });
+        } else {
+            const row = tblHelper.getRowByText(email);
+            await expect(row).toBeVisible();
+            await row.getByRole('button', { name: 'Actions' }).click({ force: true });
+        }
         await this.page.waitForTimeout(1000);
 
-        // Click Delete from the dropdown menu
-        await tblHelper.clickActionOption('Delete');
+        await this.page.locator('[data-supplier-actions-portal="true"]').last()
+            .getByRole('button', { name: 'Delete' })
+            .click({ force: true });
         await this.page.waitForTimeout(1000);
 
         await expect(this.deleteSupplierPopupHeading).toBeVisible();
@@ -167,25 +196,49 @@ export class SuppliersPage {
     }
 
     async getSupplierEmailBasedOnStatus(statusToFind) {
-        const tblHelper = new tableHelper(this.page, 'table.w-full');
+        if (await this.isCardView()) {
+            await expect(this.page.getByRole('button', { name: 'Actions' }).first()).toBeVisible({ timeout: 15000 });
+
+            const emailLines = this.page.getByText(/^Email: [A-Za-z0-9._%+-]+@yopmail\.com$/);
+            const emailCount = await emailLines.count();
+
+            for (let i = 0; i < emailCount; i++) {
+                const card = emailLines.nth(i).locator('..').locator('..').locator('..');
+                const statusBadge = card.locator('span', { hasText: new RegExp(`^${statusToFind}$`) });
+                if (await statusBadge.count() === 0) continue;
+
+                const emailText = await emailLines.nth(i).textContent();
+                const email = emailText?.replace('Email: ', '').trim();
+                const companyName = (await card.locator('p').first().textContent())?.trim();
+                return { email, companyName };
+            }
+
+            throw new Error(`No supplier found with status: ${statusToFind}`);
+        }
+
+        await expect(this.page.locator('main table tbody tr').first()).toBeVisible({ timeout: 15000 });
+        const tblHelper = new tableHelper(this.page, 'main table');
         const rowCount = await tblHelper.getRowCount();
+
         for (let i = 0; i < rowCount; i++) {
             const companyCell = await tblHelper.getCellByIndex(i, await tblHelper.getColumnIndexByHeader('COMPANY'));
             const companyName = await companyCell.textContent().then(text => text.trim());
             const statusCell = await tblHelper.getCellByIndex(i, await tblHelper.getColumnIndexByHeader('INVITATION'));
-            // Use regex to extract status word
-            const cellStatusRaw = (await statusCell.textContent())?.trim();
-            const match = cellStatusRaw.match(/^(Joined|Invited|Not\sInvited|Blacklisted)/i);
-            const cellStatus = match ? match[0] : '';
+            const cellStatusRaw = (await statusCell.textContent())?.trim() || '';
+            const match = cellStatusRaw.match(/^(Joined|Invited|Not Invited|Blacklisted)/i);
+            const cellStatus = match ? match[1] : '';
+
             if (cellStatus === statusToFind) {
                 const emailCell = await tblHelper.getCellByIndex(i, await tblHelper.getColumnIndexByHeader('CONTACT'));
                 const contactText = await emailCell.textContent();
                 const emailMatch = contactText.match(/[A-Za-z0-9._%+-]+@yopmail\.com/);
                 const email = emailMatch ? emailMatch[0] : contactText.trim();
-                return { email, companyName };
+                if (emailMatch) {
+                    return { email, companyName };
+                }
             }
-            await this.page.waitForTimeout(1000);
         }
+
         throw new Error(`No supplier found with status: ${statusToFind}`);
     }
 

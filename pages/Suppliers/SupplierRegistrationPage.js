@@ -45,7 +45,12 @@ export class SupplierRegistrationPage {
         this.postcodeInput = page.getByRole('textbox', { name: 'SW1A 1AA' });
         this.skipHireCheckbox = page.getByRole('checkbox', { name: 'Skip Hire Skip bins and' });
         this.nextBtn = page.getByRole('button', { name: 'Next' });
-        this.privacyPolicyPdf = page.locator('div:nth-child(15) > .react-pdf__Page__canvas');
+        this.privacyPolicyPdf = page.locator('.react-pdf__Page__canvas').first();
+        this.vatRegistrationHeading = page.getByRole('heading', { name: 'VAT Registration' });
+        this.vatNotRegisteredBtn = page.getByRole('button', { name: 'No', exact: true });
+        this.selfBillingHeading = page.getByRole('heading', { name: 'Self-Billing Agreement' }).last();
+        this.selfBillingAcceptLabel = page.getByText(/I accept the self-billing agreement/i);
+        this.supplierProfileHeading = page.getByRole('heading', { name: 'Supplier Profile' });
         this.termsCheckbox = page.getByText('I have read and agree to the');
         this.completeBtn = page.getByRole('button', { name: 'Complete' });
 
@@ -65,8 +70,16 @@ export class SupplierRegistrationPage {
         await this.confirmPasswordInput.fill(password);
     }
 
+    async acceptCookiesIfVisible() {
+        if (await this.cookieAcceptBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+            await this.cookieAcceptBtn.click();
+            await this.page.waitForTimeout(500);
+        }
+    }
+
     async submitRegistration() {
-        await this.registerBtn.click();
+        await this.acceptCookiesIfVisible();
+        await this.registerBtn.click({ force: true });
     }
 
     async verifyRegistrationSuccess() {
@@ -75,17 +88,27 @@ export class SupplierRegistrationPage {
     }
     //used
     async verifyPageLoaded() {
+        await this.acceptCookiesIfVisible();
         await this.emailInput.waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async supplierLogin(email, password) {
-        if (await this.cookieAcceptBtn.isVisible().catch(() => false)) {
-            await this.cookieAcceptBtn.click();
-        }
+        await this.acceptCookiesIfVisible();
         await this.emailInput.waitFor({ state: 'visible', timeout: 20000 });
         await this.emailInput.fill(email);
         await this.passwordInput.fill(password);
         await this.signInBtn.click();
+        await this.page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 20000 });
+
+        if (this.page.url().includes('/onboarding')) {
+            await expect(this.page.getByText(/complete your onboarding/i)).toBeVisible();
+            return;
+        }
+
+        if (await this.doItLaterBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await this.doItLaterBtn.click();
+            await this.page.waitForTimeout(1000);
+        }
         await this.orderPageHeading.waitFor({ state: 'visible', timeout: 20000 });
     }
 
@@ -174,6 +197,106 @@ export class SupplierRegistrationPage {
         }
     }
 
+    async completeSelfBillingStep(page) {
+        await expect(this.selfBillingHeading).toBeVisible();
+        const acceptCheckbox = page.getByRole('checkbox', {
+            name: /I accept the self-billing agreement/i,
+        });
+
+        if (await acceptCheckbox.isVisible().catch(() => false)) {
+            await acceptCheckbox.click({ force: true });
+        } else {
+            await this.selfBillingAcceptLabel.scrollIntoViewIfNeeded();
+            await this.selfBillingAcceptLabel.click({ force: true });
+        }
+
+        if (!(await this.nextBtn.isEnabled().catch(() => false))) {
+            await page.evaluate(() => {
+                const match = [...document.querySelectorAll('label, div, p, span')]
+                    .find(el => el.textContent?.includes('I accept the self-billing agreement'));
+                const container = match?.closest('label, div') ?? match?.parentElement;
+                const checkbox = container?.querySelector('input[type="checkbox"]');
+                checkbox?.click();
+            });
+        }
+
+        await expect(this.nextBtn).toBeEnabled({ timeout: 10000 });
+        await this.nextBtn.click();
+        await page.waitForTimeout(1000);
+    }
+
+    async advanceToTermsStep(page) {
+        for (let step = 0; step < 6; step++) {
+            if (await this.privacyPolicyPdf.isVisible({ timeout: 2000 }).catch(() => false)) {
+                return;
+            }
+            if (await this.scrollWarningBanner.isVisible({ timeout: 2000 }).catch(() => false)) {
+                return;
+            }
+
+            if (await this.vatRegistrationHeading.isVisible({ timeout: 2000 }).catch(() => false)) {
+                await this.vatNotRegisteredBtn.click();
+                await page.waitForTimeout(500);
+                await expect(this.nextBtn).toBeEnabled({ timeout: 10000 });
+                await this.nextBtn.click();
+                await page.waitForTimeout(1000);
+                continue;
+            }
+
+            if (await this.selfBillingHeading.isVisible({ timeout: 2000 }).catch(() => false)) {
+                await this.completeSelfBillingStep(page);
+                continue;
+            }
+
+            if (await this.supplierProfileHeading.isVisible({ timeout: 2000 }).catch(() => false)) {
+                await expect(this.nextBtn).toBeEnabled({ timeout: 10000 });
+                await this.nextBtn.click();
+                await page.waitForTimeout(1000);
+                continue;
+            }
+
+            if (await this.nextBtn.isEnabled({ timeout: 2000 }).catch(() => false)) {
+                await this.nextBtn.click();
+                await page.waitForTimeout(1000);
+                continue;
+            }
+
+            break;
+        }
+    }
+
+    async scrollTermsPolicyToBottom(page) {
+        const pdfCanvas = this.privacyPolicyPdf;
+        await pdfCanvas.evaluate(canvas => {
+            let el = canvas.parentElement;
+            while (el) {
+                if (el.scrollHeight > el.clientHeight + 10) {
+                    el.scrollTop = el.scrollHeight;
+                    return;
+                }
+                el = el.parentElement;
+            }
+        });
+        await page.waitForTimeout(1000);
+
+        if (await this.scrollWarningBanner.isVisible().catch(() => false)) {
+            await page.evaluate(() => {
+                for (const el of document.querySelectorAll('*')) {
+                    if (el.scrollHeight > el.clientHeight + 10) {
+                        el.scrollTop = el.scrollHeight;
+                    }
+                }
+            });
+            await page.waitForTimeout(1000);
+        }
+
+        if (await this.scrollWarningBanner.isVisible().catch(() => false)) {
+            await pdfCanvas.click({ force: true });
+            await page.mouse.wheel(0, 2000);
+            await page.waitForTimeout(1000);
+        }
+    }
+
     async completeOnboardingForm(page, supplier, { scenarioName } = {}) {
         // Step 1: Navigate through all steps to reach the Terms step
         const { companyName, phone, postcode, hirePeriod } = supplier;
@@ -223,6 +346,8 @@ export class SupplierRegistrationPage {
         await this.nextBtn.click();
         await page.waitForTimeout(1000);
 
+        await this.advanceToTermsStep(page);
+
         // Terms step
         await this.privacyPolicyPdf.waitFor({ state: 'visible', timeout: 20000 });
 
@@ -233,12 +358,7 @@ export class SupplierRegistrationPage {
         await this.verifyScrollWarningIsVisible();
 
         // Step 4: Scroll through the terms document
-        await this.privacyPolicyPdf.click({
-            position: {
-                x: 634,
-                y: 641
-            }
-        });
+        await this.scrollTermsPolicyToBottom(page);
         await page.waitForTimeout(1000);
         // Step 4 (continued): Verify warning banner disappears after scrolling
         await this.verifyScrollWarningIsGone();
@@ -278,8 +398,8 @@ export class SupplierRegistrationPage {
     async verifySupplierRedirectedToOrdersPage(page) {
         await expect(page).toHaveURL(/.*\/orders/);
         await page.waitForTimeout(1000);
-        if (await this.doItLaterBtn.isVisible()) {
-            await this.doItLaterBtn.click();
+        if (await this.doItLaterBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await this.doItLaterBtn.click({ force: true });
             await this.page.waitForTimeout(2000);
         }
         await page.waitForTimeout(1000);

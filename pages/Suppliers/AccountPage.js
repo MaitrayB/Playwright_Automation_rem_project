@@ -8,12 +8,16 @@ export class AccountPage {
     /** @param {Page} page */
     constructor(page) {
         this.page = page;
-        this.accountStatusSection = page.getByText('Account Status').locator('..').last();//.getByText(/Active/);
+        this.accountStatusCard = page.locator('div').filter({
+            has: page.getByRole('heading', { name: 'Account Status' }),
+        }).filter({
+            hasText: 'Created At',
+        }).first();
         this.getCompanyName = page.getByText('Company Name').locator('..').getByText(/.+/).last();
     }
 
     async verifyAccountStatus(expectedStatus) {
-        await expect(this.accountStatusSection).toContainText(expectedStatus);
+        await expect(this.accountStatusCard).toContainText(expectedStatus);
     }
 
     async companyName() {

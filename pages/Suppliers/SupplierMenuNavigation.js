@@ -17,23 +17,39 @@ export class SupplierMenuNavigation {
 
         //Logout
         this.logOutBtn = page.getByRole('button', { name: 'Logout' });
-        this.mobileNavButtons = page.locator('header button, banner button').filter({ has: page.locator('svg') });
+        this.mobileNavButtons = page.locator(
+            'header button, banner button, div.lg\\:hidden div.h-16 button'
+        ).filter({ has: page.locator('svg') });
+    }
+
+    async isMobileViewport() {
+        const viewport = this.page.viewportSize();
+        return viewport ? viewport.width < 1024 : false;
+    }
+
+    async dismissDocumentsPopupIfVisible() {
+        if (await this.doItLaterBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await this.doItLaterBtn.click({ force: true });
+            await this.page.waitForTimeout(1000);
+        }
     }
 
     async openMobileMenuIfNeeded() {
+        if (!(await this.isMobileViewport())) {
+            return;
+        }
+
         if (await this.logOutBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
             return;
         }
 
         const menuButtonCount = await this.mobileNavButtons.count();
-        for (let i = menuButtonCount - 1; i >= 0; i--) {
-            await this.mobileNavButtons.nth(i).click();
-            await this.page.waitForTimeout(1000);
-
-            if (await this.logOutBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-                return;
-            }
+        if (menuButtonCount === 0) {
+            return;
         }
+
+        await this.mobileNavButtons.last().click();
+        await this.accountMenuLink.or(this.logOutBtn).first().waitFor({ state: 'visible', timeout: 10000 });
     }
 
     async switchToLoginPage() {
@@ -56,8 +72,10 @@ export class SupplierMenuNavigation {
         await this.page.waitForTimeout(2000);
     }
     async navigateToAccountPage() {
-        await this.accountMenuLink.click();
-        await this.accountStatusSection.waitFor({ state: 'visible' });
+        await this.dismissDocumentsPopupIfVisible();
+        await this.openMobileMenuIfNeeded();
+        await this.accountMenuLink.click({ timeout: 15000 });
+        await this.page.getByRole('heading', { name: 'Account', exact: true }).waitFor({ state: 'visible' });
         await this.page.waitForTimeout(2000);
     }
     async navigateToDashboardPage() {

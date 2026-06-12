@@ -115,7 +115,7 @@ test.describe('Supplier Invitations', async () => {
         await genFunctions.accessInbox(supplier.email);
 
         // Find invitation email and extract link
-        await yopmailPage.waitForInvitationEmail(supplier.companyName);
+        await yopmailPage.waitForInvitationEmail(supplier.companyName, undefined, supplier.email);
 
         // Create authenticated context
         // Create third page for registration
@@ -139,7 +139,7 @@ test.describe('Supplier Invitations', async () => {
         supplierRegistrationPage = new SupplierRegistrationPage(registrationPage);
 
         await supplierRegistrationPage.verifyPageLoaded();
-        await supplierRegistrationPage.waitForTimeout(2000);
+        await registrationPage.waitForTimeout(2000);
 
         // Step 3: Verify registration page loads with pre-filled email
         await supplierRegistrationPage.verifyEmailPreFilled(supplier.email);
@@ -207,7 +207,7 @@ test.describe('Supplier Invitations', async () => {
         await genFunctions.accessInbox(supplierInfo.email);
 
         // Find invitation email and extract link
-        await yopmailPage.waitForInvitationEmail(supplierInfo.companyName);
+        await yopmailPage.waitForInvitationEmail(supplierInfo.companyName, undefined, supplierInfo.email);
         const invitationLink = await yopmailPage.getInvitationLink();
 
         // Open invitation link in authenticated context
@@ -259,7 +259,7 @@ test.describe('Supplier Invitations', async () => {
         await adminLogin.adminLogin(TestData.credentials.agent.username, TestData.credentials.agent.password);
         await adminLogin.goToSuppliersPage();
 
-        const supplier = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationTypeOptions: 'Invitation with Co. Information', domainName: 'yopmail.com' });
+        const supplier = await suppliersPage.inviteSupplierViaEmailAndPhone({ invitationTypeOptions: 'Invitation with Co. Information', domainName: 'mailinator.com' });
         const email = supplier.email;
         console.log(email);
         expect(email).toBeTruthy();
@@ -268,15 +268,11 @@ test.describe('Supplier Invitations', async () => {
         const emailContext = await browser.newContext({ ...testInfo.project.use });
         const emailPage = await emailContext.newPage();
 
-        yopmailPage = new YopmailPage(emailPage);
-        genFunctions = new genericFunctions(emailPage);
+        mailinatorPage = new MailinatorPage(emailPage);
 
-        // Navigate to yopmail and access inbox
-        await genFunctions.goToYopmail();
-        await genFunctions.accessInbox(email);
-
-        // Find invitation email and extract link
-        await yopmailPage.waitForInvitationEmail(supplier.companyName);
+        // Navigate to mailinator and access inbox
+        await mailinatorPage.navigateToMailinator();
+        await mailinatorPage.accessInbox(email);
 
         // Create third page for registration
         const registrationContext = await browser.newContext({
@@ -289,7 +285,7 @@ test.describe('Supplier Invitations', async () => {
         });
 
         // Get the invitation link from email
-        const invitationLink = await yopmailPage.getInvitationLink();
+        const invitationLink = await mailinatorPage.getInvitationLink();
 
         // Open inside authenticated context
         const registrationPage = await registrationContext.newPage();

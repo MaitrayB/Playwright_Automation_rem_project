@@ -16,7 +16,9 @@ export class OrdersPage {
         // Tabs or Orders page
         this.availableOrdersTab = page.getByRole('link', { name: 'Available Orders' });
         this.myOrdersTab = page.getByRole('link', { name: 'My Orders' });
-        this.mobileNavButtons = page.locator('header button, banner button').filter({ has: page.locator('svg') });
+        this.mobileNavButtons = page.locator(
+            'header button, banner button, div.lg\\:hidden div.h-16 button'
+        ).filter({ has: page.locator('svg') });
 
         //  Search
         this.searchInput = page.getByPlaceholder(/search by postcode, order/i);

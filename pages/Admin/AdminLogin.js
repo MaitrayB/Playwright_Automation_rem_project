@@ -44,7 +44,7 @@ export class AdminLogin {
     async goToSuppliersPage() {
         const baseUrl = new URL(this.page.url()).origin;
         await this.page.goto(`${baseUrl}/super-admin/suppliers`);
-        await this.page.waitForSelector('table');
-        await expect(this.page.locator('table')).toBeVisible();
+        await expect(this.page.getByRole('heading', { name: 'Suppliers' })).toBeVisible();
+        await expect(this.page.getByRole('button', { name: 'Invite' })).toBeVisible();
     }
 }
