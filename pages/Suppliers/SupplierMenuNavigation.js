@@ -17,9 +17,13 @@ export class SupplierMenuNavigation {
 
         //Logout
         this.logOutBtn = page.getByRole('button', { name: 'Logout' });
-        this.mobileNavButtons = page.locator(
-            'header button, banner button, div.lg\\:hidden div.h-16 button'
-        ).filter({ has: page.locator('svg') });
+        // Mobile hamburger toggle: the icon-only button (no aria-label) in the
+        // collapsed (lg:hidden) top bar. The sibling Notifications button has an
+        // aria-label, so :not([aria-label]) isolates the menu toggle.
+        this.mobileMenuToggle = page
+            .locator('div.lg\\:hidden div.h-16 button:not([aria-label])')
+            .filter({ has: page.locator('svg') })
+            .first();
     }
 
     async isMobileViewport() {
@@ -39,17 +43,19 @@ export class SupplierMenuNavigation {
             return;
         }
 
+        // Menu already open (Logout only renders inside the expanded menu).
         if (await this.logOutBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
             return;
         }
 
-        const menuButtonCount = await this.mobileNavButtons.count();
-        if (menuButtonCount === 0) {
-            return;
-        }
-
-        await this.mobileNavButtons.last().click();
-        await this.accountMenuLink.or(this.logOutBtn).first().waitFor({ state: 'visible', timeout: 10000 });
+        // Wait for the top bar to render after navigation before toggling it open.
+        await this.mobileMenuToggle.waitFor({ state: 'visible', timeout: 15000 });
+        await this.mobileMenuToggle.click();
+        await this.usersMenuLink
+            .or(this.accountMenuLink)
+            .or(this.logOutBtn)
+            .first()
+            .waitFor({ state: 'visible', timeout: 10000 });
     }
 
     async switchToLoginPage() {
@@ -62,10 +68,8 @@ export class SupplierMenuNavigation {
         await genFunctions.goto(this.page, '/supplier/login');
     }
     async redirectToUsersPage() {
-        if (await this.doItLaterBtn.isVisible()) {
-            await this.doItLaterBtn.click();
-            await this.page.waitForTimeout(2000);
-        }
+        await this.dismissDocumentsPopupIfVisible();
+        await this.openMobileMenuIfNeeded();
         // Step 2: Navigate to Users page
         await this.usersMenuLink.waitFor({ state: 'visible' });
         await this.usersMenuLink.click();

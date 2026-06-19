@@ -20,11 +20,39 @@ export class UsersPage {
         this.phoneNumberInput = page.getByRole('textbox', { name: 'Phone Number (optional)' });
         this.sendInvitationBtn = page.getByRole('button', { name: 'Send Invitation' });
         this.UserInviteSuccessMsg = page.getByText('User invited successfully!');
+        // Below the md breakpoint the users table is hidden and a card list is
+        // rendered instead. Each card holds the email in a <p title> and two
+        // rounded-full badges in order: [role, status].
+        this.mobileUserCards = page.locator('div.md\\:hidden div.p-4');
+    }
+
+    isMobileViewport() {
+        const viewport = this.page.viewportSize();
+        return viewport ? viewport.width < 768 : false;
+    }
+
+    mobileCard(email) {
+        return this.mobileUserCards.filter({ hasText: email }).first();
+    }
+
+    // Returns the user's row/card plus its status text, reading from the table on
+    // desktop and the responsive card layout on mobile.
+    async getUserRow(email) {
+        if (this.isMobileViewport()) {
+            const card = this.mobileCard(email);
+            await card.waitFor({ state: 'visible' });
+            const status = (await card.locator('span.rounded-full').nth(1).innerText()).trim();
+            return { row: card, status };
+        }
+        const tblHelper = new tableHelper(this.page, 'table.min-w-full');
+        const row = tblHelper.getRowByText(email);
+        const statusCell = await tblHelper.getCellByRowTextAndHeader(email, 'STATUS');
+        const status = await statusCell.innerText();
+        return { row, status };
     }
 
     async inviteTeamMember() {
         const genFunctions = new genericFunctions(this.page);
-        const tblHelper = new tableHelper(this.page, 'table.min-w-full');
 
         // Step 3: Click "Invite User"
         await this.inviteUserBtn.click();
@@ -42,24 +70,28 @@ export class UsersPage {
         await expect(this.UserInviteSuccessMsg).toHaveText('User invited successfully!');
         await this.page.waitForTimeout(2000);
         // Step 7: Verify invited user appears in list with "pending" status
-
-        const invitedUserRow = await tblHelper.getRowByText(emailInput);
-        const statusCell = await tblHelper.getCellByRowTextAndHeader(emailInput, 'STATUS');
-        const status = await statusCell.innerText();
-        // console.log(`inviteTeamMember: Status cell text: ${status}`);
-        // console.log(`inviteTeamMember: Invited user row text: ${await invitedUserRow.innerText()}`);
+        const { row: invitedUserRow, status } = await this.getUserRow(emailInput);
         await expect(invitedUserRow).toBeVisible();
 
         return { emailInput, status };
     }
 
     async verifyUserDetails(email, expectedStatus) {
+        if (this.isMobileViewport()) {
+            const card = this.mobileCard(email);
+            await card.waitFor({ state: 'visible' });
+            const emailCell = card.locator('p[title]').first();
+            await expect(emailCell).toHaveText(email.toLowerCase());
+            const badges = card.locator('span.rounded-full');
+            await expect(badges.nth(1)).toHaveText(expectedStatus);
+            await expect(badges.nth(0)).toHaveText(/User/);
+            return;
+        }
         const tblHelper = new tableHelper(this.page, 'table.min-w-full');
         const emailInput = await tblHelper.getCellByRowTextAndHeader(email, 'EMAIL');
         console.log(`verifyUserDetails: Email cell text: ${await emailInput.innerText()}`);
         await expect(emailInput).toHaveText(await email.toLowerCase());
         const statusCell = await tblHelper.getCellByRowTextAndHeader(email, 'STATUS');
-        const status = await statusCell.innerText();
         const roleCell = await tblHelper.getCellByRowTextAndHeader(email, 'ROLE');
         console.log(`verifyUserDetails: Status cell text: ${expectedStatus}`);
         console.log(`verifyUserDetails: Role cell text: ${await roleCell.innerText()}`);

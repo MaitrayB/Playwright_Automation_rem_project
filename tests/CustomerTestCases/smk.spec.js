@@ -1398,70 +1398,66 @@ test.describe('Customer side test cases', () => {
 
   test('Place an order as Logged-in User @smoke', async () => {
     let skipValues;
-    try {
-      await test.step('Sign up new user', async () => {
-        await loginPage.goto(TestData.baseURL);
-        await signUpPage.navigateToSignUpPage();
-        await signUpPage.fillSignUpForm();
-        await signUpPage.verifyRegistrationSuccess();
-      });
 
-      await test.step('Login to application', async () => {
-        await loginPage.login(signUpPage.emailAddress, signUpPage.randomPassword);
-        // console.log(`🧾 Running Logged-in flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[1]}, Plasterboard -${TestData.PlasterBoard[1]}, ${TestData.Placement[0]}, Skipsize-${TestData.SkipSize[0]}, Plasterboard -${TestData.plasterBoardTypes[0]}`);
-      });
+    await test.step('Sign up new user', async () => {
+      await loginPage.goto(TestData.baseURL);
+      await signUpPage.navigateToSignUpPage();
+      await signUpPage.fillSignUpForm();
+      await signUpPage.verifyRegistrationSuccess();
+    });
 
-      await test.step('Enter postcode', async () => {
-        //await orderPage.enterPostcode(randomRow.Postcodes);
-        await orderPage.enterPostcode(TestData.postcodes[0]);
-      });
+    await test.step('Login to application', async () => {
+      await loginPage.login(signUpPage.emailAddress, signUpPage.randomPassword);
+      // console.log(`🧾 Running Logged-in flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[1]}, Plasterboard -${TestData.PlasterBoard[1]}, ${TestData.Placement[0]}, Skipsize-${TestData.SkipSize[0]}, Plasterboard -${TestData.plasterBoardTypes[0]}`);
+    });
 
-      await test.step('Select waste type', async () => {
-        //await orderPage.selectWaste(randomRow.WasteType);
-        await orderPage.selectWaste(TestData.WasteType[0]);
-      });
+    await test.step('Enter postcode', async () => {
+      //await orderPage.enterPostcode(randomRow.Postcodes);
+      await orderPage.enterPostcode(TestData.postcodes[0]);
+    });
 
-      await test.step('Continue waste type', async () => {
-        //await orderPage.continueWaste(randomRow.HeavyWaste, randomRow.PlasterBoard);
-        skipValues = await orderPage.continueWaste(TestData.HeavyWaste[1], TestData.PlasterBoard[1]);
-      });
+    await test.step('Select waste type', async () => {
+      //await orderPage.selectWaste(randomRow.WasteType);
+      await orderPage.selectWaste(TestData.WasteType[0]);
+    });
 
-      await test.step('Select item from the list', async () => {
-        await orderPage.selectItemFromTheList();
-      });
+    await test.step('Continue waste type', async () => {
+      //await orderPage.continueWaste(randomRow.HeavyWaste, randomRow.PlasterBoard);
+      skipValues = await orderPage.continueWaste(TestData.HeavyWaste[1], TestData.PlasterBoard[1]);
+    });
 
-      await test.step('Permit check', async () => {
-        //await orderPage.permitCheck(randomRow.Placement);
-        await orderPage.permitCheck(TestData.Placement[0]);
-      });
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
+    });
 
-      await test.step('Select skip & property', async () => {
-        //skipSize, Skiptarp, plasterBoardTypes
-        await orderPage.selectSkip(TestData.SkipSize[0], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
-      });
+    await test.step('Permit check', async () => {
+      //await orderPage.permitCheck(randomRow.Placement);
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
 
-      await test.step('Choose date', async () => {
-        //await orderPage.chooseDate(randomRow.BookingDay);
-        await orderPage.chooseDate(TestData.BookingDay[0]);
-      });
+    await test.step('Select skip & property', async () => {
+      //skipSize, Skiptarp, plasterBoardTypes
+      await orderPage.selectSkip(TestData.SkipSize[0], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
+    });
 
-      await test.step('Complete payment', async () => {
-        await orderPage.completePayment();
-      });
+    await test.step('Choose date', async () => {
+      //await orderPage.chooseDate(randomRow.BookingDay);
+      await orderPage.chooseDate(TestData.BookingDay[0]);
+    });
 
-      await test.step('Verify dashboard', async () => {
-        await dashboardPage.gotoSuccessPage();
-        await dashboardPage.verifyDashboard();
-      });
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
 
-      await test.step('Verify Order Delivery Details', async () => {
-        await dashboardPage.navigateToViewOrderDetails();
-        await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
-      });
-    }
-    catch (error) {
-      console.log(error.message);
-    }
+    await test.step('Verify dashboard', async () => {
+      await dashboardPage.gotoSuccessPage();
+      await dashboardPage.verifyDashboard();
+    });
+
+    await test.step('Verify Order Delivery Details', async () => {
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+    });
   });
 });
 

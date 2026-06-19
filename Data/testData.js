@@ -16,7 +16,8 @@ export const TestData = {
     },
     supplier: {
       username: 'veton+supplierfinal@remwaste.com',
-      password: 'Passport123'
+      password: 'Passport123',
+      registrationPassword: 'Password@123'
     },
     pendingVerificationSupplier: {
       username: 'Elise_Price@mailinator.com',

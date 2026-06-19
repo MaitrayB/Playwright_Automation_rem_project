@@ -157,6 +157,6 @@ export class SignUpPage {
 
     async verifyRegistrationSuccess() {
         await this.registrationSuccessMessage.waitFor({ state: 'visible' });
-        await expect(this.registrationSuccessMessage).toHaveText('Registration successful!.');
+        await expect(this.registrationSuccessMessage).toHaveText('Registration successful!');
     }
 }

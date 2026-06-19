@@ -7,7 +7,7 @@ export class genericFunctions {
         this.page = page;
         //this.inputEmail = page.locator("//input[@class='ycptinput']");
         this.inputEmail = page.locator("//input[contains(@class,'ycptinput')]");
-        this.inboxBtn = page.locator("#refreshbut button[class='md']"); //page.locator("//button[@class='md']");
+        this.inboxBtn = page.locator('button.md').first();
         this.inboxFrame = this.page.frameLocator('#ifmail');
         this.inboxListFrame = this.page.frameLocator('#ifinbox');
         this.mobileMailFrame = this.page.frameLocator('#ifmobmail');

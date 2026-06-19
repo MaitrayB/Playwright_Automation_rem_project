@@ -22,6 +22,8 @@ import { MailinatorPage } from '../../pages/Suppliers/MailinatorPage.js';
 
 test.describe('Supplier Onboarding Validation cases', async () => {
 
+    test.setTimeout(180000);
+
     test('Scenario 1: Complete Onboarding Flow', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
             ...testInfo.project.use,
@@ -86,7 +88,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
 
         // Fill registration form
         //const supplierPassword = 'Password@123';
-        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.password);
+        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.registrationPassword);
 
         // Submit registration
         await supplierRegistrationPage.submitRegistration();
@@ -172,7 +174,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await supplierRegistrationPage.verifyPageLoaded();
         // await supplierRegistrationPage.waitForTimeout();
         await supplierRegistrationPage.verifyEmailPreFilled(supplier.email);
-        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.password);
+        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.registrationPassword);
         await supplierRegistrationPage.submitRegistration();
 
         // Verify registration success
@@ -265,7 +267,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await supplierRegistrationPage.verifyPageLoaded();
         // await supplierRegistrationPage.waitForTimeout();
         await supplierRegistrationPage.verifyEmailPreFilled(supplier.email);
-        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.password);
+        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.registrationPassword);
         await supplierRegistrationPage.submitRegistration();
 
         // Verify registration success
@@ -362,8 +364,8 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await supplierRegistrationPage.verifyPageLoaded();
         await supplierRegistrationPage.verifyEmailPreFilled(supplier.email);
 
-        const supplierPassword = TestData.credentials.supplier.defaultPassword;
-        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.password);
+        const supplierPassword = TestData.credentials.supplier.registrationPassword;
+        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.registrationPassword);
         await supplierRegistrationPage.submitRegistration();
         await supplierRegistrationPage.verifyRegistrationSuccess();
 
@@ -439,8 +441,8 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await supplierRegistrationPage.verifyPageLoaded();
         await supplierRegistrationPage.verifyEmailPreFilled(supplier.email);
 
-        const supplierPassword = TestData.credentials.supplier.defaultPassword;
-        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.password);
+        const supplierPassword = TestData.credentials.supplier.registrationPassword;
+        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.registrationPassword);
         await supplierRegistrationPage.submitRegistration();
         await supplierRegistrationPage.verifyRegistrationSuccess();
 
@@ -517,7 +519,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         // await supplierRegistrationPage.waitForTimeout();
         await supplierRegistrationPage.verifyEmailPreFilled(supplier.email);
         //const supplierPassword = 'Password@123';
-        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.password);
+        await supplierRegistrationPage.fillRegistrationForm(TestData.credentials.supplier.registrationPassword);
         await supplierRegistrationPage.submitRegistration();
 
         // Verify registration success
@@ -537,7 +539,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         genFunctions = new genericFunctions(registrationPage);
         const supplierLoginPageURL = genFunctions.buildURL('/supplier/login');
         await registrationPage.goto(supplierLoginPageURL);
-        await supplierRegistrationPage.supplierLogin(supplier.email, TestData.credentials.supplier.password);
+        await supplierRegistrationPage.supplierLogin(supplier.email, TestData.credentials.supplier.registrationPassword);
         await registrationPage.waitForTimeout(3000);
 
         // Step 4: Verify redirect to onboarding page

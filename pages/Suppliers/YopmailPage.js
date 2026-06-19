@@ -15,7 +15,7 @@ export class YopmailPage {
     constructor(page) {
         this.page = page;
         this.emailInput = page.locator("//input[@class='ycptinput']");
-        this.inboxBtn = page.locator("//button[@class='md']");
+        this.inboxBtn = page.locator('button.md').first();
         this.inboxFrame = this.page.frameLocator('#ifmail');
         this.inboxListFrame = this.page.frameLocator('#ifinbox');
         this.mobileMailFrame = this.page.frameLocator('#ifmobmail');
@@ -56,11 +56,28 @@ export class YopmailPage {
         }
     }
 
+    async ensureInboxLoaded(email) {
+        if (await this.page.locator('#ifinbox').isVisible({ timeout: 3000 }).catch(() => false)) {
+            return;
+        }
+
+        const inboxBtn = this.page.locator('button.md').first();
+        if (await inboxBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await inboxBtn.click();
+            await this.page.waitForTimeout(2000);
+        }
+
+        if (!(await this.page.locator('#ifinbox').isVisible({ timeout: 5000 }).catch(() => false))) {
+            await this.accessInbox(email);
+        }
+    }
+
     async reopenInbox(email) {
         const login = email.split('@')[0];
         await this.page.goto(`https://yopmail.com/en/?login=${login}`, { waitUntil: 'domcontentloaded' });
-        await this.page.waitForTimeout(3000);
+        await this.page.waitForTimeout(2000);
         await this.handleRecaptchaIfPresent();
+        await this.ensureInboxLoaded(email);
     }
 
     async refreshInbox() {
@@ -110,7 +127,8 @@ export class YopmailPage {
             const isMobile = await this.isMobileInbox();
 
             if (isMobile) {
-                await this.page.waitForSelector('#ifinbox', { state: 'visible', timeout: 15000 });
+                await this.ensureInboxLoaded(email);
+                await this.page.waitForSelector('#ifinbox', { state: 'visible', timeout: 10000 });
                 await this.page.waitForTimeout(1000);
                 emailFound = await this.findInvitationEmailInFrame(this.inboxListFrame, emailPatterns);
 

@@ -79,6 +79,7 @@ test.describe('Supplier Invitations', async () => {
     });
 
     test('Scenario 3: Supplier Registers via Invitation Link', async ({ browser }, testInfo) => {
+        test.setTimeout(180000);
         // let invitedEmail;
 
         const context = await browser.newContext({
@@ -112,7 +113,7 @@ test.describe('Supplier Invitations', async () => {
 
         // Navigate to yopmail and access inbox
         await genFunctions.goToYopmail();
-        await genFunctions.accessInbox(supplier.email);
+        await yopmailPage.accessInbox(supplier.email);
 
         // Find invitation email and extract link
         await yopmailPage.waitForInvitationEmail(supplier.companyName, undefined, supplier.email);
@@ -175,6 +176,7 @@ test.describe('Supplier Invitations', async () => {
     });
 
     test('Scenario 5: Already Accepted Invitation', async ({ browser }, testInfo) => {
+        test.setTimeout(180000);
         const context = await browser.newContext({
             ...testInfo.project.use,
             httpCredentials: {
@@ -204,7 +206,7 @@ test.describe('Supplier Invitations', async () => {
         genFunctions = new genericFunctions(emailPage);
 
         await genFunctions.goToYopmail();
-        await genFunctions.accessInbox(supplierInfo.email);
+        await yopmailPage.accessInbox(supplierInfo.email);
 
         // Find invitation email and extract link
         await yopmailPage.waitForInvitationEmail(supplierInfo.companyName, undefined, supplierInfo.email);
@@ -242,6 +244,7 @@ test.describe('Supplier Invitations', async () => {
     });
 
     test('Scenario 6: Supplier Completes Onboarding', async ({ browser }, testInfo) => {
+        test.setTimeout(240000);
         const context = await browser.newContext({
             ...testInfo.project.use,
             httpCredentials: {

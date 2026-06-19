@@ -59,7 +59,8 @@ export class SuppliersPage {
         if (viewport) {
             return viewport.width < 1024;
         }
-        return !(await this.page.locator('main table tbody tr').first().isVisible());
+        const width = await this.page.evaluate(() => window.innerWidth);
+        return width < 1024;
     }
 
     async findSupplierCardByEmail(email) {
