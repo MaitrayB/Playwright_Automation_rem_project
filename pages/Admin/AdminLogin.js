@@ -24,8 +24,9 @@ export class AdminLogin {
         this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
     }
     async goto(url) {
-        await this.page.goto(url);
-        await this.page.waitForTimeout(2000);
+        await this.page.goto(url, { waitUntil: 'domcontentloaded' });
+        await this.emailInput.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
+        await this.page.waitForTimeout(1000);
         if (await this.cookieAcceptBtn.isVisible()) {
             await this.cookieAcceptBtn.click();
         }
@@ -36,15 +37,18 @@ export class AdminLogin {
         await this.emailInput.fill(email);
         await this.passwordInput.waitFor();
         await this.passwordInput.fill(password);
-        await this.signInBtn.click();
-        await this.page.waitForSelector('table');
-        await expect(this.landingPageTitle).toHaveText('Orders');
+        await this.signInBtn.scrollIntoViewIfNeeded();
+        await Promise.all([
+            this.page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 30000 }),
+            this.signInBtn.click({ force: true }),
+        ]);
+        await expect(this.landingPageTitle).toHaveText('Orders', { timeout: 30000 });
     }
 
     async goToSuppliersPage() {
-        const baseUrl = new URL(this.page.url()).origin;
-        await this.page.goto(`${baseUrl}/super-admin/suppliers`);
-        await expect(this.page.getByRole('heading', { name: 'Suppliers' })).toBeVisible();
+        const genFunctions = new genericFunctions(this.page);
+        await this.page.goto(genFunctions.buildURL('/super-admin/suppliers'), { waitUntil: 'domcontentloaded' });
+        await expect(this.page.getByRole('heading', { name: 'Suppliers' })).toBeVisible({ timeout: 30000 });
         await expect(this.page.getByRole('button', { name: 'Invite' })).toBeVisible();
     }
 }

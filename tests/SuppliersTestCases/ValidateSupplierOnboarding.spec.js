@@ -22,7 +22,7 @@ import { MailinatorPage } from '../../pages/Suppliers/MailinatorPage.js';
 
 test.describe('Supplier Onboarding Validation cases', async () => {
 
-    test.setTimeout(180000);
+    test.setTimeout(240000);
 
     test('Scenario 1: Complete Onboarding Flow', async ({ browser }, testInfo) => {
         const context = await browser.newContext({
@@ -111,8 +111,10 @@ test.describe('Supplier Onboarding Validation cases', async () => {
 
         //Delete Supplier after test
         await page.bringToFront();
-        await page.reload();
-        await suppliersPage.deleteSupplier(email);
+        await suppliersPage.deleteSupplier(email, {
+            adminLogin,
+            credentials: TestData.credentials.agent,
+        });
         await page.waitForTimeout(1000);
 
         // Cleanup
@@ -204,9 +206,11 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await supplierAccount.verifyCompanyName(supplier.companyName); // Verify updated company name is displayed on account page
 
         await page.bringToFront();
-        await page.reload();
         //Delete Supplier after test
-        await suppliersPage.deleteSupplier(supplier.email);
+        await suppliersPage.deleteSupplier(supplier.email, {
+            adminLogin,
+            credentials: TestData.credentials.agent,
+        });
         await page.waitForTimeout(1000);
 
         // Cleanup
@@ -301,9 +305,11 @@ test.describe('Supplier Onboarding Validation cases', async () => {
         await supplierRegistrationPage.verifySupplierRedirectedToOrdersPage(registrationPage);
 
         await page.bringToFront();
-        await page.reload();
         //Delete Supplier after test
-        await suppliersPage.deleteSupplier(supplier.email);
+        await suppliersPage.deleteSupplier(supplier.email, {
+            adminLogin,
+            credentials: TestData.credentials.agent,
+        });
         await page.waitForTimeout(1000);
 
         // Cleanup

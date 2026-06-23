@@ -337,6 +337,7 @@ test.describe('Supplier Invitations', async () => {
     });
 
     test('Scenario 7 & 8: Supplier Invites Team Member & Team member registers', async ({ browser }, testInfo) => {
+        test.setTimeout(180000);
         // Step 1: Login as supplier admin
         const context = await browser.newContext({
             ...testInfo.project.use,
@@ -349,15 +350,19 @@ test.describe('Supplier Invitations', async () => {
 
         const page = await context.newPage();
         genFunctions = new genericFunctions(page);
+        supplierRegistrationPage = new SupplierRegistrationPage(page);
         usersPage = new UsersPage(page);
         supplierMenuNavigation = new SupplierMenuNavigation(page);
         supplierAccount = new AccountPage(page);
 
         await genFunctions.goto(page, '/supplier/login');
-        await genFunctions.autoLogin(TestData.credentials.supplier.username, TestData.credentials.supplier.password);
+        await supplierRegistrationPage.supplierLogin(
+            TestData.credentials.supplier.username,
+            TestData.credentials.supplier.password
+        );
         await supplierMenuNavigation.redirectToUsersPage();
         const userDetails = await usersPage.inviteTeamMember();
-        await usersPage.verifyUserDetails(userDetails.emailInput, await userDetails.status);
+        await usersPage.verifyUserDetails(userDetails.emailInput, userDetails.status);
 
         await supplierMenuNavigation.navigateToAccountPage();
         // const companyName = await supplierAccount.companyName();

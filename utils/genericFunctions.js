@@ -29,15 +29,25 @@ export class genericFunctions {
     }
 
     async goto(page, path) {
-        await page.goto(this.buildURL(path));
+        await page.goto(this.buildURL(path), { waitUntil: 'domcontentloaded' });
         await this.acceptPrivacyPopupIfVisible(page);
     }
 
     async autoLogin(username, password) {
+        await this.usernameInput.waitFor({ state: 'visible', timeout: 20000 });
         await this.usernameInput.fill(username);
         await this.passwordInput.fill(password);
-        await this.signInBtn.click();
-        await this.page.getByRole('heading', { name: 'Orders' });
+        await this.signInBtn.scrollIntoViewIfNeeded();
+        await Promise.all([
+            this.page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 30000 }),
+            this.signInBtn.click({ force: true }),
+        ]);
+
+        const doItLaterBtn = this.page.getByRole('button', { name: 'Do it later' });
+        if (await doItLaterBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await doItLaterBtn.click();
+            await this.page.waitForTimeout(1000);
+        }
     }
 
     async goToYopmail() {

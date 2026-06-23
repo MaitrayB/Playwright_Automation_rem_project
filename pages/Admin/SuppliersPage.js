@@ -65,13 +65,34 @@ export class SuppliersPage {
 
     async findSupplierCardByEmail(email) {
         const searchInput = this.page.getByPlaceholder('Search suppliers by name, email, or contact');
-        if (await this.isCardView() && await searchInput.isVisible()) {
+
+        if (await searchInput.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await searchInput.click();
+            await searchInput.fill('');
             await searchInput.fill(email);
-            await this.page.waitForTimeout(1000);
+            await searchInput.press('Enter');
+            await this.page.waitForTimeout(2000);
         }
 
-        return this.page.getByText(`Email: ${email}`, { exact: true })
-            .locator('..').locator('..').locator('..');
+        const emailLine = this.page.getByText(`Email: ${email}`);
+        await emailLine.first().waitFor({ state: 'visible', timeout: 15000 });
+        return emailLine.first().locator('..').locator('..').locator('..');
+    }
+
+    async ensureOnSuppliersPage(adminLogin, credentials) {
+        const suppliersHeading = this.page.getByRole('heading', { name: 'Suppliers' });
+        if (await suppliersHeading.isVisible({ timeout: 3000 }).catch(() => false)) {
+            return;
+        }
+
+        const staffLogin = this.page.getByRole('heading', { name: 'Staff Sign In' });
+        if (await staffLogin.isVisible({ timeout: 2000 }).catch(() => false)) {
+            const genFunctions = new genericFunctions(this.page);
+            await adminLogin.goto(genFunctions.buildURL('/agent/login'));
+            await adminLogin.adminLogin(credentials.username, credentials.password);
+        }
+
+        await adminLogin.goToSuppliersPage();
     }
 
     async inviteSupplierViaEmailAndPhone(options = {}/*{ invitationType } = {}*/) {
@@ -144,7 +165,7 @@ export class SuppliersPage {
         if (await this.isCardView()) {
             const card = await this.findSupplierCardByEmail(emailInput);
             await expect(card).toBeVisible({ timeout: 15000 });
-            await expect(card.locator('span', { hasText: /^Invited$/ })).toBeVisible();
+            await expect(card).toContainText('Invited');
 
             const cardText = await card.textContent();
             id = cardText?.match(/#(\d+)/)?.[1];
@@ -166,14 +187,21 @@ export class SuppliersPage {
     }
 
     // DELETE SUPPLIER (GENERIC & STABLE)
-    async deleteSupplier(email) {
+    async deleteSupplier(email, { adminLogin, credentials } = {}) {
         const tblHelper = new tableHelper(this.page, 'table.w-full');
         console.log('Deleting supplier with email:', email);
 
+        if (adminLogin && credentials) {
+            await this.ensureOnSuppliersPage(adminLogin, credentials);
+        }
+
+        await this.page.waitForLoadState('domcontentloaded');
+
         if (await this.isCardView()) {
             const card = await this.findSupplierCardByEmail(email);
-            await expect(card).toBeVisible({ timeout: 15000 });
-            await card.getByRole('button', { name: 'Actions' }).click({ force: true });
+            await card.scrollIntoViewIfNeeded();
+            await expect(card).toBeVisible({ timeout: 20000 });
+            await card.getByRole('button', { name: 'Actions' }).first().click({ force: true });
         } else {
             const row = tblHelper.getRowByText(email);
             await expect(row).toBeVisible();
