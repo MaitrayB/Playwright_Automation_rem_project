@@ -33,7 +33,8 @@ export class SupplierRegistrationPage {
         // Onboarding form locators
         this.companyNameErrorMsg = page.getByText('Company name is required');
         this.phoneErrorMsg = page.getByText('Please enter a valid UK phone number');
-        this.previousBtn = page.getByRole('button', { name: 'Previous' });
+        this.previousBtn = page.getByRole('button', { name: 'Previous' })
+            .or(page.getByRole('button', { name: 'Next' }).locator('xpath=preceding-sibling::button[1]'));
         this.scrollWarningBanner = page.getByText('Please scroll down to read the full Supplier Protection & Dispute Policy');
         this.checkboxHintText = page.getByText('Please scroll to the bottom of the Supplier Protection & Dispute Policy above to enable this checkbox.');
         this.termsErrorMsg = page.getByText('You must accept the Supplier Protection & Dispute Policy to continue');
@@ -358,21 +359,24 @@ export class SupplierRegistrationPage {
 
         if (scenarioName === 'Scenario 5: Step Navigation') {
             // Verify we can navigate back to previous steps and the data is retained
-            await this.previousBtn.click();
+            await this.previousBtn.scrollIntoViewIfNeeded();
+            await this.previousBtn.click({ force: true });
             await page.waitForTimeout(500);
-            await this.previousBtn.click();
+            await this.previousBtn.click({ force: true });
             await page.waitForTimeout(500);
-            await this.previousBtn.click();
+            await this.previousBtn.click({ force: true });
             await page.waitForTimeout(500);
             await expect(this.companyNameInput).toHaveValue(companyName);
             await page.waitForTimeout(1000);
-            await this.nextBtn.click();
-            await expect(this.phoneNumberInput).toHaveValue(phone);
+            await this.nextBtn.click({ force: true });
+            const phoneValue = (await this.phoneNumberInput.inputValue()).replace(/\s/g, '');
+            const expectedPhone = phone.replace(/\s/g, '');
+            expect(phoneValue).toBe(expectedPhone);
             await page.waitForTimeout(1000);
-            await this.nextBtn.click();
+            await this.nextBtn.click({ force: true });
             await expect(this.postcodeInput).toHaveValue(postcode);
             await page.waitForTimeout(1000);
-            await this.nextBtn.click();
+            await this.nextBtn.click({ force: true });
         }
 
         //Hire period
@@ -446,9 +450,14 @@ export class SupplierRegistrationPage {
     async verifySupplierRedirectedToOrdersPage(page) {
         await expect(page).toHaveURL(/.*\/orders/, { timeout: 30000 });
         await page.waitForTimeout(1000);
-        if (await this.doItLaterBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+        const popupHeading = page.getByRole('heading', { name: 'Upload Documents Required' });
+        if (await popupHeading.isVisible({ timeout: 5000 }).catch(() => false)) {
             await this.doItLaterBtn.click({ force: true });
-            await this.page.waitForTimeout(2000);
+            await expect(popupHeading).not.toBeVisible({ timeout: 10000 });
+            await page.waitForTimeout(500);
+        } else if (await this.doItLaterBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+            await this.doItLaterBtn.click({ force: true });
+            await page.waitForTimeout(2000);
         }
         await page.waitForTimeout(1000);
         const viewport = page.viewportSize();

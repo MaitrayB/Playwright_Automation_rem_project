@@ -37,10 +37,13 @@ export class AdminLogin {
         await this.emailInput.fill(email);
         await this.passwordInput.waitFor();
         await this.passwordInput.fill(password);
+        if (await this.cookieAcceptBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+            await this.cookieAcceptBtn.click();
+        }
         await this.signInBtn.scrollIntoViewIfNeeded();
         await Promise.all([
             this.page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 30000 }),
-            this.signInBtn.click({ force: true }),
+            this.signInBtn.click(),
         ]);
         await expect(this.landingPageTitle).toHaveText('Orders', { timeout: 30000 });
     }

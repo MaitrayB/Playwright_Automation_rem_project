@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { SupplierRegistrationPage } from './SupplierRegistrationPage.js';
 import { genericFunctions } from '../../utils/genericFunctions.js';
 /**
@@ -32,7 +33,14 @@ export class SupplierMenuNavigation {
     }
 
     async dismissDocumentsPopupIfVisible() {
-        if (await this.doItLaterBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+        const popupHeading = this.page.getByRole('heading', { name: 'Upload Documents Required' });
+        if (await popupHeading.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await this.doItLaterBtn.click({ force: true });
+            await expect(popupHeading).not.toBeVisible({ timeout: 10000 });
+            await this.page.waitForTimeout(500);
+            return;
+        }
+        if (await this.doItLaterBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
             await this.doItLaterBtn.click({ force: true });
             await this.page.waitForTimeout(1000);
         }
@@ -83,7 +91,9 @@ export class SupplierMenuNavigation {
         await this.page.waitForTimeout(2000);
     }
     async navigateToDashboardPage() {
-        await this.dashboardMenuLink.click();
+        await this.dismissDocumentsPopupIfVisible();
+        await this.openMobileMenuIfNeeded();
+        await this.dashboardMenuLink.click({ timeout: 15000 });
         await this.page.waitForTimeout(2000);
     }
     async navigateToBankInformationPage() {

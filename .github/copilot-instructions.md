@@ -4,7 +4,7 @@
 - This is a Playwright-based end-to-end test automation project for web applications.
 - Major directories:
   - `pages/`: Page Object Model (POM) classes (e.g., `DashboardPage.js`, `LoginPage.js`, `OrderPage.js`).
-  - `tests/`: Main test specs (e.g., `smoke.spec.js`).
+  - `tests/`: Main test specs (e.g., `CustomerTestCases/smk.spec.js`).
   - `tests-examples/`: Example/specimen tests.
   - `utils/`: Utility functions (details to be discovered as needed).
   - `allure-report/`, `allure-results/`: Allure reporting output and attachments.
@@ -19,7 +19,7 @@
 ## Developer Workflows
 - **Run tests:**
   - Use Playwright CLI: `npx playwright test` (runs all tests in `tests/`)
-  - For specific specs: `npx playwright test tests/smoke.spec.js`
+  - For specific specs: `npx playwright test tests/CustomerTestCases/smk.spec.js`
 - **View reports:**
   - Playwright: Open `playwright-report/index.html`
   - Allure: Open `allure-report/index.html` (may require Allure CLI for advanced features)
@@ -49,7 +49,7 @@
 - `playwright.config.js`: Playwright configuration (browser, timeouts, etc.)
 - `package.json`: Dependency management and scripts
 - `pages/OrderPage.js`: Example of a page object
-- `tests/smoke.spec.js`: Example of a test spec
+- `tests/CustomerTestCases/smk.spec.js`: Main customer smoke test spec
 
 ---
 _If any conventions or workflows are unclear or missing, please provide feedback to improve these instructions._
