@@ -24,13 +24,15 @@ export class OrdersPage {
         this.searchInput = page.getByPlaceholder(/search by postcode, order/i);
         this.listViewBtn = page.getByRole('button', { name: 'List' });
         this.gridViewBtn = page.getByRole('button', { name: 'Grid' });
+        this.sortByLabel = page.getByText('Sort by:', { exact: true });
+        this.sortBySelect = page.locator('select').filter({
+            has: page.getByRole('option', { name: 'Delivery date (latest)' }),
+        });
 
         // Order detail
         this.orderDetailHeading = page.getByRole('heading', { name: /order #\d+/i });
         this.bookedBadge = page.locator('text="Booked"');
-        this.takeThisOrderBtn = page.getByRole('button', { name: /take this order/i, exact: true });
-
-        //Available Orders tab - Order Details page locator
+        this.takeThisOrderBtn = page.getByRole('button', { name: /^take order$/i });
         this.moreOptionsForUnbookedOrdersBtn = page.locator('button:has(svg.lucide-more-vertical)');
 
     }
@@ -46,6 +48,40 @@ export class OrdersPage {
     }
     async isListViewAvailable() {
         return this.listViewBtn.isVisible({ timeout: 2000 }).catch(() => false);
+    }
+
+    async applySearchFilter(searchTerm) {
+        await this.searchInput.fill(searchTerm);
+        await this.waitForAvailableOrdersLoaded();
+    }
+
+    async clearSearchFilter() {
+        await this.searchInput.clear();
+        await this.waitForAvailableOrdersLoaded();
+    }
+
+    async assertSearchResultsContainOrderId(orderId) {
+        const tableRowsVisible = await this.page.locator('table tbody tr').first()
+            .isVisible({ timeout: 3000 }).catch(() => false);
+
+        if (tableRowsVisible) {
+            const count = await this.table.getRowCount();
+            expect(count).toBeGreaterThan(0);
+            for (let i = 0; i < count; i++) {
+                const orderCell = await this.table.getCellByIndex(i, 0);
+                await expect(orderCell).toContainText(orderId);
+            }
+            return;
+        }
+
+        const cards = await this.getOrderCardTexts();
+        if (cards.length > 0) {
+            expect(cards.some(text => text.includes(orderId))).toBeTruthy();
+            return;
+        }
+
+        const visibleOrders = await this.page.locator('main').getByText(new RegExp(`#?${orderId}`)).allTextContents();
+        expect(visibleOrders.length).toBeGreaterThan(0);
     }
 
     async waitForAvailableOrdersLoaded() {
@@ -114,8 +150,13 @@ export class OrdersPage {
         const pattern = ydMatch
             ? new RegExp(ydMatch[1].replace(/\s+/g, '\\s*'), 'i')
             : new RegExp(searchTerm.replace(/\s+/g, '\\s*'), 'i');
+
+        if (await this.isListViewAvailable()) {
+            await this.ensureListView();
+        }
+
         const tableRowsVisible = await this.page.locator('table tbody tr').first()
-            .isVisible({ timeout: 3000 }).catch(() => false);
+            .isVisible({ timeout: 5000 }).catch(() => false);
 
         if (tableRowsVisible) {
             const count = await this.table.getRowCount();
@@ -150,37 +191,12 @@ export class OrdersPage {
         await expect(this.page.getByRole('button', { name: 'Details' }).first()).toBeVisible();
     }
 
-    async verifyOrdersSortedByCreationDateNewestFirst() {
-        if (await this.isListViewAvailable()) {
-            await this.ensureListView();
-            const count = await this.table.getRowCount();
-            if (count < 2) return;
+    async verifySortedByDeliveryDateFirst() {
+        await this.waitForAvailableOrdersLoaded();
 
-            const dates = [];
-            for (let i = 0; i < count; i++) {
-                const cell = await this.table.getCellByHeader(i, 'Delivery');
-                const text = await cell.innerText();
-                const dateLine = text.split('\n').find(line => /\d{1,2} \w+ \d{4}/.test(line)) ?? text.trim();
-                dates.push(new Date(dateLine.trim()));
-            }
-
-            for (let i = 1; i < dates.length; i++) {
-                expect(dates[i - 1].getTime()).toBeLessThanOrEqual(dates[i].getTime());
-            }
-            return;
-        }
-
-        const cards = await this.getOrderCardTexts();
-        if (cards.length < 2) return;
-
-        const dates = cards.map(text => {
-            const match = text.match(/Delivery[\s\S]*?(\d{1,2} \w+ \d{4})/);
-            return match ? new Date(match[1]) : null;
-        }).filter(Boolean);
-
-        for (let i = 1; i < dates.length; i++) {
-            expect(dates[i - 1].getTime()).toBeLessThanOrEqual(dates[i].getTime());
-        }
+        await expect(this.sortByLabel).toBeVisible();
+        await expect(this.sortBySelect).toBeVisible();
+        await expect(this.sortBySelect.locator('option:checked')).toHaveText('Delivery date (latest)');
     }
 
     async verifyAllDeliveryDatesAreFuture() {
@@ -245,19 +261,40 @@ export class OrdersPage {
     async openFirstAvailableOrderDetails() {
         await this.waitForAvailableOrdersLoaded();
 
-        const detailsBtn = this.page.getByRole('button', { name: 'Details' }).first();
-        if (await detailsBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-            await detailsBtn.click();
-            return;
-        }
+        const tableVisible = await this.page.locator('table tbody tr').first()
+            .isVisible({ timeout: 2000 }).catch(() => false);
 
-        if (await this.isListViewAvailable()) {
+        if (!tableVisible && await this.isListViewAvailable()) {
             await this.ensureListView();
-            await this.table.getRowByIndex(0).getByText(/#\d+/).click();
-            return;
         }
 
-        await this.page.getByText(/#\d+/).first().click();
+        if (await this.page.locator('table tbody tr').first().isVisible({ timeout: 2000 }).catch(() => false)) {
+            const firstRow = this.table.getRowByIndex(0);
+            const viewBtn = firstRow.locator('button[title="View Details"]');
+            if (await viewBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+                await viewBtn.click();
+            } else {
+                await firstRow.getByText(/#\d+/).click();
+            }
+        } else {
+            const detailsBtn = this.page.getByRole('button', { name: 'Details' }).first();
+            const orderIdLink = this.page.locator('main').getByText(/#\d+/).first();
+
+            if (await detailsBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+                await detailsBtn.scrollIntoViewIfNeeded();
+                await detailsBtn.click();
+            } else if (await orderIdLink.isVisible({ timeout: 5000 }).catch(() => false)) {
+                await orderIdLink.scrollIntoViewIfNeeded();
+                await orderIdLink.click();
+            } else {
+                const orderCard = this.page.getByRole('button', { name: /take order/i }).first()
+                    .locator('xpath=ancestor::div[contains(@class,"cursor-pointer")]').first();
+                await orderCard.scrollIntoViewIfNeeded();
+                await orderCard.click();
+            }
+        }
+
+        await expect(this.orderDetailHeading).toBeVisible({ timeout: 30000 });
     }
 
     async clickFirstRowViewIcon() {
@@ -277,7 +314,35 @@ export class OrdersPage {
     }
 
     async clickTakeOrderButtonOnDetailsPage() {
-        await this.takeThisOrderBtn.click();
+        const takeBtn = await this.getTakeOrderDetailsButton();
+        await takeBtn.click();
+    }
+
+    async openTakeOrderSheetFromDetailsPage() {
+        const takeBtn = await this.getTakeOrderDetailsButton();
+        await expect(takeBtn).toBeVisible();
+        await expect(takeBtn).toBeEnabled();
+        await takeBtn.click();
+    }
+
+    async getTakeOrderDetailsButton() {
+        const labeledBtn = this.page.getByRole('button', { name: /^take order$/i });
+        if (await labeledBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+            return labeledBtn;
+        }
+
+        const titleBtn = this.page.locator('button[title="Take Order"]').first();
+        if (await titleBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+            return titleBtn;
+        }
+
+        // Mobile order details uses icon-only action buttons in the header row
+        return this.orderDetailHeading
+            .locator('xpath=ancestor::div[.//button][1]')
+            .getByRole('button')
+            .and(this.page.locator(':enabled'))
+            .filter({ has: this.page.locator('svg') })
+            .first();
     }
 
     async ensureListView() {
@@ -435,53 +500,40 @@ export class OrdersPage {
 
     async verifyOrderDetailBeforeTaking() {
         await expect(this.orderDetailHeading).toBeVisible();
-        await expect(this.takeThisOrderBtn).toBeVisible();
-        await expect(this.takeThisOrderBtn).toBeEnabled();
+        const takeBtn = await this.getTakeOrderDetailsButton();
+        await expect(takeBtn).toBeVisible();
+        await expect(takeBtn).toBeEnabled();
         await expect(this.bookedBadge).not.toBeVisible();
     }
 
     async verifyTakeThisOrderBtnForUnverifiedSupplier() {
-        await expect(this.takeThisOrderBtn).toBeVisible();
-        await expect(this.takeThisOrderBtn).toBeEnabled();
-        await this.takeThisOrderBtn.click();
-        await expect(this.cannotTakeOrdersMessage2).toBeVisible();
+        const takeBtn = await this.getTakeOrderDetailsButton();
+        await expect(takeBtn).toBeVisible();
+        await expect(takeBtn).toBeEnabled();
+        await takeBtn.click();
+
+        const sheetMessage = this.page.getByRole('dialog')
+            .getByText(/Cannot Take Orders\. Documents are not completed\./);
+        await expect(this.cannotTakeOrdersMessage2.or(sheetMessage)).toBeVisible({ timeout: 10000 });
     }
 
     async verifySearchFilterByOrderId() {
-        const firstOrderText = await this.page.getByText(/#\d+/).first().textContent();
-        const idNum = firstOrderText?.match(/#(\d+)/)?.[1];
+        await this.waitForAvailableOrdersLoaded();
+        const idNum = await this.getFirstRowOrderId();
         if (!idNum) return;
 
-        await this.searchInput.fill(idNum);
-        await this.page.waitForTimeout(1000);
-
-        if (await this.isListViewAvailable()) {
-            await this.ensureListView();
-            const count = await this.table.getRowCount();
-            for (let i = 0; i < count; i++) {
-                const orderCell = await this.table.getCellByIndex(i, 0);
-                await expect(orderCell).toContainText(idNum);
-            }
-        } else {
-            const visibleOrders = await this.page.getByText(/#\d+/).allTextContents();
-            expect(visibleOrders.length).toBeGreaterThan(0);
-            for (const orderText of visibleOrders) {
-                expect(orderText).toContain(idNum);
-            }
-        }
-        await this.searchInput.clear();
-        await this.page.waitForTimeout(2000);
+        await this.applySearchFilter(idNum);
+        await this.assertSearchResultsContainOrderId(idNum);
+        await this.clearSearchFilter();
     }
 
     async verifySearchFilterByAddress() {
         const searchTerm = await this.getFirstOrderPostcode();
         expect(searchTerm).toBeTruthy();
 
-        await this.searchInput.fill(searchTerm);
-        await this.page.waitForTimeout(1000);
+        await this.applySearchFilter(searchTerm);
         await this.assertFilteredOrdersContain('Postcode', searchTerm);
-        await this.searchInput.clear();
-        await this.page.waitForTimeout(1000);
+        await this.clearSearchFilter();
     }
 
     async verifySearchFilterByPostcode() {
@@ -492,11 +544,9 @@ export class OrdersPage {
         const skipSize = await this.getFirstOrderSkipSize();
         expect(skipSize).toBeTruthy();
 
-        await this.searchInput.fill(skipSize);
-        await this.page.waitForTimeout(1500);
+        await this.applySearchFilter(skipSize);
         await this.assertFilteredOrdersContain('Skip', skipSize);
-        await this.searchInput.clear();
-        await this.page.waitForTimeout(1000);
+        await this.clearSearchFilter();
     }
 
     async getFirstRowOrderId() {

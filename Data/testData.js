@@ -24,7 +24,7 @@ export const TestData = {
       password: 'Password@123'
     },
     pendingBankSetupSupplier: {
-      username: 'Ofelia_Koch-Volkman@mailinator.com',
+      username: 'Laisha_Dooley@mailinator.com',
       password: 'Password@123'
     }
   },

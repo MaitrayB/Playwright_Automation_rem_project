@@ -111,8 +111,10 @@ export class SupplierRegistrationPage {
     }
 
     async supplierLogin(email, password) {
+        await this.page.waitForLoadState('domcontentloaded');
         await this.acceptCookiesIfVisible();
-        await this.emailInput.waitFor({ state: 'visible', timeout: 20000 });
+        await expect(this.supplierLoginPageHeading).toBeVisible({ timeout: 30000 });
+        await this.emailInput.waitFor({ state: 'visible', timeout: 30000 });
         await this.emailInput.fill(email);
         await this.passwordInput.fill(password);
         await this.signInBtn.scrollIntoViewIfNeeded();

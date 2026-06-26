@@ -189,7 +189,6 @@ export class TakeOrderSheetPage {
 
     async verifyPolicySectionsDisplayed() {
         await expect(this.supplierProtectionPolicyTab).toBeVisible();
-        await expect(this.esgWeighbridgeTab).toBeVisible();
     }
 
     async verifyTakeOrderDisabled() {
@@ -215,7 +214,6 @@ export class TakeOrderSheetPage {
 
     async acceptAllPolicies() {
         await this.scrollAndAgreeToPolicy(this.supplierProtectionPolicyTab);
-        await this.scrollAndAgreeToPolicy(this.esgWeighbridgeTab);
     }
 
     async confirmOrder() {

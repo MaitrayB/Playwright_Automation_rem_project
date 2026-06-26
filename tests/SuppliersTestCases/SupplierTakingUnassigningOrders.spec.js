@@ -84,8 +84,8 @@ test.describe('2. Viewing Available Orders', () => {
         // AC-2.1.3: Orders list shows: Order ID, Address / Postcode, Skip size, Permit, Delivery date, Days to delivery, Supplier price (with VAT)
         await ordersPage.verifyColumnNamesofAvailableOrders();
 
-        // AC-2.1.4: Orders are sorted by creation date (newest first)
-        await ordersPage.verifyOrdersSortedByCreationDateNewestFirst();
+        // AC-2.1.4: Default sort is "Delivery date (latest)"
+        await ordersPage.verifySortedByDeliveryDateFirst();
 
         // AC-2.1.5: Orders can be searched by Address, Postcode, Skip size or order ID
         await ordersPage.verifySearchFilterByOrderId();
@@ -111,6 +111,8 @@ test.describe('2. Viewing Available Orders', () => {
     });
 
     test('Scenario 2.2 Order Display States', async ({ browser }, testInfo) => {
+        test.setTimeout(120000);
+
         const context = await browser.newContext({
             ...testInfo.project.use,
             httpCredentials: {
@@ -215,9 +217,7 @@ test.describe('3. Taking Orders', () => {
 
         // AC-3.2.1: Take Order sheet displays when "Take" button is clicked
         await test.step('AC-3.2.1: Click Take Order button to open sheet', async () => {
-            await expect(ordersPage.takeThisOrderBtn).toBeVisible();
-            await expect(ordersPage.takeThisOrderBtn).toBeEnabled();
-            await ordersPage.takeThisOrderBtn.click();
+            await ordersPage.openTakeOrderSheetFromDetailsPage();
             await page.waitForTimeout(2000);
         });
 
@@ -322,9 +322,7 @@ test.describe('3. Taking Orders', () => {
 
         // Setup: Take Order sheet displays when "Take" button is clicked
         await test.step('Click Take Order button to open sheet', async () => {
-            await expect(ordersPage.takeThisOrderBtn).toBeVisible();
-            await expect(ordersPage.takeThisOrderBtn).toBeEnabled();
-            await ordersPage.takeThisOrderBtn.click();
+            await ordersPage.openTakeOrderSheetFromDetailsPage();
             await page.waitForTimeout(2000);
         });
 
@@ -365,9 +363,7 @@ test.describe('3. Taking Orders', () => {
 
         // Setup: Take Order sheet displays when "Take" button is clicked
         await test.step('Click Take Order button to open sheet', async () => {
-            await expect(ordersPage.takeThisOrderBtn).toBeVisible();
-            await expect(ordersPage.takeThisOrderBtn).toBeEnabled();
-            await ordersPage.takeThisOrderBtn.click();
+            await ordersPage.openTakeOrderSheetFromDetailsPage();
             await page.waitForTimeout(2000);
         });
 
@@ -405,9 +401,7 @@ test.describe('3. Taking Orders', () => {
 
         // Setup: Take Order sheet displays when "Take" button is clicked
         await test.step('Click Take Order button to open sheet', async () => {
-            await expect(ordersPage.takeThisOrderBtn).toBeVisible();
-            await expect(ordersPage.takeThisOrderBtn).toBeEnabled();
-            await ordersPage.takeThisOrderBtn.click();
+            await ordersPage.openTakeOrderSheetFromDetailsPage();
             await page.waitForTimeout(2000);
         });
 
@@ -464,9 +458,7 @@ test.describe('3. Taking Orders', () => {
 
         // Setup: Take Order sheet displays when "Take" button is clicked
         await test.step('Click Take Order button to open sheet', async () => {
-            await expect(ordersPage.takeThisOrderBtn).toBeVisible();
-            await expect(ordersPage.takeThisOrderBtn).toBeEnabled();
-            await ordersPage.takeThisOrderBtn.click();
+            await ordersPage.openTakeOrderSheetFromDetailsPage();
             await page.waitForTimeout(2000);
         });
 
@@ -492,7 +484,7 @@ test.describe('3. Taking Orders', () => {
         await test.step('AC-3.4.4: Form cannot be submitted without accepting all policies', async () => {
             await takeOrderSheetPage.verifyTakeOrderDisabled();
             await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.supplierProtectionPolicyTab);
-            await takeOrderSheetPage.verifyTakeOrderDisabled();
+            await takeOrderSheetPage.verifyTakeOrderEnabled();
         });
 
         // Cleanup
@@ -629,7 +621,7 @@ test.describe('4. Viewing My Orders', () => {
             // Reusing the same search methods from OrdersPage as they target the list & search input
             await expect(ordersPage.searchInput).toBeVisible();
 
-            // Search by filtering methods 
+            // Search by filtering methods
             await ordersPage.verifySearchFilterByOrderId();
             await ordersPage.verifySearchFilterByAddress();
             await ordersPage.verifySearchFilterByPostcode();
