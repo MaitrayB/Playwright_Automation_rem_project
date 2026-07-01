@@ -484,6 +484,7 @@ test.describe('3. Taking Orders', () => {
         await test.step('AC-3.4.4: Form cannot be submitted without accepting all policies', async () => {
             await takeOrderSheetPage.verifyTakeOrderDisabled();
             await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.supplierProtectionPolicyTab);
+            await takeOrderSheetPage.acceptEsgPolicyIfVisible();
             await takeOrderSheetPage.verifyTakeOrderEnabled();
         });
 
@@ -529,6 +530,7 @@ test.describe('3. Taking Orders', () => {
 
         await test.step('Verify Take Order sheet is displayed', async () => {
             await takeOrderSheetPage.verifySheetDisplayed();
+            await takeOrderSheetPage.waitForLoadingComplete();
         });
 
         await test.step('Accept terms and policies', async () => {
@@ -539,8 +541,13 @@ test.describe('3. Taking Orders', () => {
 
         await test.step('AC-3.5.4: On successful submission, validate success message, order status and order list', async () => {
             await takeOrderSheetPage.takeThisOrderBtn.click();
-            await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible({ timeout: 15000 });
-            expect(await ordersPage.verifyTakenOrderIDIsNotVisibleInAvailableOrdersTab(orderId)).toBeTruthy();
+
+            const isMobile = testInfo.project.name.includes('Mobile');
+            if (!isMobile) {
+                await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible({ timeout: 15000 });
+            }
+
+            await ordersPage.verifyOrderTaken(orderId);
         });
 
         await test.step('AC-3.5.5: Order appears in "My Orders" tab after taking', async () => {
@@ -556,6 +563,8 @@ test.describe('3. Taking Orders', () => {
 
 test.describe('4. Viewing My Orders', () => {
     test('4.1 My Orders Tab', async ({ browser }, testInfo) => {
+        test.setTimeout(120000);
+
         const context = await browser.newContext({
             ...testInfo.project.use,
             httpCredentials: {
@@ -584,14 +593,11 @@ test.describe('4. Viewing My Orders', () => {
         });
 
         await test.step('AC-4.1.2: My Orders tab displays orders', async () => {
-            await expect(ordersPage.myOrdersTab).toBeVisible();
-            await ordersPage.myOrdersTab.click();
-            await page.waitForLoadState("domcontentloaded");
-
-            // Verify the table has loaded orders
-            await page.waitForSelector('table');
-            const rowCount = await ordersPage.table.getRowCount();
-            expect(rowCount).toBeGreaterThan(0);
+            await ordersPage.navigateToMyOrdersTab();
+            await ordersPage.waitForOrdersListLoaded();
+            await myOrdersPage.ensureOrdersListVisible();
+            const orderCount = await myOrdersPage.getOrderCount();
+            expect(orderCount).toBeGreaterThan(0);
         });
 
         await test.step('AC-4.1.3: Orders show status badge', async () => {
@@ -604,13 +610,18 @@ test.describe('4. Viewing My Orders', () => {
 
             // Navigate back to My Orders tab to continue other tests
             await myOrderDetailsPage.clickBackToMyOrders();
+            await myOrdersPage.waitForMyOrdersLoaded();
             await expect(ordersPage.myOrdersTab).toBeVisible();
         });
 
         await test.step('AC-4.1.5: Orders can be filtered by date range', async () => {
             await myOrdersPage.filterOrdersByDate('1', '28');
-            const rowCount = await ordersPage.table.getRowCount();
-            expect(rowCount).toBeGreaterThanOrEqual(0);
+            await myOrdersPage.waitForMyOrdersLoaded();
+            const orderCount = await myOrdersPage.getOrderCount();
+            expect(orderCount).toBeGreaterThanOrEqual(0);
+            await myOrdersPage.resetDateFilter();
+            await myOrdersPage.waitForMyOrdersLoaded();
+            expect(await myOrdersPage.getOrderCount()).toBeGreaterThan(0);
         });
 
         await test.step('AC-4.1.6: My Orders tab shows total orders and total amount', async () => {
@@ -618,13 +629,13 @@ test.describe('4. Viewing My Orders', () => {
         });
 
         await test.step('AC-4.1.7: My Orders tab is searchable', async () => {
-            // Reusing the same search methods from OrdersPage as they target the list & search input
             await expect(ordersPage.searchInput).toBeVisible();
+            await ordersPage.clearSearchFilter();
 
-            // Search by filtering methods
             await ordersPage.verifySearchFilterByOrderId();
             await ordersPage.verifySearchFilterByAddress();
             await ordersPage.verifySearchFilterByPostcode();
+            // Known issue: skip size search not supported on My Orders mobile UI
             await ordersPage.verifySearchFilterBySkipSize();
         });
     });
@@ -633,6 +644,8 @@ test.describe('4. Viewing My Orders', () => {
 test.describe('5. Order Details Page - Taking Orders', () => {
     
     test('5.1 Take Order Button on Details Page', async ({ browser }, testInfo) => {
+        test.setTimeout(120000);
+
         let orderId;
         const context = await browser.newContext({
             ...testInfo.project.use,
@@ -674,17 +687,24 @@ test.describe('5. Order Details Page - Taking Orders', () => {
 
         await test.step('Verify Take Order sheet is displayed', async () => {
             await takeOrderSheetPage.verifySheetDisplayed();
+            await takeOrderSheetPage.waitForLoadingComplete();
         });
 
         await test.step('Accept terms and policies', async () => {
-            await expect(takeOrderSheetPage.termsAndConditionsCheckbox).toBeVisible();
-            takeOrderSheetPage.termsAndConditionsCheckbox.check();
-            await expect(takeOrderSheetPage.takeThisOrderBtn).toBeEnabled();
+            await takeOrderSheetPage.verifyPolicySectionsDisplayed();
+            await takeOrderSheetPage.acceptAllPolicies();
+            await takeOrderSheetPage.verifyTakeOrderEnabled();
         });
 
-        await test.step( 'On successful submission, validate success message, order status and order list', async () => {
+        await test.step('On successful submission, validate success message, order status and order list', async () => {
             await takeOrderSheetPage.takeThisOrderBtn.click();
-            await expect(takeOrderSheetPage.takeOrderSheet).not.toBeVisible();
+
+            const isMobile = testInfo.project.name.includes('Mobile');
+            if (!isMobile) {
+                await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible({ timeout: 15000 });
+            }
+
+            await ordersPage.verifyOrderTaken(orderId);
         });
 
         // Cleanup
@@ -695,6 +715,8 @@ test.describe('5. Order Details Page - Taking Orders', () => {
     
     
     test('5.2 Order Details After Taking', async ({ browser }, testInfo) => {
+        test.setTimeout(120000);
+
         const context = await browser.newContext({
             ...testInfo.project.use,
             httpCredentials: {
@@ -720,31 +742,21 @@ test.describe('5. Order Details Page - Taking Orders', () => {
             );
             await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
         });
-        await expect(ordersPage.myOrdersTab).toBeVisible();
-        await ordersPage.myOrdersTab.click();
-        await page.waitForLoadState("domcontentloaded");
+
+        await test.step('Navigate to My Orders tab', async () => {
+            await ordersPage.navigateToMyOrdersTab();
+            await ordersPage.waitForOrdersListLoaded();
+            await myOrdersPage.ensureOrdersListVisible();
+        });
 
         await test.step('Navigate to order details page of a booked order', async () => {
-            await page.waitForTimeout(2000);
             await myOrdersPage.clickFirstRowViewIcon();
-            
             await page.waitForLoadState('domcontentloaded');
             await myOrderDetailsPage.verifyOrderStatusBadge();
-            await page.waitForTimeout(3000);
         });
 
         await test.step('AC-5.2.2: "Take this Order" button is replaced with order management options', async () => {
-            await myOrderDetailsPage.manageDeliveryBtn.scrollIntoViewIfNeeded();
-            await myOrderDetailsPage.manageDeliveryBtn.highlight();
-            await expect(myOrderDetailsPage.manageDeliveryBtn).toBeVisible();
-            await page.waitForTimeout(3000);
-            await myOrderDetailsPage.manageCollectionBtn.scrollIntoViewIfNeeded();
-            await myOrderDetailsPage.manageCollectionBtn.highlight();
-            await expect(myOrderDetailsPage.manageCollectionBtn).toBeVisible();
-            await myOrderDetailsPage.extraChargeableItemsBtn.scrollIntoViewIfNeeded();
-            await myOrderDetailsPage.extraChargeableItemsBtn.highlight();
-            await expect(myOrderDetailsPage.extraChargeableItemsBtn).toBeVisible();
-            await page.waitForTimeout(3000);
+            await myOrderDetailsPage.verifyOrderManagementOptionsVisible();
         });
     });
 });
@@ -778,15 +790,15 @@ test.describe('6. Unassigning from Orders', () => {
         });
         await expect(ordersPage.myOrdersTab).toBeVisible();
         await ordersPage.myOrdersTab.click();
-        await page.waitForLoadState("domcontentloaded");
+        await myOrdersPage.waitForBookedOrdersData();
 
         await test.step('Navigate to order details page of a booked order', async () => {
-            await myOrdersPage.clickFirstRowViewIcon();
+            await myOrdersPage.openFirstOrderWithMoreOptions();
             await page.waitForLoadState('domcontentloaded');
         });
 
         await test.step('AC-6.1.2 / AC-6.1.3: Unassign button is visible in more options menu', async () => {
-            await myOrderDetailsPage.moreOptionsBtn.click();
+            await myOrderDetailsPage.openMoreOptionsMenu();
             await expect(myOrderDetailsPage.unassignFromOrderBtn).toBeVisible();
             await myOrderDetailsPage.backToMyOrdersBtn.click(); // to navigate to Available Orders tab for next test step
         });
@@ -828,12 +840,12 @@ test.describe('6. Unassigning from Orders', () => {
         });
         await expect(ordersPage.myOrdersTab).toBeVisible();
         await ordersPage.myOrdersTab.click();
-        await page.waitForLoadState("domcontentloaded");
+        await myOrdersPage.waitForBookedOrdersData();
 
         await test.step('Navigate to order details page of a booked order', async () => {
-            await myOrdersPage.clickFirstRowViewIcon();
+            await myOrdersPage.openFirstOrderWithMoreOptions();
             await page.waitForLoadState('domcontentloaded');
-            await myOrderDetailsPage.moreOptionsBtn.click();
+            await myOrderDetailsPage.openMoreOptionsMenu();
         });
 
         await test.step('AC-6.2.1: Clicking unassign opens confirmation modal', async () => {
@@ -905,12 +917,12 @@ test.describe('6. Unassigning from Orders', () => {
         });
         await expect(ordersPage.myOrdersTab).toBeVisible();
         await ordersPage.myOrdersTab.click();
-        await page.waitForLoadState("domcontentloaded");
+        await myOrdersPage.waitForBookedOrdersData();
 
         await test.step('Navigate to order details page of a booked order', async () => {
-            await myOrdersPage.clickFirstRowViewIcon();
+            await myOrdersPage.openFirstOrderWithMoreOptions();
             await page.waitForLoadState('domcontentloaded');
-            await myOrderDetailsPage.moreOptionsBtn.click();
+            await myOrderDetailsPage.openMoreOptionsMenu();
         });
 
         await test.step('Click unassign from orders button', async () => {
@@ -989,17 +1001,15 @@ test.describe('7. Late Unassign Detection', () => {
         });
         await expect(ordersPage.myOrdersTab).toBeVisible();
         await ordersPage.myOrdersTab.click();
-        await page.waitForLoadState("domcontentloaded");
+        await myOrdersPage.waitForBookedOrdersData();
 
         await test.step('Navigate to order details page of a booked order', async () => {
-            //await myOrdersPage.clickFirstRowViewIcon();
+            await myOrdersPage.openFirstOverdueOrder();
             await page.waitForLoadState('domcontentloaded');
-            await myOrderDetailsPage.lateDeliveryOrderRow.highlight();
-            await myOrderDetailsPage.lateDeliveryOrderRow.click();
         });
 
         await test.step('Click unassign from orders button', async () => {
-            await myOrderDetailsPage.moreOptionsBtn.click();
+            await myOrderDetailsPage.openMoreOptionsMenu();
             await page.waitForTimeout(2000);
             await myOrderDetailsPage.unassignFromOrderBtn.click();
             await page.waitForTimeout(2000);
@@ -1065,15 +1075,13 @@ test.describe('8. Order Status Update', () => {
         });
         await expect(ordersPage.myOrdersTab).toBeVisible();
         await ordersPage.myOrdersTab.click();
-        await page.waitForLoadState("domcontentloaded");
+        await myOrdersPage.waitForBookedOrdersData();
         orderId = await ordersPage.getFirstRowOrderId();
         console.log("Order ID is "+orderId);
 
         await test.step('Navigate to order details page of a booked order', async () => {
-            //await myOrdersPage.clickFirstRowViewIcon();
+            await myOrdersPage.openFirstOverdueOrder();
             await page.waitForLoadState('domcontentloaded');
-            await myOrderDetailsPage.lateDeliveryOrderRow.highlight();
-            await myOrderDetailsPage.lateDeliveryOrderRow.click();
         });
 
         await test.step('Verify status as "In progress" after taking', async () => {

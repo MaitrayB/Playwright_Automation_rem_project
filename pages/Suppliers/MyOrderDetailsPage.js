@@ -4,10 +4,11 @@ export class MyOrderDetailsPage {
     constructor(page) {
         this.page = page;
         // Status Badge locator
-        this.orderStatusBadge = page.locator('div, span').filter({ hasText: /^(Booked|In Progress|Requested Collection|Collected|Delivered|Refunded|Pending, New)$/i }).first();
+        this.orderStatusBadge = page.locator('main').getByText(/\b(Booked|In Progress|Requested Collection|Collected|Delivered|Refunded|Pending,? New)\b/i).first();
         // Back to My Orders button locator
         this.orderStatusBadgeCorrected = page.locator('//span[contains(@class,"text-green")]')
-        this.backToMyOrdersBtn = page.getByText(/Back to My Orders/i);
+        this.backToMyOrdersBtn = page.getByRole('button', { name: /Back to My Orders/i })
+            .or(page.getByText(/Back to My Orders/i));
         this.manageDeliveryBtn = page.getByRole('button', { name: /Manage Delivery/i });
         this.markDeliveredBtn = page.getByRole('button', { name: 'Mark delivered' });
         this.confirmDeliveryBtn = page.getByRole('button', { name: /Confirm Delivery/i });
@@ -15,12 +16,16 @@ export class MyOrderDetailsPage {
         this.submitBtn = page.getByRole('button', { name: 'Submit' });
         this.manageCollectionBtn = page.getByRole('button', { name: /Manage Collection/i });
         this.extraChargeableItemsBtn = page.getByRole('button', { name: /Extra Chargeable Items/i });
-        this.moreOptionsBtn = page.locator('button:has(svg.lucide-more-vertical)');
+        this.moreOptionsBtn = page.getByRole('heading', { name: /order #\d+/i })
+            .locator('xpath=ancestor::div[.//button][1]')
+            .locator('button:has(svg.lucide-more-vertical)');
         this.unassignFromOrderBtn = page.getByRole('button', { name: /Unassign from Order/i });
 
         // Unassign Modal Locators
-        this.unassignModal = page.locator('div.max-w-md');
+        this.unassignModal = page.getByRole('heading', { name: /Unassign from this order\?|Confirm Unassignment/i })
+            .locator('xpath=ancestor::div[contains(@class,"max-w")][1]');
         this.unassignModalTitle = page.getByRole('heading', { name: 'Unassign from this order?', exact: true });
+        this.unassignConfirmTitle = page.getByRole('heading', { name: 'Confirm Unassignment', exact: true });
         this.unassignVehicleBreakdownOption = page.getByRole('button', { name: 'Vehicle breakdown' });
         this.unassignDriverAvailabilityOption = page.getByRole('button', { name: 'Driver availability issue' });
         this.unassignSiteAccessOption = page.getByRole('button', { name: 'Site access issue' });
@@ -31,11 +36,11 @@ export class MyOrderDetailsPage {
         this.unassignCustomReasonValidationMsg = page.getByText(/Please provide a reason/i);
         this.unassignContinueBtn = page.getByRole('button', { name: 'Continue', exact: true });
         this.unassignCancelBtn = page.getByRole('button', { name: 'Cancel', exact: true });
-        this.reasonDropdown = page.locator('//label[contains(.,"Reason")]/following-sibling::div');
-        this.backBtn = page.locator('(//button[contains(.,"Back")])[2]');
-        this.lateDeliveryOrderRow = page.locator('(//tr[contains(.,"days ago")])[1]')
-        this.confirmUnassignBtn = page.locator('//button[contains(.,"Confirm Unassign") or contains(.,"Confirm & Accept Fee")]');
-        this.wastedJourneyTitle = page.locator('//p[contains(.,"Wasted Journey Fee Will Be Charged")]');
+        this.reasonDropdown = page.locator('label:has-text("Reason")').locator('xpath=following::button[1]');
+        this.backBtn = page.getByRole('button', { name: 'Back', exact: true });
+        this.lateDeliveryOrderRow = page.locator('main [class*="cursor-pointer"]').filter({ hasText: /#\d+/ }).first();
+        this.confirmUnassignBtn = page.getByRole('button', { name: /Confirm Unassign|Confirm & Accept/i });
+        this.wastedJourneyTitle = page.getByText(/Late Release Charge|Wasted Journey Fee/i);
    
    
     }
@@ -59,6 +64,52 @@ export class MyOrderDetailsPage {
         await this.backToMyOrdersBtn.click();
     }
 
+    async getDeliveryActionButton() {
+        if (await this.markDeliveredBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+            return this.markDeliveredBtn;
+        }
+        if (await this.manageDeliveryBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+            return this.manageDeliveryBtn;
+        }
+        return null;
+    }
+
+    async verifyOrderManagementOptionsVisible() {
+        await expect(
+            this.page.locator('main').getByRole('button', { name: /^take this order$/i })
+        ).not.toBeVisible();
+
+        const deliveryBtn = await this.getDeliveryActionButton();
+        const hasDesktopManagement = deliveryBtn
+            && await this.manageCollectionBtn.isVisible({ timeout: 2000 }).catch(() => false)
+            && await this.extraChargeableItemsBtn.isVisible({ timeout: 2000 }).catch(() => false);
+
+        if (hasDesktopManagement) {
+            await deliveryBtn.scrollIntoViewIfNeeded();
+            await expect(deliveryBtn).toBeVisible({ timeout: 15000 });
+            await expect(this.manageCollectionBtn).toBeVisible({ timeout: 15000 });
+            await expect(this.extraChargeableItemsBtn).toBeVisible({ timeout: 15000 });
+            return;
+        }
+
+        await this.verifyMobileOrderManagementOptions();
+    }
+
+    async verifyMobileOrderManagementOptions() {
+        const waitingForDelivery = this.page.locator('main').getByRole('button', { name: /Waiting for Delivery/i });
+        await waitingForDelivery.scrollIntoViewIfNeeded();
+        await expect(waitingForDelivery).toBeVisible({ timeout: 15000 });
+        await expect(this.page.locator('main').getByRole('button', { name: /^Delivered$/i }).first()).toBeVisible();
+        await expect(this.page.locator('main').getByRole('button', { name: /Waiting for Collection/i })).toBeVisible();
+
+        const headerActions = this.page.getByRole('heading', { name: /order #\d+/i })
+            .locator('xpath=ancestor::div[.//button][1]')
+            .getByRole('button')
+            .and(this.page.locator(':enabled'))
+            .filter({ has: this.page.locator('svg') });
+        await expect(headerActions.first()).toBeVisible({ timeout: 15000 });
+    }
+
     async markDelivered(message = "Today's delivery marked by supplier") {
         if (await this.markDeliveredBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
             await this.markDeliveredBtn.click();
@@ -80,15 +131,24 @@ export class MyOrderDetailsPage {
         await this.page.waitForTimeout(2000);
     }
 
+    async openMoreOptionsMenu() {
+        await expect(this.page.getByRole('heading', { name: /order #\d+/i })).toBeVisible({ timeout: 15000 });
+        await expect(this.moreOptionsBtn).toBeEnabled({ timeout: 15000 });
+        await this.moreOptionsBtn.click();
+    }
+
     // Unassign Modal Methods
     async verifyUnassignModalDisplayed() {
         await expect(this.unassignModal).toBeVisible();
         await expect(this.unassignModalTitle).toBeVisible();
     }
 
+    async openReasonDropdown() {
+        await this.reasonDropdown.click();
+    }
+
     async clickReasonDropdown() {
-        //await expect(this.unassignReasonDropdown).toBeVisible();
-        await this.unassignReasonDropdown.click();
+        await this.openReasonDropdown();
     }
 
     async verifyDropdownOptionsVisible() {
@@ -100,8 +160,7 @@ export class MyOrderDetailsPage {
     }
 
     async closeDropdownWithoutSelecting() {
-        // await this.page.keyboard.press('Backspace');
-        await this.unassignReasonDropdown.click();
+        await this.reasonDropdown.click();
     }
 
     async clickContinueToUnassign() {
@@ -115,7 +174,7 @@ export class MyOrderDetailsPage {
     }
 
     async selectOtherReason() {
-        await this.reasonDropdown.click();
+        await this.openReasonDropdown();
         await this.unassignOtherOption.click();
     }
 

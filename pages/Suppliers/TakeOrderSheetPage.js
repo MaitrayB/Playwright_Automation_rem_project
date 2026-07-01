@@ -67,8 +67,8 @@ export class TakeOrderSheetPage {
 
         // Submit Take Order Sheet button locator
         this.takeThisOrderBtn = this.takeOrderSheet.getByRole('button', { name: /Take this Order/i });
-        this.submitBtnNameDuringSubmission = page.getByRole('button', { name: 'Taking Order...' });
-        this.takeOrderSuccessMsg = page.getByText(/Order taken successfully/i);
+        this.submitBtnNameDuringSubmission = this.takeOrderSheet.getByRole('button', { name: 'Taking Order...' });
+        this.takeOrderSuccessMsg = this.takeOrderSheet.getByText(/Order taken successfully/i);
     }
 
     async verifySheetDisplayed() {
@@ -212,8 +212,20 @@ export class TakeOrderSheetPage {
         await expect(this.iAgreeBtn).toBeVisible();
     }
 
+    async acceptEsgPolicyIfVisible() {
+        if (await this.esgWeighbridgeTab.isVisible({ timeout: 2000 }).catch(() => false)) {
+            await this.scrollAndAgreeToPolicy(this.esgWeighbridgeTab);
+        }
+    }
+
     async acceptAllPolicies() {
         await this.scrollAndAgreeToPolicy(this.supplierProtectionPolicyTab);
+        await this.acceptEsgPolicyIfVisible();
+
+        const btnTitle = await this.takeThisOrderBtn.getAttribute('title').catch(() => null);
+        if (btnTitle?.includes('ESG') && await this.takeThisOrderBtn.isDisabled()) {
+            await this.scrollAndAgreeToPolicy(this.esgWeighbridgeTab);
+        }
     }
 
     async confirmOrder() {

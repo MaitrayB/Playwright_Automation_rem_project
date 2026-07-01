@@ -33,7 +33,9 @@ export class OrdersPage {
         this.orderDetailHeading = page.getByRole('heading', { name: /order #\d+/i });
         this.bookedBadge = page.locator('text="Booked"');
         this.takeThisOrderBtn = page.getByRole('button', { name: /^take order$/i });
-        this.moreOptionsForUnbookedOrdersBtn = page.locator('button:has(svg.lucide-more-vertical)');
+        this.moreOptionsForUnbookedOrdersBtn = page.getByRole('heading', { name: /order #\d+/i })
+            .locator('xpath=ancestor::div[.//button][1]')
+            .locator('button:has(svg.lucide-more-vertical)');
 
     }
 
@@ -52,12 +54,12 @@ export class OrdersPage {
 
     async applySearchFilter(searchTerm) {
         await this.searchInput.fill(searchTerm);
-        await this.waitForAvailableOrdersLoaded();
+        await this.waitForOrdersListLoaded();
     }
 
     async clearSearchFilter() {
         await this.searchInput.clear();
-        await this.waitForAvailableOrdersLoaded();
+        await this.waitForOrdersListLoaded();
     }
 
     async assertSearchResultsContainOrderId(orderId) {
@@ -98,9 +100,30 @@ export class OrdersPage {
         }, { timeout: 30000 }).toBe(true);
     }
 
+    async waitForOrdersListLoaded() {
+        if (this.page.url().includes('my-orders')) {
+            if (await this.loadingOrdersText.isVisible({ timeout: 2000 }).catch(() => false)) {
+                await expect(this.loadingOrdersText).toBeHidden({ timeout: 30000 });
+            }
+
+            await expect.poll(async () => {
+                const hasDetailsBtn = await this.page.locator('main').getByRole('button', { name: 'Details' }).first().isVisible().catch(() => false);
+                const hasTableRow = await this.page.locator('table tbody tr').first().isVisible().catch(() => false);
+                const hasOrderId = await this.page.locator('main').getByText(/#\d+/).first().isVisible().catch(() => false);
+                const hasNoOrders = await this.page.getByText(/No orders found/i).first().isVisible().catch(() => false);
+                const hasMyOrdersHeading = await this.page.getByText(/Orders that have been booked with you/i).isVisible().catch(() => false);
+                const hasDeliveryFilter = await this.page.getByText(/FILTER BY DELIVERY DATE|Filter by delivery date/i).isVisible().catch(() => false);
+                return hasDetailsBtn || hasTableRow || hasOrderId || hasNoOrders || hasMyOrdersHeading || hasDeliveryFilter;
+            }, { timeout: 30000 }).toBe(true);
+            return;
+        }
+
+        await this.waitForAvailableOrdersLoaded();
+    }
+
     async getOrderCardTexts() {
-        const cardButton = this.page.getByRole('button', { name: /take order/i })
-            .or(this.page.getByRole('button', { name: 'Details' }));
+        const cardButton = this.page.locator('main').getByRole('button', { name: /take order/i })
+            .or(this.page.locator('main').getByRole('button', { name: 'Details' }));
         const count = await cardButton.count();
         const cards = [];
         for (let i = 0; i < count; i++) {
@@ -518,7 +541,7 @@ export class OrdersPage {
     }
 
     async verifySearchFilterByOrderId() {
-        await this.waitForAvailableOrdersLoaded();
+        await this.waitForOrdersListLoaded();
         const idNum = await this.getFirstRowOrderId();
         if (!idNum) return;
 
@@ -550,7 +573,7 @@ export class OrdersPage {
     }
 
     async getFirstRowOrderId() {
-        await this.waitForAvailableOrdersLoaded();
+        await this.waitForOrdersListLoaded();
 
         if (await this.isListViewAvailable()) {
             await this.ensureListView();
