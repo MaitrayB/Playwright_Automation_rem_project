@@ -81,16 +81,11 @@ async function supplierTakeOrder(browser, testInfo, orderId, options = {}) {
   const supplierRegistrationPage = new SupplierRegistrationPage(supplierPage);
   const supplierOrdersPage = new SupplierOrdersPage(supplierPage);
   const takeOrderSheetPage = new TakeOrderSheetPage(supplierPage);
-  const cookieAcceptBtn = supplierPage.locator('(//button[contains(.,"Accept All")])[1]');
 
   let takenOrderId = orderId;
 
   await test.step('Navigate to supplier login and login', async () => {
     await genFunctionsLocal.goto(supplierPage, '/supplier/login');
-    await supplierPage.waitForTimeout(2000);
-    if (await cookieAcceptBtn.isVisible()) {
-      await cookieAcceptBtn.click();
-    }
     await supplierRegistrationPage.supplierLogin(
       TestData.credentials.supplier.username,
       TestData.credentials.supplier.password

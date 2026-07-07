@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 import { faker, Faker } from "@faker-js/faker";
 import { TestData } from '../Data/testData.js';
+import { ensureCookieConsentDismissed, prepareCookieConsent } from './cookieConsent.js';
 
 export class genericFunctions {
     constructor(page) {
@@ -14,7 +15,6 @@ export class genericFunctions {
         this.usernameInput = page.locator("#email");
         this.passwordInput = page.locator('#password');
         this.signInBtn = page.getByRole('button', { name: 'Sign in' });
-        this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
     }
 
     buildURL(path) {
@@ -22,13 +22,11 @@ export class genericFunctions {
     }
 
     async acceptPrivacyPopupIfVisible(page = this.page) {
-        await page.waitForTimeout(2000);
-        if (await page.locator('(//button[contains(.,"Accept All")])[1]').isVisible().catch(() => false)) {
-            await page.locator('(//button[contains(.,"Accept All")])[1]').click();
-        }
+        await ensureCookieConsentDismissed(page);
     }
 
     async goto(page, path) {
+        await prepareCookieConsent(page.context());
         await page.goto(this.buildURL(path), { waitUntil: 'domcontentloaded' });
         await this.acceptPrivacyPopupIfVisible(page);
     }

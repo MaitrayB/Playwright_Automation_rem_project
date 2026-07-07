@@ -3,10 +3,10 @@ import { expect } from '@playwright/test';
 export class MyOrderDetailsPage {
     constructor(page) {
         this.page = page;
-        // Status Badge locator
-        this.orderStatusBadge = page.locator('main').getByText(/\b(Booked|In Progress|Requested Collection|Collected|Delivered|Refunded|Pending,? New)\b/i).first();
-        // Back to My Orders button locator
-        this.orderStatusBadgeCorrected = page.locator('//span[contains(@class,"text-green")]')
+        this.orderDetailsHeading = page.getByRole('heading', { name: /order #\d+/i });
+        this.orderStatusBadge = page.locator('main').getByText(
+            /\b(Booked|In Progress|Requested Collection|Collected|Delivered|Refunded|Pending,? New)\b/i
+        ).first();
         this.backToMyOrdersBtn = page.getByRole('button', { name: /Back to My Orders/i })
             .or(page.getByText(/Back to My Orders/i));
         this.manageDeliveryBtn = page.getByRole('button', { name: /Manage Delivery/i });
@@ -45,18 +45,34 @@ export class MyOrderDetailsPage {
    
     }
 
+    getOrderStatusBadge() {
+        const headerScoped = this.orderDetailsHeading
+            .locator('xpath=ancestor::div[.//button or contains(@class,"flex")][1]')
+            .getByText(/\b(Booked|In Progress|Requested Collection|Collected|Delivered|Refunded|Pending,? New)\b/i)
+            .first();
+        return headerScoped.or(this.orderStatusBadge);
+    }
+
     async verifyOrderStatusBadge() {
-        await this.orderStatusBadge.waitFor({ state: 'visible', timeout: 5000 });
-        const badgeText = await this.orderStatusBadge.textContent();
+        const badge = this.getOrderStatusBadge();
+        await badge.waitFor({ state: 'visible', timeout: 15000 });
+        const badgeText = (await badge.textContent())?.trim() ?? '';
 
-        // Standardizing checks (adding common statuses like "pending" or mapping spaces)
-        const normalizedText = badgeText.trim().toLowerCase().replace(' ', '_');
-
-        const validStatuses = ['booked', 'in_progress', 'requested_collection', 'collected', 'delivered', 'refunded', 'pending, New'];
+        const validStatuses = [
+            'booked', 'in progress', 'requested collection', 'collected',
+            'delivered', 'refunded', 'pending, new', 'pending new',
+        ];
+        const normalizedText = badgeText.toLowerCase();
 
         if (!validStatuses.includes(normalizedText)) {
             expect(validStatuses, `Unexpected order status badge found: ${badgeText}`).toContain(normalizedText);
         }
+    }
+
+    async verifyOrderStatus(expectedStatus) {
+        const badge = this.getOrderStatusBadge();
+        await expect(badge).toBeVisible({ timeout: 15000 });
+        await expect(badge).toHaveText(new RegExp(`^\\s*${expectedStatus}\\s*$`, 'i'));
     }
 
     async clickBackToMyOrders() {

@@ -33,17 +33,8 @@ export class SupplierMenuNavigation {
     }
 
     async dismissDocumentsPopupIfVisible() {
-        const popupHeading = this.page.getByRole('heading', { name: 'Upload Documents Required' });
-        if (await popupHeading.isVisible({ timeout: 5000 }).catch(() => false)) {
-            await this.doItLaterBtn.click({ force: true });
-            await expect(popupHeading).not.toBeVisible({ timeout: 10000 });
-            await this.page.waitForTimeout(500);
-            return;
-        }
-        if (await this.doItLaterBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-            await this.doItLaterBtn.click({ force: true });
-            await this.page.waitForTimeout(1000);
-        }
+        const supplierRegistrationPage = new SupplierRegistrationPage(this.page);
+        await supplierRegistrationPage.dismissDocumentsPopupIfVisible();
     }
 
     async openMobileMenuIfNeeded() {

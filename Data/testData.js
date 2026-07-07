@@ -20,7 +20,7 @@ export const TestData = {
       registrationPassword: 'Password@123'
     },
     pendingVerificationSupplier: {
-      username: 'Elise_Price@mailinator.com',
+      username: 'Maitray+nsta@remwaste.com',
       password: 'Password@123'
     },
     pendingBankSetupSupplier: {

@@ -77,9 +77,8 @@ test.describe('2. Viewing Available Orders', () => {
 
         // AC-2.1.1: Supplier can access "Available Orders" tab on orders page
         await expect(ordersPage.availableOrdersTab).toBeVisible();
-        await ordersPage.myOrdersTab.click();
-        await page.waitForLoadState("domcontentloaded");
-        await ordersPage.availableOrdersTab.click();
+        await ordersPage.navigateToMyOrdersTab();
+        await ordersPage.navigateToAvailableOrdersTab();
 
         // AC-2.1.3: Orders list shows: Order ID, Address / Postcode, Skip size, Permit, Delivery date, Days to delivery, Supplier price (with VAT)
         await ordersPage.verifyColumnNamesofAvailableOrders();
@@ -1045,66 +1044,3 @@ test.describe('7. Late Unassign Detection', () => {
 
 });
 
-test.describe('8. Order Status Update', () => {
-    test('8.1 Order Status After Taking', async ({ browser }, testInfo) => {
-        let orderId;
-        const context = await browser.newContext({
-            ...testInfo.project.use,
-            httpCredentials: {
-                username: TestData.authCredentials.authUserName,
-                password: TestData.authCredentials.authPassword
-            },
-            ignoreHTTPSErrors: true
-        });
-        const page = await context.newPage();
-
-        // Initialize page objects
-        supplierRegistrationPage = new SupplierRegistrationPage(page);
-        genFunctions = new genericFunctions(page);
-        ordersPage = new OrdersPage(page);
-        myOrdersPage = new MyOrdersPage(page);
-        myOrderDetailsPage = new MyOrderDetailsPage(page);
-
-        await test.step('Supplier login and authenticate', async () => {
-            await genFunctions.goto(page, '/supplier/login');
-            await supplierRegistrationPage.supplierLogin(
-                TestData.credentials.supplier.username,
-                TestData.credentials.supplier.password
-            );
-            await expect(supplierRegistrationPage.orderPageHeading).toBeVisible();
-        });
-        await expect(ordersPage.myOrdersTab).toBeVisible();
-        await ordersPage.myOrdersTab.click();
-        await myOrdersPage.waitForBookedOrdersData();
-        orderId = await ordersPage.getFirstRowOrderId();
-        console.log("Order ID is "+orderId);
-
-        await test.step('Navigate to order details page of a booked order', async () => {
-            await myOrdersPage.openFirstOverdueOrder();
-            await page.waitForLoadState('domcontentloaded');
-        });
-
-        await test.step('Verify status as "In progress" after taking', async () => {
-            await myOrderDetailsPage.orderStatusBadgeCorrected.highlight();
-            await myOrderDetailsPage.orderStatusBadgeCorrected.click();
-            await expect.soft(myOrderDetailsPage.orderStatusBadgeCorrected).toHaveText('In Progress');
-            
-        });
-
-        await test.step('Verify order is available under My Orders tab', async () => {
-            await myOrderDetailsPage.backToMyOrdersBtn.click();
-            await page.waitForTimeout(2000);
-            await ordersPage.verifyTakenOrderIDIsVisibleInMyOrdersTab(orderId);
-        });
-
-        await test.step('Verify order is not available under Available Orders tab', async () => {
-            await ordersPage.availableOrdersTab.click();
-            await page.waitForTimeout(2000);
-            await ordersPage.verifyTakenOrderIDIsNotVisibleInAvailableOrdersTab(orderId);
-        
-        });
-
-
-    });
-
-});

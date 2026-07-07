@@ -1,6 +1,8 @@
 import { expect } from "allure-playwright";
+import { TestData } from '../../Data/testData.js';
 import { genericFunctions } from '../../utils/genericFunctions.js';
 import { tableHelper } from '../../utils/tableHelper.js';
+import { ensureCookieConsentDismissed } from '../../utils/cookieConsent.js';
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -58,7 +60,6 @@ export class SupplierRegistrationPage {
         //Supplier order page locators
         this.orderPageHeading = page.getByRole('link', { name: 'Available Orders' });
         this.doItLaterBtn = page.getByRole('button', { name: 'Do it later' });
-        this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
     }
 
     async verifyEmailPreFilled(expectedEmail) {
@@ -72,10 +73,63 @@ export class SupplierRegistrationPage {
     }
 
     async acceptCookiesIfVisible() {
-        if (await this.cookieAcceptBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-            await this.cookieAcceptBtn.click();
+        await ensureCookieConsentDismissed(this.page);
+    }
+
+    async dismissDocumentsPopupIfVisible() {
+        await this.acceptCookiesIfVisible();
+
+        const popupHeading = this.page.getByRole('heading', { name: 'Upload Documents Required' });
+        const doItLater = this.page.getByRole('button', { name: /^do it later$/i });
+
+        // Unverified suppliers: popup appears ~3s after redirect to /orders/available.
+        // Do not exit early when nav links are visible — they render behind the modal.
+        for (let attempt = 0; attempt < 20; attempt++) {
+            await this.acceptCookiesIfVisible();
+
+            if (await doItLater.isVisible({ timeout: 500 }).catch(() => false)) {
+                await doItLater.scrollIntoViewIfNeeded();
+                await doItLater.click({ force: true });
+                await expect(popupHeading).not.toBeVisible({ timeout: 10000 });
+                return;
+            }
+
+            // After ~5s with no popup, treat as verified supplier (no modal expected).
+            if (attempt >= 10) {
+                return;
+            }
+
             await this.page.waitForTimeout(500);
         }
+    }
+
+    async ensureOnOrdersPage() {
+        await expect(this.page).toHaveURL(/\/orders/, { timeout: 30000 });
+    }
+
+    async supplierLogin(email, password) {
+        await this.page.waitForLoadState('domcontentloaded');
+        await this.acceptCookiesIfVisible();
+        await expect(this.supplierLoginPageHeading).toBeVisible({ timeout: 30000 });
+        await this.emailInput.waitFor({ state: 'visible', timeout: 30000 });
+        await this.emailInput.fill(email);
+        await this.passwordInput.fill(password);
+        await this.acceptCookiesIfVisible();
+        await this.signInBtn.scrollIntoViewIfNeeded();
+        await Promise.all([
+            this.page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 30000 }),
+            this.signInBtn.click(),
+        ]);
+        await this.page.waitForLoadState('domcontentloaded');
+
+        if (this.page.url().includes('/onboarding')) {
+            await expect(this.page.getByText(/complete your onboarding/i)).toBeVisible();
+            return;
+        }
+
+        await this.ensureOnOrdersPage();
+        await this.dismissDocumentsPopupIfVisible();
+        await this.orderPageHeading.waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async submitRegistration() {
@@ -108,31 +162,6 @@ export class SupplierRegistrationPage {
     async verifyPageLoaded() {
         await this.acceptCookiesIfVisible();
         await this.emailInput.waitFor({ state: 'visible', timeout: 20000 });
-    }
-
-    async supplierLogin(email, password) {
-        await this.page.waitForLoadState('domcontentloaded');
-        await this.acceptCookiesIfVisible();
-        await expect(this.supplierLoginPageHeading).toBeVisible({ timeout: 30000 });
-        await this.emailInput.waitFor({ state: 'visible', timeout: 30000 });
-        await this.emailInput.fill(email);
-        await this.passwordInput.fill(password);
-        await this.signInBtn.scrollIntoViewIfNeeded();
-        await Promise.all([
-            this.page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 30000 }),
-            this.signInBtn.click({ force: true }),
-        ]);
-
-        if (this.page.url().includes('/onboarding')) {
-            await expect(this.page.getByText(/complete your onboarding/i)).toBeVisible();
-            return;
-        }
-
-        if (await this.doItLaterBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-            await this.doItLaterBtn.click();
-            await this.page.waitForTimeout(1000);
-        }
-        await this.orderPageHeading.waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async verifyAcceptedInvitationMsg() {
@@ -452,15 +481,7 @@ export class SupplierRegistrationPage {
     async verifySupplierRedirectedToOrdersPage(page) {
         await expect(page).toHaveURL(/.*\/orders/, { timeout: 30000 });
         await page.waitForTimeout(1000);
-        const popupHeading = page.getByRole('heading', { name: 'Upload Documents Required' });
-        if (await popupHeading.isVisible({ timeout: 5000 }).catch(() => false)) {
-            await this.doItLaterBtn.click({ force: true });
-            await expect(popupHeading).not.toBeVisible({ timeout: 10000 });
-            await page.waitForTimeout(500);
-        } else if (await this.doItLaterBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-            await this.doItLaterBtn.click({ force: true });
-            await page.waitForTimeout(2000);
-        }
+        await this.dismissDocumentsPopupIfVisible();
         await page.waitForTimeout(1000);
         const viewport = page.viewportSize();
         const isMobile = viewport ? viewport.width < 1024 : false;

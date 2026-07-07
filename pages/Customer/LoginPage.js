@@ -10,6 +10,8 @@ Below 2 TYPEDEF lines you need for:
  * @typedef {import('@playwright/test').Locator} Locator 
  */
 
+import { ensureCookieConsentDismissed, prepareCookieConsent } from '../../utils/cookieConsent.js';
+
 export class LoginPage {
   //is JSDoc — a type-hinting comment used in JavaScript to give IntelliSense and type safety.
   //JavaScript has no built-in type system, so VS Code cannot guess the type of variables. JSDoc adds type information without using TypeScript.
@@ -24,18 +26,14 @@ export class LoginPage {
     this.passwordInput = page.getByRole('textbox', { name: 'Password' });
     this.signInBtn = page.getByRole('button', { name: 'Sign in' });
     this.signOutBtn = page.getByRole('button', { name: 'Sign Out' });
-    this.cookieAcceptBtn = page.locator('(//button[contains(.,"Accept All")])[1]');
     this.popUPText = page.getByText('We noticed you already have a');
     this.closeBtnFromIsSkipFullPopUp = page.getByRole('button').nth(1);
   }
 
   async goto(url) {
+    await prepareCookieConsent(this.page.context());
     await this.page.goto(url);
-
-    await this.page.waitForTimeout(2000);
-    if (await this.cookieAcceptBtn.isVisible()) {
-      await this.cookieAcceptBtn.click();
-    }
+    await ensureCookieConsentDismissed(this.page);
   }
 
   async login(email, password) {

@@ -593,15 +593,17 @@ export class OrdersPage {
         await this.navigateToAvailableOrdersTab();
         await this.searchInput.clear();
         await this.searchInput.fill(String(orderId));
-        await this.page.waitForTimeout(1500);
-        return !(await this.page.getByText(`#${orderId}`).first().isVisible().catch(() => false));
+        await this.waitForOrdersListLoaded();
+        const orderLocator = this.page.getByText(`#${orderId}`).first();
+        const isVisible = await orderLocator.isVisible().catch(() => false);
+        return !isVisible;
     }
 
     async verifyTakenOrderIDIsVisibleInMyOrdersTab(orderId) {
         await this.navigateToMyOrdersTab();
         await this.searchInput.clear();
         await this.searchInput.fill(String(orderId));
-        await this.page.waitForTimeout(1500);
-        return await this.page.getByText(`#${orderId}`).first().isVisible().catch(() => false);
+        await this.waitForOrdersListLoaded();
+        return await this.page.getByText(`#${orderId}`).first().isVisible({ timeout: 10000 }).catch(() => false);
     }
 }
