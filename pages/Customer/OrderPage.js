@@ -58,8 +58,28 @@ export class OrderPage {
     // this.skipCheckbox = page.getByText('Skip this step to upload a photo');
     this.skipCheckbox = page.getByRole('button', { name: 'I\'ll skip this for now' });
     this.skipTarpNoBtn = page.getByRole('button', { name: 'No, continue without' });
-    this.skipTarpYesBtn = page.locator('//button[.="Yes, add Skip Tarp"]');
-    this.tarpDiv = page.locator("//img[@alt='Skip Tarp']/../div");
+    this.skipTarpYesBtn = page.getByRole('button', { name: /Yes, add Skip Tarp/i });
+    this.skipTarpCloseBtn = page.getByRole('button', { name: 'Close modal' });
+    this.skipTarpModal = page.getByRole('dialog', { name: /Protect your skip with a tarp/i });
+    this.skipTarpModalTitle = page.getByRole('heading', { name: /Protect your skip with a tarp/i });
+    this.skipTarpImage = page.getByRole('img', { name: /Skip Tarpaulin/i });
+    this.skipTarpOneTimePurchaseNote = page.getByText('One-time purchase, yours to keep');
+    this.skipTarpFooterNote = page.getByText(/Your tarp will be delivered to your address before your skip arrives/i);
+    this.skipTarpDeliveryEstimate = page.locator('text=/Delivery:/i');
+    this.skipTarpBenefits = [
+      'Prevents fly-tipping and unauthorized waste',
+      'Keeps your skip secure between uses',
+      'Weather protection for your waste',
+    ];
+    this.tarpDiv = page.locator("//img[contains(@alt,'Skip Tarpaulin')]/../div");
+    this.wrongSkipGuaranteeModal = page.getByRole('heading', { name: "Not sure you're ordering the right size?" });
+    this.wrongSkipGuaranteeDismissBtn = page.getByRole('button', { name: /No, don'?t add/i });
+    this.wrongSkipGuaranteeCardBtn = page.getByRole('button', { name: /Wrong Skip Guarantee/i });
+    this.plasterboardDisposalOption = page.locator("//button[contains(.,'A few bits')]");
+    this.chooseDateHeading = page.getByRole('heading', { name: 'Choose a Date', level: 3 });
+    this.chooseOfferHeading = page.getByRole('heading', { name: 'Choose Your Offer' });
+    this.chooseDeliveryDateHeading = page.getByRole('heading', { name: /Choose Your Delivery Date/i });
+    this.yourOrderBtn = page.getByRole('button', { name: /Your Order/i });
     this.dateNextMonth = page.locator('//button[contains(.,"→")]');
 
     this.publicPropertyBtn = page.getByRole('button', { name: 'View larger image Public' });
@@ -375,8 +395,8 @@ export class OrderPage {
   }
 
   async wrongSkipSelection() {
-    await this.addWrongSkipGuaranteeBtn.waitFor({ state: 'visible' });
-    await this.addWrongSkipGuaranteeBtn.click();
+    await this.wrongSkipGuaranteeCardBtn.waitFor({ state: 'visible' });
+    await this.wrongSkipGuaranteeCardBtn.click();
     await this.addSkipGuaranteeBtn.click();
   }
 
@@ -750,5 +770,220 @@ export class OrderPage {
     await expect(this.postcodeInput).toBeVisible();
     console.log('Customer remains on the postcode step - cannot proceed without valid address');
     expect(this.page.url()).toBe(currentUrl);
+  }
+
+  // --- Skip Tarp booking flow helpers (AC-1.1.x) ---
+
+  async navigateToSkipSelectionStep({
+    heavyWaste = 'No',
+    plasterBoard = 'No',
+    placement = TestData.Placement[0],
+  } = {}) {
+    await this.enterPostcode(TestData.postcodes[1]);
+    await this.selectWaste(TestData.WasteType[1]);
+    await this.continueWaste(heavyWaste, plasterBoard);
+    await this.selectItemFromTheList();
+    await this.permitCheck(placement);
+    await this.chooseOfferHeading.waitFor({ state: 'visible' });
+  }
+
+  getExpectedTarpSize(skipYards) {
+    const yards = parseInt(skipYards, 10);
+    if (yards <= 6) return 'Small';
+    if (yards <= 10) return 'Medium';
+    if (yards <= 16) return 'Large';
+    return 'RoRo';
+  }
+
+  async openSkipTarpModalForSkipSize(skipSize) {
+    await this.navigateToSkipSelectionStep();
+    const selectedSkip = await this.selectSkipSizeOnly(skipSize);
+    await this.clickContinueOnSkipSelection();
+    await this.verifySkipTarpModalVisible();
+    return selectedSkip;
+  }
+
+  async selectSkipSizeOnly(skipSize) {
+    const skipHeading = this.page.locator('.flex-1.min-w-0.p-4 h3');
+    await skipHeading.first().waitFor({ state: 'visible' });
+    const skipsAvailable = await skipHeading.allInnerTexts();
+    const candidates = [
+      `${skipSize} Yard Skip`,
+      `${skipSize} Yard RORO`,
+    ];
+    const textToMatch = candidates.find((candidate) => skipsAvailable.includes(candidate));
+
+    if (textToMatch) {
+      await skipHeading.filter({ hasText: new RegExp(`^${textToMatch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) }).click();
+      return textToMatch;
+    }
+
+    console.log(`Skip size ${skipSize} not found, selecting first available skip`);
+    await skipHeading.first().click();
+    return skipsAvailable[0];
+  }
+
+  async clickContinueOnSkipSelection() {
+    await this.continueBtn.click();
+  }
+
+  async verifySkipTarpModalVisible() {
+    await expect(this.skipTarpModal).toBeVisible({ timeout: 15000 });
+    await expect(this.skipTarpModal.getByRole('img', { name: /Skip Tarpaulin/i })).toBeVisible();
+    await expect(this.skipTarpYesBtn).toBeVisible();
+    await expect(this.skipTarpNoBtn).toBeVisible();
+  }
+
+  async verifySkipTarpModalNotVisible() {
+    await expect(this.skipTarpModal).not.toBeVisible({ timeout: 5000 });
+  }
+
+  async verifyWrongSkipGuaranteeModalVisible() {
+    await expect(this.wrongSkipGuaranteeModal).toBeVisible({ timeout: 15000 });
+    await expect(this.wrongSkipGuaranteeDismissBtn).toBeVisible();
+    await expect(this.addSkipGuaranteeBtn).toBeVisible();
+  }
+
+  async verifyWrongSkipGuaranteeModalNotVisible() {
+    await expect(this.wrongSkipGuaranteeModal).not.toBeVisible({ timeout: 5000 });
+  }
+
+  async dismissWrongSkipGuaranteeModal() {
+    await this.wrongSkipGuaranteeDismissBtn.click();
+  }
+
+  async dismissSkipTarpModal() {
+    await this.skipTarpNoBtn.click();
+  }
+
+  async verifyPlasterboardDisposalModalVisible() {
+    await expect(this.plasterboardDisposalOption).toBeVisible({ timeout: 15000 });
+  }
+
+  async openWrongSkipGuaranteeOfferFromCard() {
+    await this.wrongSkipGuaranteeCardBtn.click();
+  }
+
+  async verifyPlasterboardDisposalModalNotVisible() {
+    await expect(this.plasterboardDisposalOption).not.toBeVisible({ timeout: 5000 });
+  }
+
+  async verifyNextBookingStepNotVisible() {
+    await expect(this.chooseDateHeading).not.toBeVisible({ timeout: 5000 });
+  }
+
+  // --- Skip Tarp modal content helpers (AC-1.2.x) ---
+
+  async verifySkipTarpModalTitle() {
+    await expect(this.skipTarpModalTitle).toBeVisible();
+    await expect(this.skipTarpModalTitle).toHaveText(/Protect your skip with a tarp/i);
+  }
+
+  async verifySkipTarpImageForSize(expectedTarpSize) {
+    const image = this.skipTarpModal.getByRole('img', { name: new RegExp(`${expectedTarpSize} Skip Tarpaulin`, 'i') });
+    await expect(image).toBeVisible();
+  }
+
+  async verifySkipTarpPricingCard(expectedTarpSize) {
+    const pricingCard = this.skipTarpModal.locator('div').filter({ hasText: /Skip Tarp/i }).first();
+    await expect(pricingCard).toBeVisible();
+    await expect(this.skipTarpModal).toContainText(new RegExp(`Skip Tarp.*\\(${expectedTarpSize}\\)`, 'i'));
+    await expect(this.skipTarpModal.getByText(/£\d+/).first()).toBeVisible();
+    await expect(this.skipTarpModal.getByText('+ VAT').first()).toBeVisible();
+    await expect(this.skipTarpOneTimePurchaseNote).toBeVisible();
+  }
+
+  async verifySkipTarpBenefitsList() {
+    for (const benefit of this.skipTarpBenefits) {
+      await expect(this.skipTarpModal.getByText(benefit, { exact: true })).toBeVisible();
+    }
+
+    const deliveredBeforeSkipBenefit = this.skipTarpModal.getByText('Delivered before your skip arrives', { exact: true });
+    if (await deliveredBeforeSkipBenefit.isVisible().catch(() => false)) {
+      await expect(deliveredBeforeSkipBenefit).toBeVisible();
+      return;
+    }
+
+    await this.verifySkipTarpDeliveryEstimate();
+  }
+
+  async verifySkipTarpDeliveryEstimate() {
+    await expect(this.skipTarpDeliveryEstimate.first()).toBeVisible({ timeout: 15000 });
+    await expect(this.skipTarpDeliveryEstimate.first()).toHaveText(/Delivery:/i);
+  }
+
+  async verifySkipTarpFooterNote() {
+    await expect(this.skipTarpFooterNote).toBeVisible();
+    await expect(this.skipTarpFooterNote).toHaveText(
+      /Your tarp will be delivered to your address before your skip arrives, so it's ready to use on delivery day/i
+    );
+  }
+
+  async verifySkipTarpSizeForSkipYards(skipYards) {
+    const expectedTarpSize = this.getExpectedTarpSize(skipYards);
+    await this.verifySkipTarpImageForSize(expectedTarpSize);
+    await expect(this.skipTarpModal).toContainText(new RegExp(`\\(${expectedTarpSize}\\)`, 'i'));
+  }
+
+  // --- Skip Tarp accept/decline helpers (AC-1.3.x) ---
+
+  async verifySkipTarpModalActionButtons() {
+    await expect(this.skipTarpYesBtn).toBeVisible();
+    await expect(this.skipTarpYesBtn).toHaveText(/Yes, add Skip Tarp/i);
+
+    const yesButtonText = (await this.skipTarpYesBtn.textContent()) ?? '';
+    const hasDeliveryInButton = /ship|tomorrow|delivery/i.test(yesButtonText);
+    const hasDeliveryEstimate = await this.skipTarpDeliveryEstimate.first().isVisible().catch(() => false);
+    expect(hasDeliveryInButton || hasDeliveryEstimate).toBeTruthy();
+
+    await expect(this.skipTarpNoBtn).toBeVisible();
+    await expect(this.skipTarpNoBtn).toHaveText('No, continue without');
+  }
+
+  async acceptSkipTarp() {
+    await this.skipTarpYesBtn.click();
+  }
+
+  async declineSkipTarp() {
+    await this.skipTarpNoBtn.click();
+  }
+
+  async closeSkipTarpModalViaCloseButton() {
+    await this.skipTarpCloseBtn.click();
+  }
+
+  async closeSkipTarpModalViaEscape() {
+    await this.page.keyboard.press('Escape');
+  }
+
+  async proceedAfterSkipTarpModalDismissed() {
+    const onOffersStep = await this.chooseOfferHeading.isVisible().catch(() => false);
+    if (onOffersStep) {
+      await this.clickContinueOnSkipSelection();
+    }
+  }
+
+  async verifyBookingProceededToDateStep() {
+    await this.verifySkipTarpModalNotVisible();
+    const dateStepHeading = this.page.getByRole('heading', {
+      name: /Choose Your Delivery Date|Choose a Date/i,
+    });
+    await expect(dateStepHeading.first()).toBeVisible({ timeout: 15000 });
+  }
+
+  async openYourOrderSummary() {
+    if (await this.yourOrderBtn.isVisible()) {
+      await this.yourOrderBtn.click();
+    }
+  }
+
+  async verifyTarpAddedToOrder() {
+    await this.openYourOrderSummary();
+    await expect(this.page.getByText(/Skip Tarp/i).first()).toBeVisible({ timeout: 10000 });
+  }
+
+  async verifyTarpNotInOrder() {
+    await this.openYourOrderSummary();
+    await expect(this.page.getByText(/Skip Tarpaulin/i)).not.toBeVisible({ timeout: 5000 });
   }
 }
