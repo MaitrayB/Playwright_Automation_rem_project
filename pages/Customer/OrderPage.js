@@ -1,6 +1,7 @@
 import { expect } from "allure-playwright";
 import { genericFunctions } from '../../utils/genericFunctions.js';
 import { TestData } from "../../Data/testData.js";
+import { ensureCookieConsentDismissed } from '../../utils/cookieConsent.js';
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -76,10 +77,53 @@ export class OrderPage {
     this.wrongSkipGuaranteeDismissBtn = page.getByRole('button', { name: /No, don'?t add/i });
     this.wrongSkipGuaranteeCardBtn = page.getByRole('button', { name: /Wrong Skip Guarantee/i });
     this.plasterboardDisposalOption = page.locator("//button[contains(.,'A few bits')]");
+    this.plasterboardModalTitle = page.getByRole('heading', {
+      name: /How (should|would) (we|you) (handle|like to handle) your plasterboard/i,
+    });
+    this.plasterboardModal = page.locator('div').filter({
+      has: page.getByRole('heading', {
+        name: /How (should|would) (we|you) (handle|like to handle) your plasterboard/i,
+      }),
+    }).filter({ hasText: /Confirm & Continue/i }).first();
+    this.plasterboardAmountFewBitsBtn = page.getByRole('button', { name: /A few bits/i });
+    this.plasterboardAmountRoomBtn = page.getByRole('button', { name: /A room'?s? worth/i });
+    this.plasterboardAmountLotsBtn = page.getByRole('button', { name: /Lots of it/i });
+    this.plasterboardTipOption = page.getByText(/Take it to the tip yourself/i);
+    this.plasterboardSkipBagOption = page.getByText(/Skip Bag|1 Tonne Bag|Tonne Bag/i);
+    this.plasterboardOnlySkipOption = page.getByText(/Plasterboard-Only Skip/i);
+    this.plasterboardSegregationNotice = page.getByText(/Plasterboard must be kept separate/i);
+    this.plasterboardConfirmAgreement = page.getByText(/By confirming, you agree to keep all plasterboard/i);
+    this.plasterboardAdditionalChargeNote = page.getByText(
+      /This is in addition to your skip hire cost|This charge is in addition to your skip hire cost/i
+    );
+    this.plasterboardTotalChargeLabel = page.getByText(/Total Plasterboard Charge/i);
+    this.plasterboardCancelBtn = page.getByRole('button', { name: 'Cancel' });
+    this.plasterboardConfirmBtn = page.getByRole('button', { name: 'Confirm & Continue' });
+    this.plasterboardDisposalFeeLabel = page.getByText(/Plasterboard disposal/i);
+    this.plasterboardBagSupplyLabel = page.getByText(/Bag supply & collection|Tonne bag supply/i);
+    this.plasterboardSideBySideQuestion = page.getByText(/Space for two skips|side by side/i);
+    this.plasterboardYesRoomForTwoBtn = page.getByRole('button', { name: /Yes, room for two/i });
+    this.plasterboardLimitedSpaceBtn = page.getByRole('button', { name: /Limited — swap them|No, limited space/i });
     this.chooseDateHeading = page.getByRole('heading', { name: 'Choose a Date', level: 3 });
     this.chooseOfferHeading = page.getByRole('heading', { name: 'Choose Your Offer' });
     this.chooseDeliveryDateHeading = page.getByRole('heading', { name: /Choose Your Delivery Date/i });
     this.yourOrderBtn = page.getByRole('button', { name: /Your Order/i });
+    this.orderSummaryHeading = page.getByRole('heading', { name: /Order Summary/i });
+    this.orderBreakdownHeading = page.getByRole('heading', { name: /Order Breakdown/i });
+    this.orderSummaryTarpHeading = page.getByRole('heading', { name: /Skip Tarp(aulin)?\s*\(/i });
+    this.orderSummaryTarpDescription = page.getByText('Protection against unauthorized waste');
+    this.orderSummaryTarpDeliveryEstimate = page.getByText(/Tarp(aulin)? ships/i);
+    this.removeSkipTarpBtn = page.locator('button[title*="Remove Skip Tarp"]');
+    this.tieDownCheckbox = page.locator('#tiedown-checkbox');
+    this.tieDownLabel = page.locator('label[for="tiedown-checkbox"]');
+    this.orderSummaryTieDownHeading = page.getByRole('heading', { name: /^Tie Down$/i });
+    this.orderSummaryTieDownDescription = page.getByText(
+      /Reflective guy rope to secure your tarp(aulin)?/i
+    );
+    this.removeTieDownBtn = page.locator('button[title*="Remove Tie Down"]');
+    this.subtotalExclVatLabel = page.getByText('Subtotal (excl. VAT)');
+    this.vat20Label = page.getByText('VAT (20%)');
+    this.orderTotalLabel = page.getByText(/Order Total:?/i);
     this.dateNextMonth = page.locator('//button[contains(.,"→")]');
 
     this.publicPropertyBtn = page.getByRole('button', { name: 'View larger image Public' });
@@ -857,7 +901,8 @@ export class OrderPage {
   }
 
   async verifyPlasterboardDisposalModalVisible() {
-    await expect(this.plasterboardDisposalOption).toBeVisible({ timeout: 15000 });
+    await expect(this.plasterboardModalTitle).toBeVisible({ timeout: 15000 });
+    await expect(this.plasterboardAmountFewBitsBtn).toBeVisible();
   }
 
   async openWrongSkipGuaranteeOfferFromCard() {
@@ -865,11 +910,128 @@ export class OrderPage {
   }
 
   async verifyPlasterboardDisposalModalNotVisible() {
-    await expect(this.plasterboardDisposalOption).not.toBeVisible({ timeout: 5000 });
+    await expect(this.plasterboardModalTitle).not.toBeVisible({ timeout: 5000 });
+    await expect(this.plasterboardAmountFewBitsBtn).not.toBeVisible({ timeout: 5000 });
   }
 
   async verifyNextBookingStepNotVisible() {
     await expect(this.chooseDateHeading).not.toBeVisible({ timeout: 5000 });
+  }
+
+  // --- Plasterboard Disposal modal helpers (PB AC-1.1 / 1.2 / 1.3 / 1.4) ---
+
+  getPlasterboardModalRoot() {
+    return this.plasterboardModalTitle.locator(
+      'xpath=ancestor::div[.//button[contains(.,"Confirm & Continue")]][1]'
+    );
+  }
+
+  async openPlasterboardDisposalModalAfterSkipTarp({ skipSize = TestData.SkipSize[1] } = {}) {
+    await this.navigateToSkipSelectionStep({ plasterBoard: 'Yes' });
+    await this.selectSkipSizeOnly(skipSize);
+    await this.clickContinueOnSkipSelection();
+
+    if (await this.skipTarpModal.isVisible({ timeout: 8000 }).catch(() => false)) {
+      await this.verifySkipTarpModalVisible();
+      await this.verifyPlasterboardDisposalModalNotVisible();
+      await this.dismissSkipTarpModal();
+      await this.verifySkipTarpModalNotVisible();
+    }
+
+    await this.verifyPlasterboardDisposalModalVisible();
+  }
+
+  async verifyPlasterboardModalShellContent() {
+    await expect(this.plasterboardModalTitle).toHaveText(
+      /How (should|would) (we|you) (handle|like to handle) your plasterboard\?/i
+    );
+    await expect(this.plasterboardSegregationNotice).toBeVisible();
+    await expect(this.plasterboardAmountFewBitsBtn).toBeVisible();
+    await expect(this.plasterboardAmountRoomBtn).toBeVisible();
+    await expect(this.plasterboardAmountLotsBtn).toBeVisible();
+    await expect(this.plasterboardTotalChargeLabel).toBeVisible();
+    await expect(this.plasterboardCancelBtn).toBeVisible();
+    await expect(this.plasterboardConfirmBtn).toBeVisible();
+    await expect(this.plasterboardAdditionalChargeNote).toBeVisible();
+  }
+
+  async verifyPlasterboardTipYourselfOption() {
+    await this.plasterboardAmountFewBitsBtn.click();
+    await expect(this.plasterboardTipOption.first()).toBeVisible({ timeout: 10000 });
+    const modal = this.getPlasterboardModalRoot();
+    const modalText = await modal.innerText();
+    expect(modalText).toMatch(/Take it to the tip yourself/i);
+    expect(modalText).toMatch(/£0/);
+    expect(modalText).toMatch(/No charge/i);
+    expect(modalText).toMatch(/Recycling Centre|free|few bits|wheelbarrow/i);
+  }
+
+  async selectPlasterboardSkipBagOption() {
+    await this.plasterboardAmountRoomBtn.click();
+    await expect(this.plasterboardSkipBagOption.first()).toBeVisible({ timeout: 10000 });
+  }
+
+  async verifyPlasterboardSkipBagPricingBreakdown() {
+    await this.selectPlasterboardSkipBagOption();
+    const modal = this.getPlasterboardModalRoot();
+
+    await expect(this.plasterboardSkipBagOption.first()).toBeVisible();
+    await expect(this.plasterboardBagSupplyLabel.first()).toBeVisible();
+    await expect(this.plasterboardDisposalFeeLabel.first()).toBeVisible();
+
+    // Modal body is scrollable; assert pricing from text content rather than visibility of every span.
+    const modalText = await modal.innerText();
+    expect(modalText).toMatch(/RECOMMENDED/i);
+    expect(modalText).toMatch(/Skip Bag|1 Tonne Bag|Tonne Bag/i);
+    expect(modalText).toMatch(/\+ VAT/i);
+    expect(modalText).toMatch(/By confirming, you agree to keep all plasterboard/i);
+
+    const supplyMatch = modalText.match(/(?:Bag supply & collection|Tonne bag supply[^\n]*)\s*\n?\s*£([\d.]+)/i);
+    const disposalMatch = modalText.match(/Plasterboard disposal[^\n]*\s*\n?\s*£([\d.]+)/i);
+    const totalMatch = modalText.match(/Total Plasterboard Charge\s*\n?\s*£([\d.]+)/i);
+
+    const supplyPrice = supplyMatch ? parseFloat(supplyMatch[1]) : NaN;
+    const disposalFee = disposalMatch ? parseFloat(disposalMatch[1]) : NaN;
+    const totalExVat = totalMatch ? parseFloat(totalMatch[1]) : NaN;
+
+    expect(disposalFee).toBe(250);
+    expect(supplyPrice).toBeGreaterThan(0);
+    expect(totalExVat).toBeCloseTo(this.roundMoney(supplyPrice + disposalFee), 2);
+
+    // Total charge shown is ex-VAT; VAT is indicated separately as "+ VAT" (20%).
+    const expectedIncVat = this.roundMoney(totalExVat * 1.2);
+    expect(expectedIncVat).toBeCloseTo(this.roundMoney((supplyPrice + 250) * 1.2), 2);
+
+    return { supplyPrice, disposalFee, totalExVat, expectedIncVat };
+  }
+
+  async verifyPlasterboardOnlySkipOption() {
+    await this.plasterboardAmountLotsBtn.click();
+    await expect(this.plasterboardOnlySkipOption.first()).toBeVisible({ timeout: 10000 });
+    const modal = this.getPlasterboardModalRoot();
+    await expect(modal.getByText(/What size do you need/i)).toBeVisible();
+
+    const sizeButtons = modal.locator('button').filter({ hasText: /YARD/i });
+    await expect(sizeButtons.first()).toBeVisible({ timeout: 10000 });
+    await sizeButtons.first().click();
+
+    await expect(this.plasterboardSideBySideQuestion.first()).toBeVisible({ timeout: 10000 });
+    await expect(modal.getByText(/Yes, room for two/i)).toBeVisible();
+    await expect(modal.getByText(/Limited — swap them|limited space/i)).toBeVisible();
+  }
+
+  async confirmPlasterboardDisposalSelection() {
+    const modal = this.getPlasterboardModalRoot();
+    await modal.getByRole('button', { name: 'Confirm & Continue' }).click();
+    await this.verifyPlasterboardDisposalModalNotVisible();
+  }
+
+  async cancelPlasterboardDisposalSelection() {
+    const modal = this.getPlasterboardModalRoot();
+    await modal.getByRole('button', { name: 'Cancel' }).click();
+    await this.verifyPlasterboardDisposalModalNotVisible();
+    // Cancel dismisses without saving and returns to the Offers step.
+    await expect(this.chooseOfferHeading).toBeVisible({ timeout: 15000 });
   }
 
   // --- Skip Tarp modal content helpers (AC-1.2.x) ---
@@ -985,5 +1147,277 @@ export class OrderPage {
   async verifyTarpNotInOrder() {
     await this.openYourOrderSummary();
     await expect(this.page.getByText(/Skip Tarpaulin/i)).not.toBeVisible({ timeout: 5000 });
+  }
+
+  // --- Skip Tarp Order Summary helpers (AC-2.1.x / AC-2.2.x) ---
+
+  parseMoney(text) {
+    const match = String(text ?? '').replace(/,/g, '').match(/£\s*([\d.]+)/);
+    return match ? parseFloat(match[1]) : NaN;
+  }
+
+  roundMoney(value) {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+  }
+
+  async navigateToPaymentStep({
+    skipSize = TestData.SkipSize[1],
+    acceptTarp = true,
+    acceptTieDown = false,
+  } = {}) {
+    await this.openSkipTarpModalForSkipSize(skipSize);
+    const expectedTarpSize = this.getExpectedTarpSize(skipSize);
+
+    let tarpExVat = null;
+    let tieDownExVat = null;
+    if (acceptTarp) {
+      const modalText = await this.skipTarpModal.innerText();
+      tarpExVat = this.parseMoney(modalText.match(/£[\d.]+/)?.[0] ?? '');
+      if (acceptTieDown) {
+        tieDownExVat = await this.selectTieDownInSkipTarpModal();
+      }
+      await this.acceptSkipTarp();
+    } else {
+      await this.declineSkipTarp();
+    }
+
+    await this.verifyBookingProceededToDateStep();
+    await this.chooseDate(TestData.BookingDay[0]);
+    await this.dismissActiveOrderPopupIfVisible();
+    await expect(this.orderSummaryHeading.first()).toBeVisible({ timeout: 20000 });
+
+    return { expectedTarpSize, tarpExVat, tieDownExVat };
+  }
+
+  async selectTieDownInSkipTarpModal() {
+    await expect(this.tieDownLabel).toBeVisible({ timeout: 10000 });
+    await expect(this.tieDownCheckbox).toBeVisible();
+    if (!(await this.tieDownCheckbox.isChecked())) {
+      await this.tieDownLabel.click();
+    }
+    await expect(this.tieDownCheckbox).toBeChecked();
+
+    const labelText = await this.tieDownLabel.innerText();
+    const tieDownExVat = this.parseMoney(labelText.match(/£[\d.]+/)?.[0] ?? '');
+    expect(tieDownExVat).toBeGreaterThan(0);
+    expect(labelText).toMatch(/Reflective guy rope to secure your tarp(aulin)?/i);
+    return tieDownExVat;
+  }
+
+  getOrderSummaryTieDownSection() {
+    return this.orderSummaryTieDownHeading.locator(
+      'xpath=ancestor::div[contains(@class,"flex") and contains(@class,"justify-between")][1]'
+    );
+  }
+
+  async verifyTieDownInOrderSummary() {
+    await expect(this.orderSummaryTieDownHeading.first()).toBeVisible({ timeout: 10000 });
+    await expect(this.orderSummaryTieDownHeading.first()).toHaveText(/^Tie Down$/i);
+
+    const section = this.getOrderSummaryTieDownSection();
+    await expect(
+      section.getByText(/Reflective guy rope to secure your tarp(aulin)?/i)
+    ).toBeVisible();
+    await expect(section.getByText(/^£[\d.]+$/).first()).toBeVisible();
+    await expect(section.getByText(/\+\s*VAT\s*£[\d.]+/i)).toBeVisible();
+
+    const sectionText = await section.innerText();
+    const priceExVat = this.parseMoney(
+      sectionText.split('\n').map((l) => l.trim()).find((l) => /^£[\d.]+$/.test(l)) ?? ''
+    );
+    const vatAmount = this.parseMoney(sectionText.match(/\+\s*VAT\s*(£[\d.]+)/i)?.[1] ?? '');
+    expect(priceExVat).toBeGreaterThan(0);
+    expect(vatAmount).toBeCloseTo(this.roundMoney(priceExVat * 0.2), 2);
+    return { priceExVat, vatAmount };
+  }
+
+  async verifyTieDownAppearsBelowTarpInOrderSummary() {
+    await expect(this.orderSummaryTarpHeading.first()).toBeVisible();
+    await expect(this.orderSummaryTieDownHeading.first()).toBeVisible();
+    const orderOk = await this.page.evaluate(() => {
+      const headings = [...document.querySelectorAll('h3')].map((h) => h.textContent?.trim() || '');
+      const tarpIdx = headings.findIndex((t) => /Skip Tarp(aulin)?\s*\(/i.test(t));
+      const tieIdx = headings.findIndex((t) => /^Tie Down$/i.test(t));
+      return tarpIdx >= 0 && tieIdx > tarpIdx;
+    });
+    expect(orderOk).toBeTruthy();
+  }
+
+  async verifyTieDownNotInOrderSummary() {
+    await expect(this.orderSummaryTieDownHeading).toHaveCount(0, { timeout: 10000 });
+    await expect(this.page.getByText(/Reflective guy rope to secure your tarp(aulin)?/i)).toHaveCount(0);
+  }
+
+  async getOrderSummaryTieDownPricing() {
+    return this.verifyTieDownInOrderSummary();
+  }
+
+  async verifyOrderBreakdownIncludesTieDownPricing(tieDownExVat) {
+    const totals = await this.getOrderBreakdownTotals();
+    const tieDown = await this.getOrderSummaryTieDownPricing();
+    expect(tieDown.priceExVat).toBeCloseTo(tieDownExVat, 2);
+    expect(tieDown.vatAmount).toBeCloseTo(this.roundMoney(tieDownExVat * 0.2), 2);
+    expect(totals.subtotalExVat).toBeGreaterThanOrEqual(tieDownExVat);
+    expect(totals.vatAmount).toBeCloseTo(this.roundMoney(totals.subtotalExVat * 0.2), 2);
+    expect(totals.orderTotal).toBeCloseTo(this.roundMoney(totals.subtotalExVat + totals.vatAmount), 2);
+    return { totals, tieDown };
+  }
+
+  extractTieDownLineItemFromOrderPayload(orderPayload) {
+    const items = orderPayload?.order_items || orderPayload?.items || [];
+    const tieDownItem = items.find((item) => item?.item_type === 'tie_down');
+    expect(tieDownItem, 'Expected a tie_down line item on the created order').toBeTruthy();
+    return tieDownItem;
+  }
+
+  async waitForTieDownOrderCreateResponse() {
+    return this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'POST' &&
+        /\/api\/tie-downs\/orders\/?$/.test(new URL(response.url()).pathname) &&
+        response.status() < 400,
+      { timeout: 120000 }
+    );
+  }
+
+  getOrderSummaryTarpSection() {
+    return this.orderSummaryTarpHeading.locator(
+      'xpath=ancestor::div[contains(@class,"flex") and contains(@class,"justify-between")][1]'
+    );
+  }
+
+  async verifySkipTarpInOrderSummary(expectedTarpSize) {
+    await expect(this.orderSummaryHeading.first()).toBeVisible({ timeout: 15000 });
+    await expect(this.orderSummaryTarpHeading.first()).toBeVisible({ timeout: 10000 });
+    await expect(this.orderSummaryTarpHeading.first()).toHaveText(
+      new RegExp(`Skip Tarp(aulin)?\\s*\\(${expectedTarpSize}\\)`, 'i')
+    );
+
+    const section = this.getOrderSummaryTarpSection();
+    await expect(section.getByText('Protection against unauthorized waste')).toBeVisible();
+    await expect(section.getByText(/^£[\d.]+$/).first()).toBeVisible();
+    await expect(section.getByText(/\+\s*VAT\s*£[\d.]+/i)).toBeVisible();
+
+    const sectionText = await section.innerText();
+    const priceExVat = this.parseMoney(sectionText.match(/^£[\d.]+/m)?.[0] ?? sectionText);
+    const vatAmount = this.parseMoney(sectionText.match(/\+\s*VAT\s*(£[\d.]+)/i)?.[1] ?? '');
+
+    expect(priceExVat).toBeGreaterThan(0);
+    expect(vatAmount).toBeCloseTo(this.roundMoney(priceExVat * 0.2), 2);
+
+    return { priceExVat, vatAmount };
+  }
+
+  async verifySkipTarpDeliveryEstimateInOrderSummary() {
+    await expect(this.orderSummaryTarpDeliveryEstimate.first()).toBeVisible({ timeout: 10000 });
+    await expect(this.orderSummaryTarpDeliveryEstimate.first()).toHaveText(
+      /Tarp(aulin)? ships .*(tomorrow|today|before your skip)?/i
+    );
+  }
+
+  async verifySkipTarpRemoveControlVisible() {
+    await expect(this.removeSkipTarpBtn).toBeVisible({ timeout: 10000 });
+  }
+
+  async removeSkipTarpFromOrderSummary() {
+    await this.verifySkipTarpRemoveControlVisible();
+    await this.removeSkipTarpBtn.click();
+    await this.verifySkipTarpNotInOrderSummary();
+    await this.verifyTieDownNotInOrderSummary();
+  }
+
+  async verifySkipTarpNotInOrderSummary() {
+    await expect(this.orderSummaryTarpHeading).toHaveCount(0, { timeout: 10000 });
+    await expect(this.orderSummaryTarpDescription).toHaveCount(0);
+    await expect(this.removeSkipTarpBtn).toHaveCount(0);
+  }
+
+  async getOrderBreakdownTotals() {
+    await expect(this.orderBreakdownHeading.first()).toBeVisible({ timeout: 10000 });
+    await expect(this.subtotalExclVatLabel.first()).toBeVisible();
+    await expect(this.vat20Label.first()).toBeVisible();
+    await expect(this.orderTotalLabel.first()).toBeVisible();
+
+    const subtotalText = await this.subtotalExclVatLabel.first()
+      .locator('xpath=following::*[contains(text(),"£")][1]')
+      .innerText();
+    const vatText = await this.vat20Label.first()
+      .locator('xpath=following::*[contains(text(),"£")][1]')
+      .innerText();
+    const totalText = await this.orderTotalLabel.first()
+      .locator('xpath=following::*[contains(text(),"£")][1]')
+      .innerText();
+
+    return {
+      subtotalExVat: this.parseMoney(subtotalText),
+      vatAmount: this.parseMoney(vatText),
+      orderTotal: this.parseMoney(totalText),
+    };
+  }
+
+  async getOrderSummaryTarpPricing() {
+    const section = this.getOrderSummaryTarpSection();
+    const sectionText = await section.innerText();
+    const priceExVat = this.parseMoney(
+      sectionText.split('\n').map((line) => line.trim()).find((line) => /^£[\d.]+$/.test(line)) ?? ''
+    );
+    const vatAmount = this.parseMoney(sectionText.match(/\+\s*VAT\s*(£[\d.]+)/i)?.[1] ?? '');
+    return { priceExVat, vatAmount };
+  }
+
+  async verifyOrderBreakdownIncludesTarpPricing(tarpExVat) {
+    const totals = await this.getOrderBreakdownTotals();
+    const { priceExVat, vatAmount } = await this.getOrderSummaryTarpPricing();
+
+    expect(priceExVat).toBeCloseTo(tarpExVat, 2);
+    expect(vatAmount).toBeCloseTo(this.roundMoney(tarpExVat * 0.2), 2);
+
+    // Subtotal includes tarp ex-VAT; VAT line includes 20% of tarp; total is subtotal + VAT.
+    expect(totals.subtotalExVat).toBeGreaterThanOrEqual(tarpExVat);
+    expect(totals.vatAmount).toBeCloseTo(this.roundMoney(totals.subtotalExVat * 0.2), 2);
+    expect(totals.orderTotal).toBeCloseTo(this.roundMoney(totals.subtotalExVat + totals.vatAmount), 2);
+
+    return { totals, tarp: { priceExVat, vatAmount } };
+  }
+
+  // --- Skip Tarp persistence / order creation helpers (AC-3.2 / AC-4.x) ---
+
+  async refreshPaymentStepAndVerifyTarpPersisted(expectedTarpSize) {
+    await this.page.reload({ waitUntil: 'domcontentloaded' });
+    await ensureCookieConsentDismissed(this.page);
+    await this.dismissActiveOrderPopupIfVisible();
+    await expect(this.orderSummaryHeading.first()).toBeVisible({ timeout: 20000 });
+    return this.verifySkipTarpInOrderSummary(expectedTarpSize);
+  }
+
+  async waitForSkipTarpOrderCreateResponse() {
+    return this.page.waitForResponse(
+      async (response) => {
+        if (response.request().method() !== 'POST') return false;
+        if (!/\/api\/orders\/?$/.test(new URL(response.url()).pathname)) return false;
+        if (response.status() >= 400) return false;
+        const body = await response.json().catch(() => null);
+        const items = body?.order_items || body?.items || [];
+        return Array.isArray(items) && items.some((item) => item?.item_type === 'skip_tarp');
+      },
+      { timeout: 120000 }
+    );
+  }
+
+  extractSkipTarpLineItemFromOrderPayload(orderPayload) {
+    const items = orderPayload?.order_items || orderPayload?.items || [];
+    const tarpItem = items.find((item) => item?.item_type === 'skip_tarp');
+    expect(tarpItem, 'Expected a skip_tarp line item on the created order').toBeTruthy();
+    return tarpItem;
+  }
+
+  async verifyPaymentTotalIncludesTarp(tarpExVat) {
+    const { totals, tarp } = await this.verifyOrderBreakdownIncludesTarpPricing(tarpExVat);
+    expect(totals.orderTotal).toBeCloseTo(
+      this.roundMoney(totals.subtotalExVat + totals.vatAmount),
+      2
+    );
+    expect(totals.orderTotal).toBeGreaterThan(tarp.priceExVat + tarp.vatAmount);
+    return { totals, tarp };
   }
 }

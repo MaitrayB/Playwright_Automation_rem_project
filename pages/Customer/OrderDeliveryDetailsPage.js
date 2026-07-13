@@ -24,6 +24,12 @@ export class OrderDeliveryDetailsPage {
         this.skipDetailsSec = page.locator('h3:has-text("Skip Details")');
         this.customerInfoSec = page.locator('h3:has-text("Customer Information")');
         this.orderItemsSec = page.getByRole('heading', { name: 'Order Items' })//page.locator('h2:has-text("Order Items")');
+        this.financialsTab = page.getByRole('button', { name: /^Financials$/i }).or(page.getByText('Financials', { exact: true }));
+        this.overviewTab = page.getByRole('button', { name: /^Overview$/i }).or(page.getByText('Overview', { exact: true }));
+        this.skipTarpLbl = page.locator("//h3[contains(.,'Skip Tarp')]");
+        this.skipTarpLineItemHeading = page.getByRole('heading', { name: /Skip Tarp(aulin)?\s*\(/i })
+            .or(page.getByText(/Skip Tarpaulin\s*\(/i));
+        this.skipTarpDeliveryStatusSection = page.getByRole('heading', { name: /Skip Tarpaulin Delivery/i });
 
         this.addItemBtn = page.getByRole('button', { name: 'Add Item' });
         this.roadPermitBtn = page.locator("//button[contains(.,'Road Permit')]");
@@ -34,7 +40,6 @@ export class OrderDeliveryDetailsPage {
         //this.addQuantity = page.locator("//div[@class='flex items-center space-x-4']/button[2]");
         this.verifyTonneBagLabel = page.getByRole('heading', { name: 'Plasterboard Tonne Bag' });
         this.verifyTotalQuantity = page.getByText('Quantity:').nth(2);
-        this.skipTarpLbl = page.locator("//h3[contains(.,'Skip Tarp')]");
 
         this.addBtnPopup = page.locator("(//button[contains(.,'Add Item')])[last()]");
         this.payBtn = page.locator("(//button[contains(.,'Pay')])[last()]");
@@ -144,6 +149,67 @@ export class OrderDeliveryDetailsPage {
         await expect(this.skipDetailsSec).toBeVisible();
         await expect(this.customerInfoSec).toBeVisible();
         await expect(this.orderItemsSec).toBeVisible();
+    }
+
+    async openFinancialsTab() {
+        await this.financialsTab.first().waitFor({ state: 'visible', timeout: 15000 });
+        await this.financialsTab.first().click();
+        await expect(this.orderItemsSec.first()).toBeVisible({ timeout: 15000 });
+    }
+
+    getSkipTarpLineItemBlock() {
+        return this.skipTarpLineItemHeading.first().locator(
+            'xpath=ancestor::div[.//text()[contains(.,"Quantity")] and .//text()[contains(.,"£")]][1]'
+        );
+    }
+
+    async verifySkipTarpCustomerLineItem({ expectedTarpSize, expectedPriceExVat } = {}) {
+        await this.openFinancialsTab();
+        await expect(this.orderItemsSec.first()).toBeVisible();
+        await expect(this.skipTarpLineItemHeading.first()).toBeVisible({ timeout: 10000 });
+        await expect(this.skipTarpLineItemHeading.first()).toHaveText(
+            new RegExp(`Skip Tarp(aulin)?\\s*\\(${expectedTarpSize}\\)`, 'i')
+        );
+
+        const block = this.getSkipTarpLineItemBlock();
+        await expect(block.getByText(/Quantity:\s*1/i)).toBeVisible();
+        await expect(
+          block.getByText(`£${Number(expectedPriceExVat).toFixed(2)}`, { exact: true })
+        ).toBeVisible();
+    }
+
+    async verifyTieDownCustomerLineItem({ expectedPriceExVat } = {}) {
+        await this.openFinancialsTab();
+        const tieDownHeading = this.page.getByText('Tie Down (Reflective Guy Rope)', { exact: true });
+        await expect(tieDownHeading.first()).toBeVisible({ timeout: 10000 });
+        const block = tieDownHeading.first().locator(
+            'xpath=ancestor::div[.//text()[contains(.,"Quantity")] and .//text()[contains(.,"£")]][1]'
+        );
+        await expect(block.getByText(/Quantity:\s*1/i)).toBeVisible();
+        if (expectedPriceExVat != null) {
+            await expect(
+              block.getByText(`£${Number(expectedPriceExVat).toFixed(2)}`, { exact: true })
+            ).toBeVisible();
+        }
+    }
+
+    async verifyTieDownNotAddableIndependentlyInAddItem() {
+        await this.openFinancialsTab();
+        await this.addItemBtn.first().click();
+        const dialog = this.page.getByRole('dialog').filter({ hasText: /Select Item Type|Add Item/i }).first()
+            .or(this.page.locator('div').filter({ hasText: /Select Item Type/i }).filter({ hasText: /Cancel/i }).first());
+        await expect(this.page.getByText(/Select Item Type/i).first()).toBeVisible({ timeout: 10000 });
+
+        const bodyText = await this.page.locator('body').innerText();
+        // Tie downs are booking-flow only: when already on the order they show as Added,
+        // and there is no independent "Add" action for a standalone tie down.
+        expect(bodyText).toMatch(/Tie Down \(Reflective Guy Rope\)/i);
+        expect(bodyText).toMatch(/Added/i);
+
+        const cancelBtn = this.page.getByRole('button', { name: 'Cancel' }).last();
+        if (await cancelBtn.isVisible().catch(() => false)) {
+            await cancelBtn.click();
+        }
     }
 
     async addRoadPermit() {

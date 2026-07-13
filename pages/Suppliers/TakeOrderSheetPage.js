@@ -94,6 +94,58 @@ export class TakeOrderSheetPage {
         expect(itemCount).toBeGreaterThan(0);
     }
 
+    async verifySkipTarpSupplierLineItem({ expectedTarpSize } = {}) {
+        await this.verifyOrderItemsSection();
+        const tarpHeading = this.takeOrderSheet.getByRole('heading', {
+            name: new RegExp(`Skip Tarp(aulin)?\\s*\\(${expectedTarpSize}\\)`, 'i'),
+        });
+        await expect(tarpHeading.first()).toBeVisible({ timeout: 10000 });
+
+        const tarpBlock = tarpHeading.first().locator(
+            'xpath=ancestor::div[.//text()[contains(.,"Type")] or .//text()[contains(.,"Quantity")]][1]'
+        );
+        const blockText = await tarpBlock.innerText();
+        expect(blockText).toMatch(/Type:\s*skip_tarp/i);
+        expect(blockText).toMatch(/Quantity:\s*1/i);
+    }
+
+    async verifyTieDownSupplierLineItem() {
+        await this.verifyOrderItemsSection();
+        const tieDownHeading = this.takeOrderSheet.getByRole('heading', {
+            name: /Tie Down \(Reflective Guy Rope\)/i,
+        }).or(this.takeOrderSheet.getByText(/Tie Down \(Reflective Guy Rope\)/i));
+        await expect(tieDownHeading.first()).toBeVisible({ timeout: 10000 });
+        const block = tieDownHeading.first().locator(
+            'xpath=ancestor::div[.//text()[contains(.,"Type")] or .//text()[contains(.,"Quantity")]][1]'
+        );
+        const blockText = await block.innerText();
+        expect(blockText).toMatch(/Type:\s*tie_down/i);
+        expect(blockText).toMatch(/Quantity:\s*1/i);
+    }
+
+    async verifyNoTieDownDeliveryStatusSection() {
+        await expect(
+            this.takeOrderSheet.getByRole('heading', { name: /Tie Down Delivery|TIE DOWN DELIVERY/i })
+        ).toHaveCount(0);
+        await expect(this.takeOrderSheet.getByText(/Tie down included with this order/i)).toHaveCount(0);
+    }
+
+    async verifyNoTarpDeliveryStatusSection() {
+        await expect(
+            this.takeOrderSheet.getByRole('heading', { name: /Skip Tarpaulin Delivery|TARP DELIVERY/i })
+        ).toHaveCount(0);
+        await expect(this.takeOrderSheet.getByText(/Tarp included with this order/i)).toHaveCount(0);
+    }
+
+    async closeTakeOrderSheet() {
+        if (await this.closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await this.closeButton.click();
+        } else {
+            await this.page.keyboard.press('Escape');
+        }
+        await expect(this.takeOrderSheet).not.toBeVisible({ timeout: 10000 });
+    }
+
     async verifyTotalSummarySection() {
         await expect(this.totalSummarySection).toBeVisible();
         await expect(this.subtotalLabel).toBeVisible();
