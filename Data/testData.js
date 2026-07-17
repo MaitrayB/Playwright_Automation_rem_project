@@ -14,6 +14,12 @@ export const TestData = {
       username: 'mat+admin@remwaste.com',
       password: 'Passport123'
     },
+    salesAgent: {
+      username: 'qa.salesagent@mailinator.com',
+      password: 'Password@123',
+      firstName: 'QA',
+      lastName: 'SalesAgent'
+    },
     supplier: {
       username: 'veton+supplierfinal@remwaste.com',
       password: 'Passport123',

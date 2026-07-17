@@ -9,6 +9,7 @@ const EPIC_MAP = {
   CustomerTestCases: 'Customer',
   AdminTestCases: 'Admin',
   SuppliersTestCases: 'Suppliers',
+  'Commercial contract sales': 'Commercial Contract Sales',
 };
 
 function getEpicFromFile(filePath) {

@@ -40,8 +40,39 @@ export class MailinatorPage {
         await this.page.waitForTimeout(3000);
     }
 
-    async getInvitationLink() {
-        const link = this.inboxFrame.locator('a', { hasText: 'Accept Invitation' });
+    /**
+     * Polls the public inbox until an email matching the subject appears, then opens it.
+     * @param {string} email
+     * @param {string|RegExp} subject
+     * @param {number} [maxRetries=12]
+     * @param {number} [retryDelay=3000]
+     */
+    async waitForInvitationEmail(email, subject, maxRetries = 12, retryDelay = 3000) {
+        const inbox = this.getInboxName(email);
+        const subjectPattern = subject instanceof RegExp ? subject : new RegExp(subject, 'i');
+
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            await this.page.goto(`https://www.mailinator.com/v4/public/inboxes.jsp?to=${inbox}`, {
+                waitUntil: 'domcontentloaded',
+            });
+            await this.page.waitForTimeout(3000);
+
+            const subjectRow = this.page.getByText(subjectPattern).first();
+            if (await subjectRow.isVisible({ timeout: 3000 }).catch(() => false)) {
+                await subjectRow.click();
+                await this.page.waitForTimeout(3000);
+                return;
+            }
+
+            await this.page.waitForTimeout(retryDelay);
+        }
+
+        throw new Error(`Invitation email with subject "${subject}" not found in Mailinator inbox after ${maxRetries} attempts`);
+    }
+
+    async getInvitationLink(linkText = /Accept [Ii]nvitation/) {
+        const link = this.inboxFrame.locator('a', { hasText: linkText }).first();
+        await link.waitFor({ state: 'visible', timeout: 15000 });
         return await link.getAttribute('href');
     }
 
