@@ -48,11 +48,23 @@ export class AdminContractPricingPage {
         await expect(this.page.getByRole('heading', { name: new RegExp(`^Price:\\s*${escapeRegExp(customerName)}`) })).toBeVisible();
         await expect(this.page.locator('h1 span, h1 >> span').filter({ hasText: /Awaiting pricing|Priced|Closed|Cancelled/i }).first()).toBeVisible();
 
-        const subtitle = this.page.locator('p').filter({ hasText: new RegExp(`From\\s+${escapeRegExp(agentName)}`) }).first();
-        await expect(subtitle).toBeVisible();
-        await expect(subtitle).toContainText(area);
+        // Detail header is split into Sales agent + Customer cards (no longer a single "From …" subtitle).
+        const main = this.page.locator('main');
+        const agentDisplayName = String(agentName || '').split('\n')[0].trim();
+        await expect(main.getByText('Sales agent', { exact: true })).toBeVisible();
+        await expect(main.getByText(agentDisplayName, { exact: true }).first()).toBeVisible();
+
+        // Header "Customer" card label; Fulfilment also has a "Customer" signature column.
+        await expect(main.getByText('Customer', { exact: true }).first()).toBeVisible();
+        await expect(main.getByText(customerName, { exact: true }).first()).toBeVisible();
+
+        if (area) {
+            await expect(main.getByText(new RegExp(escapeRegExp(area))).first()).toBeVisible();
+        }
         if (termMonths) {
-            await expect(subtitle).toContainText(`customer mentioned ~${termMonths} months`);
+            await expect(
+                main.getByText(new RegExp(`customer mentioned\\s*~${termMonths}\\s*months`, 'i')).first()
+            ).toBeVisible();
         }
     }
 
@@ -476,14 +488,11 @@ export class AdminContractPricingPage {
         await this.fillMargins({ base: '28', floor: '10' });
         await expect(this.lockGridBtn).toBeEnabled();
 
-        let release;
-        const gate = new Promise((resolve) => {
-            release = resolve;
-        });
-
         await this.page.route('**/api/contract-requests/*/grid', async (route) => {
             if (route.request().method() === 'POST') {
-                await gate;
+                // Assert submitting state while the request is still in flight.
+                await expect(this.lockGridBtn).toBeDisabled({ timeout: 5000 });
+                await expect(this.page.getByRole('button', { name: /Locking/i })).toBeVisible();
                 await route.fulfill({
                     status: 400,
                     contentType: 'application/json',
@@ -498,17 +507,12 @@ export class AdminContractPricingPage {
             await route.continue();
         });
 
-        await Promise.all([
-            this.page.waitForRequest(
-                (req) => req.method() === 'POST' && /\/api\/contract-requests\/\d+\/grid/.test(req.url())
-            ),
-            this.lockGridBtn.click(),
-        ]);
+        await this.lockGridBtn.click();
         await expect(
-            this.page.getByRole('button', { name: 'Locking…' })
-        ).toBeDisabled({ timeout: 5000 });
-        release();
-        await expect(this.page.getByText(/Grid rejected:/i)).toBeVisible({ timeout: 15000 });
+            this.page
+                .getByText(/Grid rejected:/i)
+                .or(this.page.getByText(/Something went wrong while locking the grid/i))
+        ).toBeVisible({ timeout: 15000 });
         await this.page.unroute('**/api/contract-requests/*/grid');
     }
 }

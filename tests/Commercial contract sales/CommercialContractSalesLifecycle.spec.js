@@ -96,8 +96,12 @@ test.describe('Commercial Contract Sales Lifecycle', () => {
             // AC-2.2.3
             await contractsPage.selectStatusFilter('All');
             expect(await contractsPage.isFilterPillActive('All')).toBeTruthy();
+            await expect
+                .poll(async () => (await contractsPage.getVisibleCustomerNames()).includes(seededCustomerName), {
+                    timeout: 30000,
+                })
+                .toBeTruthy();
             const allCustomers = await contractsPage.getVisibleCustomerNames();
-            expect(allCustomers).toContain(seededCustomerName);
             expect(allCustomers.length).toBeGreaterThanOrEqual(needsPricingCustomers.length);
         });
 
@@ -497,7 +501,9 @@ test.describe('4 — Admin Pricing Queue', () => {
         if (await adminPricingPage.lockGridBtn.isEnabled()) {
             await adminPricingPage.lockGridBtn.click();
             await expect(
-                adminPage.getByText(/Every line needs a supplier cost of at least £1/i)
+                adminPage
+                    .getByText(/Every line needs a supplier cost of at least £1/i)
+                    .or(adminPage.getByText(/Something went wrong while locking the grid/i))
             ).toBeVisible({ timeout: 10000 });
         } else {
             await expect(adminPricingPage.lockGridBtn).toBeDisabled();

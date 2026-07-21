@@ -101,6 +101,7 @@ export class AdminContractsPage {
     }
 
     async selectTab(label) {
+        await this.acceptCookiesIfVisible();
         await this.tab(label).click();
         await expect.poll(async () => this.isTabActive(label)).toBeTruthy();
     }
@@ -158,12 +159,9 @@ export class AdminContractsPage {
         expect(text).toMatch(/~\d+\s+months|—/);
         expect(text).toMatch(/\d+\s*(min|h|d|m|ago)/i);
 
-        // Restore to full available screen size for subsequent desktop tests
-        const { width, height } = await this.page.evaluate(() => ({
-            width: window.screen.availWidth,
-            height: window.screen.availHeight,
-        }));
-        await this.page.setViewportSize({ width, height });
+        // Restore a reliable desktop viewport. screen.avail* is often too small in
+        // headless / maximized contexts and leaves the table CSS-hidden (md: breakpoint).
+        await this.page.setViewportSize({ width: 1920, height: 1080 });
         await this.gotoContractsPage();
     }
 
@@ -240,12 +238,13 @@ export class AdminContractsPage {
      * @param {'Price now'|'Open'} actionLabel
      */
     async openFirstRequest(actionLabel = 'Price now') {
-        await expect(this.tableRows.first()).toBeVisible({ timeout: 15000 });
-        const firstRow = this.tableRows.first();
+        // Prefer visible desktop rows — a hidden <table> remains in the DOM on mobile.
+        const firstRow = this.tableRows.filter({ visible: true }).first();
+        await expect(firstRow).toBeVisible({ timeout: 15000 });
         const customerText = (await firstRow.locator('td').nth(1).innerText()).trim();
         const customerName = customerText.split('\n')[0].trim();
         const companyName = customerText.split('\n')[1]?.trim() || null;
-        const agentName = (await firstRow.locator('td').first().innerText()).trim();
+        const agentName = (await firstRow.locator('td').first().innerText()).trim().split('\n')[0].trim();
         const area = (await firstRow.locator('td').nth(2).innerText()).trim();
         const termText = (await firstRow.locator('td').nth(3).innerText()).trim();
         const termMonths = termText.match(/~(\d+)/)?.[1] || null;

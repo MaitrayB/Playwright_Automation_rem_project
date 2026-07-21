@@ -12,13 +12,14 @@ export class AdminUsersPage {
         this.page = page;
         this.pageHeading = page.getByRole('heading', { name: 'Users', exact: true });
         this.salesAgentsTab = page.getByRole('button', { name: /Sales Agents/i });
+        this.activeTab = page.getByRole('button', { name: /^Active/i });
+        this.pendingTab = page.getByRole('button', { name: /^Pending/i });
         this.inviteSalesAgentBtn = page.getByRole('button', { name: 'Invite Sales Agent' });
         this.inviteAdminBtn = page.getByRole('button', { name: 'Invite Admin' });
         this.emailInput = page.getByPlaceholder('Enter email address');
         this.roleDropdown = page.getByRole('combobox');
         this.sendInvitationBtn = page.getByRole('button', { name: 'Send Invitation' });
         this.cancelBtn = page.getByRole('button', { name: 'Cancel' });
-        this.pendingInvitationsHeading = page.getByRole('heading', { name: /Pending Invitations/i });
     }
 
     async goToUsersPage() {
@@ -29,7 +30,19 @@ export class AdminUsersPage {
 
     async openSalesAgentsTab() {
         await this.salesAgentsTab.click();
+        // Sales Agents defaults to Active, where Invite Sales Agent is available.
         await expect(this.inviteSalesAgentBtn).toBeVisible({ timeout: 10000 });
+    }
+
+    async openActiveTab() {
+        await this.activeTab.click();
+        await expect(this.inviteSalesAgentBtn).toBeVisible({ timeout: 10000 });
+    }
+
+    async openPendingTab() {
+        await this.pendingTab.click();
+        // Invite lives on Active only; Pending shows Resend/Cancel for invitations.
+        await expect(this.inviteSalesAgentBtn).toBeHidden({ timeout: 10000 });
     }
 
     async openInviteModal() {
@@ -59,6 +72,9 @@ export class AdminUsersPage {
 
         await this.sendInvitationBtn.click();
         await expect(this.emailInput).toBeHidden({ timeout: 15000 });
+
+        // New invites land under Pending, not the default Active tab.
+        await this.openPendingTab();
 
         // Backend stores invite emails lowercased.
         const normalizedEmail = email.toLowerCase();

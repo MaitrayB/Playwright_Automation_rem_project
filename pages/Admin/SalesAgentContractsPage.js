@@ -57,11 +57,13 @@ export class SalesAgentContractsPage {
         await expect(this.pageHeading).toBeVisible({ timeout: 30000 });
     }
 
-    async gotoContractsPage() {
+    async gotoContractsPage({ expectLoaded = true } = {}) {
         const genFunctions = new genericFunctions(this.page);
         await this.page.goto(genFunctions.buildURL('/sales/contracts'), { waitUntil: 'domcontentloaded' });
         await this.acceptCookiesIfVisible();
-        await this.verifyContractsPageLoaded();
+        if (expectLoaded) {
+            await this.verifyContractsPageLoaded();
+        }
     }
 
     async verifyPageLayout() {
@@ -92,9 +94,34 @@ export class SalesAgentContractsPage {
     async selectStatusFilter(label) {
         await this.filterPill(label).click();
         await expect.poll(async () => this.isFilterPillActive(label)).toBeTruthy();
+        await this.waitForContractsListSettled();
+    }
+
+    /**
+     * Filter changes show a spinner before rows/empty state render.
+     * Wait until loading finishes so callers don't read an empty list mid-fetch.
+     */
+    async waitForContractsListSettled() {
+        await expect
+            .poll(
+                async () => {
+                    if ((await this.page.locator('main .animate-spin').count()) > 0) {
+                        return false;
+                    }
+                    const hasRows = (await this.tableRows.count()) > 0;
+                    const isEmpty = await this.page
+                        .getByText('Nothing sent yet')
+                        .isVisible()
+                        .catch(() => false);
+                    return hasRows || isEmpty;
+                },
+                { timeout: 30000 }
+            )
+            .toBeTruthy();
     }
 
     async getVisibleCustomerNames() {
+        await this.waitForContractsListSettled();
         const count = await this.tableRows.count();
         const names = [];
         for (let i = 0; i < count; i++) {

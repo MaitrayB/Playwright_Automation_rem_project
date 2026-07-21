@@ -150,7 +150,8 @@ test.describe('Onboarding — Invite, Register & Login', () => {
             salesAgentContractsPage = new SalesAgentContractsPage(page);
             adminLogin = new AdminLogin(page);
 
-            await salesAgentContractsPage.gotoContractsPage();
+            // Do not expect Contracts to load — unauthenticated users must be redirected.
+            await salesAgentContractsPage.gotoContractsPage({ expectLoaded: false });
 
             await expect(page).toHaveURL(/\/agent\/login/, { timeout: 30000 });
             await expect(adminLogin.staffSignInHeading).toBeVisible({ timeout: 30000 });

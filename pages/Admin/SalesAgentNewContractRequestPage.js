@@ -28,7 +28,7 @@ export class SalesAgentNewContractRequestPage {
         this.cancelBtn = page.getByRole('button', { name: 'Cancel' });
         this.sendToPricingBtn = page.getByRole('button', { name: 'Send to pricing' });
         this.depositWarning = page.getByText(
-            'A £1,500 deposit applies to any 20yd or 40yd line. It is not waivable and is excluded from commission.'
+            'A £1,500 ex VAT (£1,800 inc VAT) deposit applies to any 20yd or 40yd line. It is not waivable and is excluded from commission.'
         );
         this.qtyRequiredMessage = page.getByText('Add at least one line with a quantity');
         this.successToast = page.getByText('Sent to pricing — posted to #contract-pricing');
