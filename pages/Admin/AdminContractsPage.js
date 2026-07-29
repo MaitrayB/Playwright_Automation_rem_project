@@ -46,6 +46,27 @@ export class AdminContractsPage {
         });
         await this.acceptCookiesIfVisible();
         await expect(this.pageHeading).toBeVisible({ timeout: 30000 });
+        await this.waitForContractsListSettled();
+    }
+
+    /**
+     * Queue load/filter changes show a spinner before rows/empty state render.
+     * Wait until loading finishes so callers don't read an empty list mid-fetch.
+     */
+    async waitForContractsListSettled() {
+        await expect
+            .poll(
+                async () => {
+                    if ((await this.page.locator('main .animate-spin').count()) > 0) {
+                        return false;
+                    }
+                    const hasRows = (await this.tableRows.count()) > 0;
+                    const isEmpty = await this.emptyTitle.isVisible().catch(() => false);
+                    return hasRows || isEmpty;
+                },
+                { timeout: 30000 }
+            )
+            .toBeTruthy();
     }
 
     async verifyPageLayout() {
@@ -60,8 +81,8 @@ export class AdminContractsPage {
 
     async verifyDefaultNeedsPricingTab() {
         expect(await this.isTabActive('Needs pricing')).toBeTruthy();
-        const rowCount = await this.tableRows.count();
-        expect(rowCount).toBeGreaterThan(0);
+        await this.waitForContractsListSettled();
+        await expect.poll(async () => this.tableRows.count(), { timeout: 30000 }).toBeGreaterThan(0);
         await expect(this.tableRows.first().getByText('Awaiting pricing')).toBeVisible();
         await expect(this.tableRows.first().getByRole('button', { name: 'Price now' })).toBeVisible();
     }
@@ -104,6 +125,7 @@ export class AdminContractsPage {
         await this.acceptCookiesIfVisible();
         await this.tab(label).click();
         await expect.poll(async () => this.isTabActive(label)).toBeTruthy();
+        await this.waitForContractsListSettled();
     }
 
     async verifyDesktopTableColumns() {
@@ -241,17 +263,38 @@ export class AdminContractsPage {
         // Prefer visible desktop rows — a hidden <table> remains in the DOM on mobile.
         const firstRow = this.tableRows.filter({ visible: true }).first();
         await expect(firstRow).toBeVisible({ timeout: 15000 });
-        const customerText = (await firstRow.locator('td').nth(1).innerText()).trim();
+        return this._openRow(firstRow, actionLabel);
+    }
+
+    /**
+     * Opens a Needs pricing row matching the customer name.
+     * @param {string} customerName
+     * @param {'Price now'|'Open'} [actionLabel]
+     */
+    async openRequestByCustomer(customerName, actionLabel = 'Price now') {
+        await this.gotoContractsPage();
+        await this.selectTab('Needs pricing');
+        const row = this.tableRows.filter({ visible: true }).filter({ hasText: customerName }).first();
+        await expect(row).toBeVisible({ timeout: 30000 });
+        return this._openRow(row, actionLabel);
+    }
+
+    /**
+     * @param {Locator} row
+     * @param {'Price now'|'Open'} actionLabel
+     */
+    async _openRow(row, actionLabel) {
+        const customerText = (await row.locator('td').nth(1).innerText()).trim();
         const customerName = customerText.split('\n')[0].trim();
         const companyName = customerText.split('\n')[1]?.trim() || null;
-        const agentName = (await firstRow.locator('td').first().innerText()).trim().split('\n')[0].trim();
-        const area = (await firstRow.locator('td').nth(2).innerText()).trim();
-        const termText = (await firstRow.locator('td').nth(3).innerText()).trim();
+        const agentName = (await row.locator('td').first().innerText()).trim().split('\n')[0].trim();
+        const area = (await row.locator('td').nth(2).innerText()).trim();
+        const termText = (await row.locator('td').nth(3).innerText()).trim();
         const termMonths = termText.match(/~(\d+)/)?.[1] || null;
 
         await Promise.all([
             this.page.waitForURL(/\/super-admin\/contracts\/\d+/, { timeout: 30000 }),
-            firstRow.getByRole('button', { name: actionLabel }).click(),
+            row.getByRole('button', { name: actionLabel }).click(),
         ]);
         await this.acceptCookiesIfVisible();
 

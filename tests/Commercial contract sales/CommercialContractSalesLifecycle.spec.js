@@ -4,6 +4,7 @@ import { AdminContractsPage } from '../../pages/Admin/AdminContractsPage.js';
 import { AdminContractPricingPage } from '../../pages/Admin/AdminContractPricingPage.js';
 import { SalesAgentContractsPage } from '../../pages/Admin/SalesAgentContractsPage.js';
 import { SalesAgentNewContractRequestPage } from '../../pages/Admin/SalesAgentNewContractRequestPage.js';
+import { SalesAgentContractDetailPage } from '../../pages/Admin/SalesAgentContractDetailPage.js';
 import { TestData } from '../../Data/testData.js';
 import { genericFunctions } from '../../utils/genericFunctions.js';
 
@@ -254,13 +255,15 @@ test.describe('Commercial Contract Sales Lifecycle', () => {
             await newRequestPage.setLineSize(0, '8');
             await expect(newRequestPage.depositWarning).toBeHidden();
 
-            // AC-3.4.1
+            // AC-3.4.1 + AC-7.4.1 (capture) + AC-7.1.1 (no extra RoRo fields)
             await newRequestPage.setLineSize(0, '20');
             await expect(newRequestPage.depositWarning).toBeVisible();
+            await newRequestPage.verifyRoRoCaptureSameAsSkip(0);
             await newRequestPage.setLineSize(0, '8');
             await expect(newRequestPage.depositWarning).toBeHidden();
             await newRequestPage.setLineSize(0, '40');
             await expect(newRequestPage.depositWarning).toBeVisible();
+            await newRequestPage.verifyRoRoCaptureSameAsSkip(0);
 
             await newRequestPage.setLineSize(0, '8');
             await expect(newRequestPage.depositWarning).toBeHidden();
@@ -434,15 +437,20 @@ test.describe('4 — Admin Pricing Queue', () => {
             },
         ]);
 
-        // AC-5.3.1 / 5.3.2 / 5.3.4
+        // AC-5.3.1 / 5.3.2 / 5.3.4 (+ AC-7.2 when the open request is RoRo)
         await adminPricingPage.verifySupplierPanel();
+        const lineSize = Number(requirementMatch[2]);
         await adminPricingPage.verifySkipLineCostInputs([
             {
                 qty: Number(requirementMatch[1]),
-                size: Number(requirementMatch[2]),
+                size: lineSize,
                 wasteType: requirementMatch[3].trim(),
             },
         ]);
+        if (lineSize === 20 || lineSize === 40) {
+            // AC-7.2.1 / AC-7.2.2
+            await adminPricingPage.verifyRoRoLineCostFields();
+        }
         await adminPricingPage.verifySupplierCostHint();
 
         // AC-5.1.2 — closed request is read-only with warning
@@ -575,5 +583,214 @@ test.describe('4 — Admin Pricing Queue', () => {
 
         // AC-5.7.1 — note still present after re-lock
         await adminPricingPage.verifyExistingGridSummary({ maxTermMonths: 6 });
+    });
+});
+
+test.describe('6 — Agent Quote Calculator & Close', () => {
+    test.describe.configure({ mode: 'serial' });
+    test.setTimeout(240000);
+
+    /** @type {import('@playwright/test').BrowserContext} */ let agentContext;
+    /** @type {import('@playwright/test').Page} */ let agentPage;
+    /** @type {AdminLogin} */ let agentAuth;
+    /** @type {SalesAgentContractsPage} */ let agentContractsPage;
+    /** @type {SalesAgentNewContractRequestPage} */ let agentNewRequestPage;
+    /** @type {SalesAgentContractDetailPage} */ let agentDetailPage;
+    /** @type {genericFunctions} */ let agentGen;
+
+    /** @type {import('@playwright/test').BrowserContext} */ let pricingContext;
+    /** @type {import('@playwright/test').Page} */ let pricingPage;
+    /** @type {AdminLogin} */ let pricingAuth;
+    /** @type {AdminContractsPage} */ let pricingContractsPage;
+    /** @type {AdminContractPricingPage} */ let pricingDetailPage;
+    /** @type {genericFunctions} */ let pricingGen;
+
+    /** Customer created for quote/close assertions */
+    let quoteCustomerName = '';
+    /** @type {string|null} */ let lockedSupplierLabel = null;
+    /** @type {string[]} */ let availableTerms = [];
+    let selectedTermLabel = '';
+    let selectedUpfrontLabel = 'Drawdown';
+
+    test.beforeAll(async ({ browser }, testInfo) => {
+        const sharedUse = {
+            ...testInfo.project.use,
+            httpCredentials: {
+                username: TestData.authCredentials.authUserName,
+                password: TestData.authCredentials.authPassword,
+            },
+            ignoreHTTPSErrors: true,
+            viewport: null,
+        };
+
+        agentContext = await browser.newContext(sharedUse);
+        agentPage = await agentContext.newPage();
+        agentAuth = new AdminLogin(agentPage);
+        agentContractsPage = new SalesAgentContractsPage(agentPage);
+        agentNewRequestPage = new SalesAgentNewContractRequestPage(agentPage);
+        agentDetailPage = new SalesAgentContractDetailPage(agentPage);
+        agentGen = new genericFunctions(agentPage);
+
+        pricingContext = await browser.newContext(sharedUse);
+        pricingPage = await pricingContext.newPage();
+        pricingAuth = new AdminLogin(pricingPage);
+        pricingContractsPage = new AdminContractsPage(pricingPage);
+        pricingDetailPage = new AdminContractPricingPage(pricingPage);
+        pricingGen = new genericFunctions(pricingPage);
+
+        await agentAuth.goto(agentGen.buildURL('/agent/login'));
+        await agentAuth.salesAgentLogin(
+            TestData.credentials.salesAgent.username,
+            TestData.credentials.salesAgent.password
+        );
+        await agentContractsPage.verifyContractsPageLoaded();
+
+        // 20yd so deposit ACs (6.3.5 / 6.7.4) apply on the same request
+        quoteCustomerName = `QA Quote ${Date.now()}`;
+        await agentNewRequestPage.gotoNewRequestPage();
+        await agentNewRequestPage.submitValidRequest({
+            customer: quoteCustomerName,
+            area: 'B29',
+            qty: 2,
+            size: '20',
+        });
+        await expect(agentPage.getByRole('heading', { name: quoteCustomerName })).toBeVisible({
+            timeout: 15000,
+        });
+    });
+
+    test.afterAll(async () => {
+        await agentContext?.close();
+        await pricingContext?.close();
+    });
+
+    test('AC-6.1: Submitted state — awaiting pricing message, no calculator', async () => {
+        await agentContractsPage.openRequestByCustomer(quoteCustomerName);
+        await agentDetailPage.verifyAwaitingPricingState();
+    });
+
+    test('AC-6.2 & 6.3: Priced calculator layout, live quote, deposit, no internal params', async () => {
+        // Admin locks grid so agent can quote
+        await pricingAuth.goto(pricingGen.buildURL('/agent/login'));
+        await pricingAuth.adminLogin(
+            TestData.credentials.agent.username,
+            TestData.credentials.agent.password
+        );
+        await pricingContractsPage.openRequestByCustomer(quoteCustomerName, 'Price now');
+        // AC-7.2.1 / AC-7.2.2 — RoRo four cost fields; contamination admin-only
+        await pricingDetailPage.verifyRoRoLineCostFields();
+        await pricingDetailPage.verifySupplierCostHint();
+        const lock = await pricingDetailPage.lockGridSuccessfully({
+            base: '30',
+            floor: '10',
+            cost: '120',
+            discountMaxTerm: '5',
+            discountFullUpfront: '5',
+        });
+        lockedSupplierLabel = lock.supplierLabel;
+
+        await agentContractsPage.openRequestByCustomer(quoteCustomerName);
+        await expect(agentPage.getByText('Priced — ready to close').first()).toBeVisible({
+            timeout: 20000,
+        });
+
+        // AC-6.2.1 – 6.2.5
+        await agentDetailPage.verifyQuoteCalculatorLayout({ supplierName: lockedSupplierLabel });
+        availableTerms = await agentDetailPage.verifyTermPickerDefaults();
+        selectedTermLabel = availableTerms[0];
+
+        // AC-6.3.1 – live update without full reload
+        const urlBefore = agentPage.url();
+        if (availableTerms.length > 1) {
+            await agentDetailPage.selectTerm(availableTerms[availableTerms.length - 1]);
+            selectedTermLabel = availableTerms[availableTerms.length - 1];
+            expect(agentPage.url()).toBe(urlBefore);
+            await agentDetailPage.selectTerm(availableTerms[0]);
+            selectedTermLabel = availableTerms[0];
+        } else {
+            await agentDetailPage.selectUpfront('25% upfront');
+            expect(agentPage.url()).toBe(urlBefore);
+            await agentDetailPage.selectUpfront('Drawdown');
+        }
+
+        // AC-6.3.2 / 6.3.3 + AC-7.3.1 / AC-7.3.2 (RoRo quote columns, no cost breakdown)
+        await agentDetailPage.verifyRoRoQuoteHasNoCostBreakdown();
+
+        // AC-6.3.4 + AC-7.2.2 (agent never sees contamination / supplier cost breakdown)
+        await agentDetailPage.verifyNoInternalPricingParams();
+
+        // AC-6.3.5 + AC-7.4.1 (detail/calculator deposit warning)
+        await agentDetailPage.verifyDepositWarningVisible();
+
+        await agentDetailPage.verifyCloseDealEnabled();
+    });
+
+    test('AC-6.4: Term & upfront price behaviour — discounts and whole pounds', async () => {
+        await agentContractsPage.openRequestByCustomer(quoteCustomerName);
+        await expect(agentDetailPage.quoteCalculatorHeading).toBeVisible({ timeout: 20000 });
+
+        availableTerms = await agentDetailPage.getVisibleTermLabels();
+        expect(availableTerms.length).toBeGreaterThan(0);
+
+        // AC-6.4.1 — longer term ≤ shorter term unit price
+        await agentDetailPage.selectTerm(availableTerms[0]);
+        await agentDetailPage.selectUpfront('Drawdown');
+        const shortTermPrices = await agentDetailPage.getCustomerUnitPrices();
+
+        const longest = availableTerms[availableTerms.length - 1];
+        await agentDetailPage.selectTerm(longest);
+        const longTermPrices = await agentDetailPage.getCustomerUnitPrices();
+        for (let i = 0; i < shortTermPrices.length; i++) {
+            expect(longTermPrices[i]).toBeLessThanOrEqual(shortTermPrices[i]);
+        }
+        selectedTermLabel = longest;
+
+        // AC-6.4.2 — higher upfront ≤ lower upfront unit price
+        await agentDetailPage.selectUpfront('Drawdown');
+        const drawdownPrices = await agentDetailPage.getCustomerUnitPrices();
+        await agentDetailPage.selectUpfront('Full upfront');
+        const fullUpfrontPrices = await agentDetailPage.getCustomerUnitPrices();
+        for (let i = 0; i < drawdownPrices.length; i++) {
+            expect(fullUpfrontPrices[i]).toBeLessThanOrEqual(drawdownPrices[i]);
+        }
+        selectedUpfrontLabel = 'Full upfront';
+
+        // AC-6.4.3
+        await agentDetailPage.verifyWholePoundPrices();
+    });
+
+    test('AC-6.5: Close deal modal and confirm closes the request', async () => {
+        await agentContractsPage.openRequestByCustomer(quoteCustomerName);
+        await expect(agentDetailPage.quoteCalculatorHeading).toBeVisible({ timeout: 20000 });
+
+        // Stay on selections from AC-6.4 (or re-apply)
+        if (selectedTermLabel) {
+            await agentDetailPage.selectTerm(selectedTermLabel);
+        }
+        await agentDetailPage.selectUpfront(selectedUpfrontLabel);
+
+        // AC-6.5.1
+        await agentDetailPage.verifyCloseDealEnabled();
+
+        // AC-6.5.2
+        await agentDetailPage.openCloseDealModal();
+        await agentDetailPage.verifyCloseModalContents({
+            termLabel: selectedTermLabel,
+            upfrontLabel: selectedUpfrontLabel,
+        });
+
+        // AC-6.5.3
+        await agentDetailPage.confirmCloseContract();
+        await agentContractsPage.verifyRequestInList(quoteCustomerName, 'Closed');
+    });
+
+    test('AC-6.7: Closed state — read-only quote, green value card, deposit, Phase 2 note', async () => {
+        await agentContractsPage.openRequestByCustomer(quoteCustomerName);
+        await agentDetailPage.verifyClosedState({
+            termLabel: selectedTermLabel,
+            upfrontLabel: selectedUpfrontLabel,
+        });
+        // AC-7.4.1 — deposit warning remains on closed RoRo detail
+        await agentDetailPage.verifyDepositWarningVisible();
     });
 });

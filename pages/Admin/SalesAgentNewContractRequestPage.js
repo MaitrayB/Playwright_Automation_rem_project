@@ -157,6 +157,20 @@ export class SalesAgentNewContractRequestPage {
         await expect(this.page.locator('input[id*="agent" i], input[name*="agent" i]')).toHaveCount(0);
     }
 
+    /**
+     * AC-7.1.1 — RoRo sizes use the same qty / size / waste fields only (no transport/tonne inputs).
+     * @param {number} [index]
+     */
+    async verifyRoRoCaptureSameAsSkip(index = 0) {
+        await expect(this.qtyInput(index)).toBeVisible();
+        await expect(this.sizeSelect(index)).toBeVisible();
+        await expect(this.wasteTypeSelect(index)).toBeVisible();
+        await expect(this.page.getByText('Transport £ / exchange', { exact: true })).toHaveCount(0);
+        await expect(this.page.getByText('Cost £ / tonne', { exact: true })).toHaveCount(0);
+        await expect(this.page.getByText(/Included tonnes/i)).toHaveCount(0);
+        await expect(this.page.getByText(/Contamination £/i)).toHaveCount(0);
+    }
+
     async clickSendToPricing() {
         await this.sendToPricingBtn.click();
     }

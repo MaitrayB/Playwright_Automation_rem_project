@@ -199,6 +199,23 @@ export class SalesAgentContractsPage {
         return customer;
     }
 
+    /**
+     * Search then open the first matching contracts row for a customer name.
+     * @param {string} customerName
+     */
+    async openRequestByCustomer(customerName) {
+        await this.gotoContractsPage();
+        await this.selectStatusFilter('All');
+        await this.clearSearch();
+        await this.searchCustomer(customerName);
+        await expect
+            .poll(async () => (await this.getVisibleCustomerNames()).some((n) => n.includes(customerName)), {
+                timeout: 20000,
+            })
+            .toBeTruthy();
+        return this.openFirstRequestRow();
+    }
+
     async openNewRequest() {
         await this.acceptCookiesIfVisible();
         await expect(this.newRequestLink).toBeVisible({ timeout: 15000 });

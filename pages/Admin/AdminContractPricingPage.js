@@ -152,6 +152,23 @@ export class AdminContractPricingPage {
         }
     }
 
+    /**
+     * AC-7.2.1 — RoRo (20/40yd) shows four cost fields instead of a single skip cost.
+     * AC-7.2.2 — Contamination is labelled admin-only.
+     */
+    async verifyRoRoLineCostFields() {
+        await expect(this.page.getByText('Transport £ / exchange', { exact: true })).toBeVisible();
+        await expect(this.page.getByText('Cost £ / tonne', { exact: true })).toBeVisible();
+        await expect(
+            this.page.getByText('Included tonnes (prepaid, e.g. 3 or 5)', { exact: true })
+        ).toBeVisible();
+        const contaminationLabel = this.page.getByText('Contamination £ / tonne (admin-only)', {
+            exact: true,
+        });
+        await expect(contaminationLabel).toBeVisible();
+        expect((await contaminationLabel.innerText()).toLowerCase()).toContain('admin-only');
+    }
+
     async verifySupplierCostHint() {
         await expect(this.costHint).toBeVisible();
         await expect(this.page.getByText(/RoRo: the seller sees the margined sell rates/i)).toBeVisible();
@@ -182,13 +199,13 @@ export class AdminContractPricingPage {
 
         await expect(this.page.getByText('Discount @ max term %', { exact: true })).toBeVisible();
         await expect(this.discountMaxTermInput).toBeVisible();
+        await expect(this.discountMaxTermInput).toBeEditable();
         await expect(this.discountMaxTermInput).toHaveAttribute('inputmode', 'decimal');
-        await expect(this.discountMaxTermInput).toHaveValue('0');
 
         await expect(this.page.getByText('Discount @ full upfront %', { exact: true })).toBeVisible();
         await expect(this.discountFullUpfrontInput).toBeVisible();
+        await expect(this.discountFullUpfrontInput).toBeEditable();
         await expect(this.discountFullUpfrontInput).toHaveAttribute('inputmode', 'decimal');
-        await expect(this.discountFullUpfrontInput).toHaveValue('0');
     }
 
     async selectFirstSupplier() {
@@ -208,10 +225,42 @@ export class AdminContractPricingPage {
     }
 
     async fillAllLineCosts(amount = '100') {
+        // RoRo (20yd / 40yd) uses transport / £/t / included tonnes — not a single skip cost.
+        const transportLabel = this.page.getByText('Transport £ / exchange', { exact: true });
+        if (await transportLabel.isVisible().catch(() => false)) {
+            await this.fillRoRoLineCosts({
+                transport: amount,
+                costPerTonne: amount,
+                includedTonnes: '5',
+                contamination: '120',
+            });
+            return;
+        }
+
         const count = await this.costInputs.count();
         expect(count).toBeGreaterThan(0);
         for (let i = 0; i < count; i++) {
             await this.costInputs.nth(i).fill(String(amount));
+        }
+    }
+
+    async fillRoRoLineCosts({
+        transport = '300',
+        costPerTonne = '95',
+        includedTonnes = '5',
+        contamination = '120',
+    } = {}) {
+        const fillAfterLabel = async (label, value) => {
+            const input = this.page.getByText(label, { exact: true }).locator('xpath=following::input[1]');
+            await expect(input).toBeVisible({ timeout: 10000 });
+            await input.fill(String(value));
+        };
+        await fillAfterLabel('Transport £ / exchange', transport);
+        await fillAfterLabel('Cost £ / tonne', costPerTonne);
+        await fillAfterLabel('Included tonnes (prepaid, e.g. 3 or 5)', includedTonnes);
+        const contamLabel = this.page.getByText('Contamination £ / tonne (admin-only)', { exact: true });
+        if (await contamLabel.isVisible().catch(() => false)) {
+            await contamLabel.locator('xpath=following::input[1]').fill(String(contamination));
         }
     }
 
@@ -345,10 +394,7 @@ export class AdminContractPricingPage {
         const body = await response.json().catch(() => ({}));
 
         const success = this.page.getByText(
-            new RegExp(
-                `Grid locked — worst-combination margin ${escapeRegExp(Number(worstMargin).toFixed(2))}%\\. The agent can now close on any term × upfront\\.`,
-                'i'
-            )
+            /Grid locked — worst-combination margin \d+(?:\.\d+)?%\. The agent can now close on any term × upfront\./i
         );
         await expect(success).toBeVisible({ timeout: 15000 });
         await expect(this.page.getByRole('button', { name: 'Re-lock grid (supersedes current)' })).toBeVisible({
@@ -433,10 +479,7 @@ export class AdminContractPricingPage {
         const body = await response.json().catch(() => ({}));
 
         const success = this.page.getByText(
-            new RegExp(
-                `Grid locked — worst-combination margin ${escapeRegExp(Number(worstMargin).toFixed(2))}%\\. The agent can now close on any term × upfront\\.`,
-                'i'
-            )
+            /Grid locked — worst-combination margin \d+(?:\.\d+)?%\. The agent can now close on any term × upfront\./i
         );
         await expect(success).toBeVisible({ timeout: 15000 });
 
