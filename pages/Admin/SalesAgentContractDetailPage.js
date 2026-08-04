@@ -18,13 +18,21 @@ export class SalesAgentContractDetailPage {
         this.termHint = page.getByText("These are the only terms available — a longer term isn't offered.");
         this.upfrontHint = page.getByText('More upfront earns the customer a better price.');
         this.contractValueLabel = page.getByText('Contract value — quote to customer');
-        this.closeDealBtn = page.getByRole('button', { name: 'Close deal' });
-        this.closeModalTitle = page.getByRole('heading', { name: 'Close contract' });
+        // Product: Close deal → Mark deal as agreed
+        this.closeDealBtn = page.getByRole('button', {
+            name: /^(Mark deal as agreed|Close deal)$/i,
+        });
+        this.closeModalTitle = page.getByRole('heading', {
+            name: /^(Mark deal as agreed|Agree (?:the )?deal|Agree contract|Close contract)$/i,
+        });
         this.closeModalCancelBtn = page.getByRole('button', { name: 'Cancel', exact: true });
-        this.closeModalConfirmBtn = page.getByRole('button', { name: 'Close contract', exact: true });
-        this.closedPhase2Note = page.getByText(
-            'Next: contract signatures are handled in Phase 2 — nothing more to do here.'
-        );
+        this.closeModalConfirmBtn = page.getByRole('button', {
+            name: /^(Mark deal as agreed|Mark as agreed|Agree deal|Agree contract|Close contract|Confirm)$/i,
+        });
+        this.closedPhase2Note = page
+            .getByText(/The deal is (?:agreed|closed) but nothing has been sent to sign yet/i)
+            .or(page.getByText(/Next: contract signatures are handled in Phase 2|nothing more to do here/i))
+            .first();
         this.depositWarning = page.getByText(
             'A £1,500 ex VAT (£1,800 inc VAT) deposit applies to any 20yd or 40yd line. It is not waivable and is excluded from commission.'
         );
@@ -265,12 +273,35 @@ export class SalesAgentContractDetailPage {
         await this.closeDealBtn.click();
         await expect(this.closeModalTitle).toBeVisible({ timeout: 10000 });
         await expect(this.closeModalCancelBtn).toBeVisible();
-        await expect(this.closeModalConfirmBtn).toBeVisible();
+        const confirmInModal = this._agreeModalConfirm();
+        await expect(confirmInModal).toBeVisible();
+    }
+
+    _agreeModal() {
+        return this.page
+            .locator('[role="dialog"], div.fixed')
+            .filter({ has: this.closeModalTitle })
+            .last();
+    }
+
+    _agreeModalConfirm() {
+        return this._agreeModal().getByRole('button', {
+            name: /^(Mark deal as agreed|Mark as agreed|Agree deal|Agree contract|Close contract|Confirm)$/i,
+        });
     }
 
     async verifyCloseModalContents({ termLabel, upfrontLabel }) {
-        const dialog = this.closeModalTitle.locator('xpath=ancestor::div[contains(@class,"fixed") or contains(@class,"modal")][1]')
-            .or(this.page.locator('div').filter({ has: this.closeModalTitle }).filter({ has: this.closeModalConfirmBtn }).last());
+        const dialog = this._agreeModal().or(
+            this.closeModalTitle
+                .locator('xpath=ancestor::div[contains(@class,"fixed") or contains(@class,"modal")][1]')
+                .or(
+                    this.page
+                        .locator('div')
+                        .filter({ has: this.closeModalTitle })
+                        .filter({ has: this.closeModalConfirmBtn })
+                        .last()
+                )
+        );
 
         // Term picker uses "6 mo"; modal often shows "6 months"
         const termMonths = String(termLabel || '').match(/(\d+)/)?.[1];
@@ -285,8 +316,13 @@ export class SalesAgentContractDetailPage {
     }
 
     async confirmCloseContract() {
-        await this.closeModalConfirmBtn.click();
-        await expect(this.page.getByText('Closed', { exact: true }).first()).toBeVisible({ timeout: 20000 });
+        await this._agreeModalConfirm().click();
+        await expect(
+            this.page
+                .getByText('Agreed', { exact: true })
+                .or(this.page.getByText('Closed', { exact: true }))
+                .first()
+        ).toBeVisible({ timeout: 20000 });
         await expect(this.quoteCalculatorHeading).toHaveCount(0);
         await expect(this.closeDealBtn).toHaveCount(0);
         await expect(this.page.getByText('Term', { exact: true })).toHaveCount(0);
@@ -294,7 +330,13 @@ export class SalesAgentContractDetailPage {
     }
 
     async verifyClosedState({ termLabel, upfrontLabel } = {}) {
-        await expect(this.page.getByText('Closed', { exact: true }).first()).toBeVisible();
+        // Product: Closed → Agreed
+        await expect(
+            this.page
+                .getByText('Agreed', { exact: true })
+                .or(this.page.getByText('Closed', { exact: true }))
+                .first()
+        ).toBeVisible();
 
         const termMonths = String(termLabel || '').match(/(\d+)/)?.[1];
         if (termMonths) {
@@ -303,7 +345,9 @@ export class SalesAgentContractDetailPage {
         if (upfrontLabel) {
             await expect(this.page.getByText(new RegExp(`Upfront:\\s*${escapeRegExp(upfrontLabel)}`, 'i'))).toBeVisible();
         }
-        await expect(this.page.getByText(/Closed:\s*\d{1,2}\s+\w+\s+\d{4}/i)).toBeVisible();
+        await expect(
+            this.page.getByText(/(?:Agreed|Closed):\s*\d{1,2}\s+\w+\s+\d{4}/i)
+        ).toBeVisible();
 
         await expect(this.quoteTable()).toBeVisible();
         const closedValueLabel = this.page.getByText('Contract value', { exact: true });

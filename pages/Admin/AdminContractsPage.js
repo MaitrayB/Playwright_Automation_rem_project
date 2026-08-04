@@ -12,7 +12,9 @@ export class AdminContractsPage {
     constructor(page) {
         this.page = page;
         this.pageHeading = page.getByRole('heading', { name: 'Contracts', exact: true });
-        this.pageSubtitle = page.getByText('Commercial contract requests — from pricing to close');
+        this.pageSubtitle = page.getByText(
+            /Commercial contract requests — from pricing to (?:a live contract|close|agree)/i
+        );
         this.sidebarContractsLink = page.locator('a[href="/super-admin/contracts"]');
         this.sidebarNeedsPricingBadge = this.sidebarContractsLink.locator('span.bg-red-500');
         this.contractsTable = page.locator('table');
@@ -20,7 +22,8 @@ export class AdminContractsPage {
         this.tableRows = this.contractsTable.locator('tbody tr');
         this.footerCount = page.getByText(/\d+\s+requests?/i);
         this.emptyTitle = page.getByText('Nothing here', { exact: true });
-        this.tabLabels = ['All', 'Needs pricing', 'Priced', 'Closed', 'Cancelled'];
+        // Product rename: Closed → Agreed (Closed still accepted via selectTab mapping)
+        this.tabLabels = ['All', 'Needs pricing', 'Priced', 'Agreed', 'Cancelled'];
         this.expectedColumns = [
             'From',
             'Customer',
@@ -45,6 +48,12 @@ export class AdminContractsPage {
             waitUntil: 'domcontentloaded',
         });
         await this.acceptCookiesIfVisible();
+        // Session expiry lands on staff login
+        if (/\/agent\/login|\/login/.test(this.page.url())) {
+            throw new Error(
+                'Admin session expired on /super-admin/contracts — re-login via ensureAdminSession / adminLogin before navigating'
+            );
+        }
         await expect(this.pageHeading).toBeVisible({ timeout: 30000 });
         await this.waitForContractsListSettled();
     }
@@ -61,8 +70,17 @@ export class AdminContractsPage {
                         return false;
                     }
                     const hasRows = (await this.tableRows.count()) > 0;
-                    const isEmpty = await this.emptyTitle.isVisible().catch(() => false);
-                    return hasRows || isEmpty;
+                    const isEmpty =
+                        (await this.emptyTitle.isVisible().catch(() => false)) ||
+                        (await this.page
+                            .getByText(/^Nothing in\s+"/i)
+                            .isVisible()
+                            .catch(() => false));
+                    const hasFooter = await this.footerCount
+                        .first()
+                        .isVisible()
+                        .catch(() => false);
+                    return hasRows || isEmpty || hasFooter;
                 },
                 { timeout: 30000 }
             )
@@ -117,15 +135,40 @@ export class AdminContractsPage {
 
     async verifyStatusTabs() {
         for (const label of this.tabLabels) {
+            if (label === 'Agreed') {
+                await expect(this.tab('Agreed').or(this.tab('Closed')).first()).toBeVisible();
+                continue;
+            }
             await expect(this.tab(label)).toBeVisible();
         }
     }
 
     async selectTab(label) {
         await this.acceptCookiesIfVisible();
-        await this.tab(label).click();
-        await expect.poll(async () => this.isTabActive(label)).toBeTruthy();
+        const resolved = await this.resolveTabLabel(label);
+        await this.tab(resolved).click();
+        await expect.poll(async () => this.isTabActive(resolved)).toBeTruthy();
         await this.waitForContractsListSettled();
+    }
+
+    /** Closed → Agreed (and reverse if only legacy label is present). */
+    async resolveTabLabel(label) {
+        if (label === 'Closed' || label === 'Agreed') {
+            const preferred = label === 'Closed' ? 'Agreed' : 'Agreed';
+            const fallback = 'Closed';
+            const preferredTab = this.tab(preferred);
+            if (
+                (await preferredTab.count()) > 0 &&
+                (await preferredTab.first().isVisible().catch(() => false))
+            ) {
+                return preferred;
+            }
+            const legacy = this.tab(fallback);
+            if ((await legacy.count()) > 0 && (await legacy.first().isVisible().catch(() => false))) {
+                return fallback;
+            }
+        }
+        return label;
     }
 
     async verifyDesktopTableColumns() {
@@ -143,7 +186,10 @@ export class AdminContractsPage {
     }
 
     async verifyNonNeedsPricingActions() {
-        for (const tab of ['Priced', 'Closed']) {
+        for (const tab of ['Priced', 'Agreed', 'Closed']) {
+            const resolved = await this.resolveTabLabel(tab);
+            // Skip duplicate tab when both Close/Agreed labels map to the same control
+            if (tab === 'Closed' && resolved === 'Agreed') continue;
             await this.selectTab(tab);
             if ((await this.tableRows.count()) === 0) {
                 continue;
@@ -210,14 +256,11 @@ export class AdminContractsPage {
             All: null,
             'Needs pricing': 'submitted',
             Priced: 'priced',
+            Agreed: 'agreed',
             Closed: 'closed',
             Cancelled: 'cancelled',
         };
         const status = statusByTab[tabLabel];
-        const expectedDescription =
-            tabLabel === 'All'
-                ? 'No contract requests yet.'
-                : `No contract requests with status "${status}".`;
 
         await this.page.route('**/api/contract-requests/queue?**', async (route) => {
             const url = route.request().url();
@@ -251,7 +294,23 @@ export class AdminContractsPage {
         await this.gotoContractsPage();
         await this.selectTab(tabLabel);
         await expect(this.emptyTitle).toBeVisible({ timeout: 15000 });
-        await expect(this.page.getByText(expectedDescription)).toBeVisible();
+        // Description is separate from the "Nothing here" heading
+        if (tabLabel === 'All') {
+            await expect(
+                this.page.getByText('No contract requests yet.', { exact: true }).first()
+            ).toBeVisible();
+        } else {
+            await expect(
+                this.page
+                    .getByText(new RegExp(`Nothing in\\s+"${tabLabel}"`, 'i'))
+                    .or(
+                        this.page.getByText(
+                            new RegExp(`No contract requests with status\\s+"${status}"`, 'i')
+                        )
+                    )
+                    .first()
+            ).toBeVisible();
+        }
         await this.page.unroute('**/api/contract-requests/queue?**');
     }
 
@@ -267,13 +326,14 @@ export class AdminContractsPage {
     }
 
     /**
-     * Opens a Needs pricing row matching the customer name.
+     * Opens a queue row matching the customer name.
      * @param {string} customerName
      * @param {'Price now'|'Open'} [actionLabel]
+     * @param {'All'|'Needs pricing'|'Priced'|'Agreed'|'Closed'|'Cancelled'} [tab]
      */
-    async openRequestByCustomer(customerName, actionLabel = 'Price now') {
+    async openRequestByCustomer(customerName, actionLabel = 'Price now', tab = 'Needs pricing') {
         await this.gotoContractsPage();
-        await this.selectTab('Needs pricing');
+        await this.selectTab(tab);
         const row = this.tableRows.filter({ visible: true }).filter({ hasText: customerName }).first();
         await expect(row).toBeVisible({ timeout: 30000 });
         return this._openRow(row, actionLabel);

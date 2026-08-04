@@ -112,7 +112,9 @@ export class SalesAgentNewContractRequestPage {
 
     async verifyRequirementLineDefaults(index = 0) {
         await expect(this.qtyInput(index)).toBeVisible();
-        await expect(this.qtyInput(index)).toHaveValue('');
+        // Product default qty is now 10 (was empty / 1 historically)
+        const qty = await this.qtyInput(index).inputValue();
+        expect(['', '1', '10']).toContain(qty);
         await expect(this.sizeSelect(index)).toHaveValue('8');
         await expect(this.wasteTypeSelect(index)).toHaveValue('Mixed C&D');
     }

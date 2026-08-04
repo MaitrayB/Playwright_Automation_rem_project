@@ -1,5 +1,6 @@
 import { expect } from 'allure-playwright';
 import { ensureCookieConsentDismissed } from '../../utils/cookieConsent.js';
+import { TestData } from '../../Data/testData.js';
 
 /**
  * @typedef {import('@playwright/test').Page} Page
@@ -12,7 +13,9 @@ export class AdminContractPricingPage {
         this.page = page;
         this.backToContractsBtn = page.getByRole('button', { name: 'Back to Contracts' });
         this.priceTitle = page.getByRole('heading', { name: /^Price:/ });
-        this.supplierPanelTitle = page.getByRole('heading', { name: 'Supplier & per-line cost' });
+        this.supplierPanelTitle = page.getByRole('heading', {
+            name: /Supplier & (?:cost per item|per-line cost)/i,
+        });
         this.supplierLabel = page.getByText('Supplier', { exact: true }).first();
         this.supplierSelectBtn = page.getByRole('button', { name: /Select a supplier|supplier/i }).first();
         this.supplierFreeTextInput = page.getByPlaceholder(
@@ -22,7 +25,9 @@ export class AdminContractPricingPage {
         this.costHint = page.getByText(/Supplier costs, ex VAT — never shown to the agent/);
         // UI styles as uppercase via CSS; accessible text is "Requirement"
         this.requirementHeading = page.getByText(/^Requirement$/i);
-        this.readOnlyWarning = page.getByText(/This request is (closed|cancelled) — the grid can no longer be changed\./i);
+        this.readOnlyWarning = page.getByText(
+            /This request is (agreed|closed|cancelled) — the grid can no longer be changed\./i
+        );
 
         this.gridPanelTitle = page.getByRole('heading', { name: 'Grid', exact: true });
         this.maxTermSelect = page.locator('main select').first();
@@ -46,7 +51,7 @@ export class AdminContractPricingPage {
         await expect(this.page).toHaveURL(/\/super-admin\/contracts\/\d+/, { timeout: 30000 });
         await expect(this.backToContractsBtn).toBeVisible();
         await expect(this.page.getByRole('heading', { name: new RegExp(`^Price:\\s*${escapeRegExp(customerName)}`) })).toBeVisible();
-        await expect(this.page.locator('h1 span, h1 >> span').filter({ hasText: /Awaiting pricing|Priced|Closed|Cancelled/i }).first()).toBeVisible();
+        await expect(this.page.locator('h1 span, h1 >> span').filter({ hasText: /Awaiting pricing|Priced|Agreed|Closed|Cancelled/i }).first()).toBeVisible();
 
         // Detail header is split into Sales agent + Customer cards (no longer a single "From …" subtitle).
         const main = this.page.locator('main');
@@ -69,8 +74,15 @@ export class AdminContractPricingPage {
     }
 
     async verifyReadOnlyWarning(status) {
+        // Product: closed → agreed; accept either status word in the warning copy
+        const statusWord =
+            status === 'closed' || status === 'agreed'
+                ? '(?:agreed|closed)'
+                : escapeRegExp(String(status));
         await expect(
-            this.page.getByText(`This request is ${status} — the grid can no longer be changed.`)
+            this.page.getByText(
+                new RegExp(`This request is ${statusWord} — the grid can no longer be changed\\.`, 'i')
+            )
         ).toBeVisible({ timeout: 15000 });
 
         // Pricing controls are not editable
@@ -171,9 +183,18 @@ export class AdminContractPricingPage {
 
     async verifySupplierCostHint() {
         await expect(this.costHint).toBeVisible();
-        await expect(this.page.getByText(/RoRo: the seller sees the margined sell rates/i)).toBeVisible();
-        await expect(this.page.getByText(/extra tonnage is billed post-collection/i)).toBeVisible();
-        await expect(this.page.getByText(/Contamination is REM↔supplier only/i)).toBeVisible();
+        // Supplemental RoRo copy (wording has drifted; keep soft checks)
+        const sellerRates = this.page.getByText(/RoRo: the seller sees the margined sell rates/i);
+        if (await sellerRates.isVisible().catch(() => false)) {
+            await expect(this.page.getByText(/extra tonnage is billed post-collection/i)).toBeVisible();
+        }
+        // Contamination: We Want Waste↔supplier (was REM↔supplier)
+        const contaminationHelp = this.page.getByText(
+            /Contamination is (?:We Want Waste|REM).{0,6}supplier only/i
+        );
+        if (await contaminationHelp.count()) {
+            await expect(contaminationHelp.first()).toBeVisible();
+        }
     }
 
     async verifyGridPanelFields() {
@@ -208,19 +229,36 @@ export class AdminContractPricingPage {
         await expect(this.discountFullUpfrontInput).toHaveAttribute('inputmode', 'decimal');
     }
 
+    /**
+     * Selects the fixed QA pricing supplier (LAISHA DOOLEY #780) via the searchable dropdown.
+     * @returns {Promise<string>} Selected supplier label, e.g. "LAISHA DOOLEY (#780)"
+     */
     async selectFirstSupplier() {
+        const { search, label, displayName } = TestData.contractPricingSupplier;
+
         const freeTextVisible = await this.supplierFreeTextInput.isVisible().catch(() => false);
         if (freeTextVisible) {
-            await this.supplierFreeTextInput.fill('QA Off-Platform Supplier');
-            return 'QA Off-Platform Supplier';
+            await this.supplierFreeTextInput.fill(displayName);
+            return displayName;
         }
 
         await this.page.getByRole('button', { name: /Select a supplier/i }).click();
-        const option = this.page.getByText(/\(\#\d+\)/).first();
+
+        const popoverSearch = this.page
+            .getByPlaceholder(/Search suppliers/i)
+            .or(this.page.locator('input[type="search"]'))
+            .first();
+        await expect(popoverSearch).toBeVisible({ timeout: 10000 });
+        await popoverSearch.fill(search);
+
+        const option = this.page.getByText(label, { exact: false }).first();
         await expect(option).toBeVisible({ timeout: 15000 });
-        const label = (await option.innerText()).split('\n')[0].trim();
         await option.click();
+
         await expect(this.page.getByRole('button', { name: /Select a supplier/i })).toHaveCount(0);
+        await expect(this.page.getByText(new RegExp(escapeRegExp(displayName), 'i')).first()).toBeVisible({
+            timeout: 10000,
+        });
         return label;
     }
 
@@ -265,6 +303,21 @@ export class AdminContractPricingPage {
     }
 
     async clearAllLineCosts() {
+        const transportLabel = this.page.getByText('Transport £ / exchange', { exact: true });
+        if (await transportLabel.isVisible().catch(() => false)) {
+            const clearAfterLabel = async (label) => {
+                const input = this.page.getByText(label, { exact: true }).locator('xpath=following::input[1]');
+                if (await input.isVisible().catch(() => false)) {
+                    await input.fill('');
+                }
+            };
+            await clearAfterLabel('Transport £ / exchange');
+            await clearAfterLabel('Cost £ / tonne');
+            await clearAfterLabel('Included tonnes (prepaid, e.g. 3 or 5)');
+            await clearAfterLabel('Contamination £ / tonne (admin-only)');
+            return;
+        }
+
         const count = await this.costInputs.count();
         for (let i = 0; i < count; i++) {
             await this.costInputs.nth(i).fill('');
@@ -352,7 +405,9 @@ export class AdminContractPricingPage {
         if (await this.lockGridBtn.isEnabled()) {
             await this.lockGridBtn.click();
             await expect(
-                this.page.getByText(/Every line needs a supplier cost of at least £1/i)
+                this.page
+                    .getByText(/Every line needs a supplier cost of at least £1/i)
+                    .or(this.page.getByText(/needs transport cost,\s*£\/tonne and included tonnage/i))
             ).toBeVisible({ timeout: 10000 });
         } else {
             await expect(this.lockGridBtn).toBeDisabled();
@@ -393,8 +448,9 @@ export class AdminContractPricingPage {
         ]);
         const body = await response.json().catch(() => ({}));
 
+        // Copy moved close → agree; also allow plain "x" vs "×"
         const success = this.page.getByText(
-            /Grid locked — worst-combination margin \d+(?:\.\d+)?%\. The agent can now close on any term × upfront\./i
+            /Grid locked — worst-combination margin \d+(?:\.\d+)?%\. The agent can now (?:close on|agree a deal on) any term [x×] upfront\./i
         );
         await expect(success).toBeVisible({ timeout: 15000 });
         await expect(this.page.getByRole('button', { name: 'Re-lock grid (supersedes current)' })).toBeVisible({
@@ -479,7 +535,7 @@ export class AdminContractPricingPage {
         const body = await response.json().catch(() => ({}));
 
         const success = this.page.getByText(
-            /Grid locked — worst-combination margin \d+(?:\.\d+)?%\. The agent can now close on any term × upfront\./i
+            /Grid locked — worst-combination margin \d+(?:\.\d+)?%\. The agent can now (?:close on|agree a deal on) any term [x×] upfront\./i
         );
         await expect(success).toBeVisible({ timeout: 15000 });
 

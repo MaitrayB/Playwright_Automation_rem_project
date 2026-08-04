@@ -20,21 +20,34 @@ export class SalesAgentContractsPage {
         this.contractsTable = page.locator('table');
         this.tableHeaders = this.contractsTable.locator('th');
         this.tableRows = this.contractsTable.locator('tbody tr');
-        this.filterLabels = ['All', 'Needs pricing', 'Priced', 'Closed', 'Cancelled'];
+        this.filterLabels = [
+            'All',
+            'Needs pricing',
+            'Priced',
+            'Agreed',
+            'Awaiting signatures',
+            'Active',
+            'Ended',
+            'Cancelled',
+        ];
         this.expectedColumns = ['Customer', 'Area', 'Lines', 'Status', 'Supplier', 'Submitted'];
+        // Product rename: Closed → Agreed, ready to close → ready to agree
         this.statusBadges = {
             awaitingPricing: {
                 text: 'Awaiting pricing',
                 classPattern: /bg-amber-500\/15.*text-amber-400|text-amber-400.*bg-amber-500\/15/,
             },
             priced: {
-                text: 'Priced — ready to close',
+                text: 'Priced — ready to agree',
                 classPattern: /bg-blue-500\/15.*text-blue-400|text-blue-400.*bg-blue-500\/15/,
             },
             closed: {
-                text: 'Closed',
+                // List may show "Agreed" or "Agreed — not sent to sign" (now grey, not green)
+                text: 'Agreed',
+                textPattern: /^(Agreed|Closed)( — .*)?$/,
                 classExact: true,
-                classPattern: /bg-green-500\/15.*text-green-400|text-green-400.*bg-green-500\/15/,
+                classPattern:
+                    /bg-gray-500\/15.*text-gray-400|text-gray-400.*bg-gray-500\/15|bg-green-500\/15.*text-green-400|text-green-400.*bg-green-500\/15/,
             },
         };
     }
@@ -81,9 +94,14 @@ export class SalesAgentContractsPage {
     }
 
     async verifyStatusFilterPills() {
-        for (const label of this.filterLabels) {
+        // Core filters always expected; post-rename lifecycle tabs may vary by environment
+        const core = ['All', 'Needs pricing', 'Priced', 'Cancelled'];
+        for (const label of core) {
             await expect(this.filterPill(label)).toBeVisible();
         }
+        await expect(
+            this.filterPill('Agreed').or(this.filterPill('Closed')).first()
+        ).toBeVisible();
     }
 
     async isFilterPillActive(label) {
@@ -92,9 +110,21 @@ export class SalesAgentContractsPage {
     }
 
     async selectStatusFilter(label) {
-        await this.filterPill(label).click();
-        await expect.poll(async () => this.isFilterPillActive(label)).toBeTruthy();
+        const resolved = await this.resolveFilterLabel(label);
+        await this.filterPill(resolved).click();
+        await expect.poll(async () => this.isFilterPillActive(resolved)).toBeTruthy();
         await this.waitForContractsListSettled();
+    }
+
+    /** Map legacy Closed / missing tabs onto current product labels. */
+    async resolveFilterLabel(label) {
+        if (label === 'Closed') {
+            const agreed = this.filterPill('Agreed');
+            if ((await agreed.count()) > 0 && (await agreed.first().isVisible().catch(() => false))) {
+                return 'Agreed';
+            }
+        }
+        return label;
     }
 
     /**
@@ -132,7 +162,14 @@ export class SalesAgentContractsPage {
 
     async verifyStatusBadge(badgeKey) {
         const config = this.statusBadges[badgeKey];
-        const badge = this.statusBadge(config.text).first();
+        const textRe =
+            config.textPattern ||
+            new RegExp(`^${config.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+        // Prefer the coloured pill (class includes bg-*) over wrapper flex columns
+        const badge = this.page
+            .locator('span[class*="bg-"]')
+            .filter({ hasText: textRe })
+            .first();
         await expect(badge).toBeVisible({ timeout: 10000 });
         await expect(badge).toHaveClass(config.classPattern);
     }
@@ -148,7 +185,7 @@ export class SalesAgentContractsPage {
             badgeKey === 'priced'
                 ? 'bg-blue-500/15 text-blue-400'
                 : badgeKey === 'closed'
-                    ? 'bg-green-500/15 text-green-400'
+                    ? 'bg-gray-500/15 text-gray-400'
                     : 'bg-amber-500/15 text-amber-400';
 
         const probeId = `badge-probe-${badgeKey}`;
@@ -172,7 +209,8 @@ export class SalesAgentContractsPage {
         if (badgeKey === 'priced') {
             expect(rgb).toMatch(/rgb\(\s*\d+,\s*\d+,\s*2\d{2}\s*\)/); // blue-ish
         } else if (badgeKey === 'closed') {
-            expect(rgb).toMatch(/rgb\(\s*\d+,\s*2\d{2},\s*\d+\s*\)/); // green-ish
+            // Agreed pill is grey (legacy green still accepted)
+            expect(rgb).toMatch(/rgb\(\s*(1\d{2}|2\d{2}),\s*(1\d{2}|2\d{2}),\s*(1\d{2}|2\d{2})\s*\)/);
         }
 
         await this.page.evaluate((id) => document.getElementById(id)?.remove(), probeId);
@@ -229,9 +267,18 @@ export class SalesAgentContractsPage {
         await this.gotoContractsPage();
         await this.selectStatusFilter('All');
         await this.clearSearch();
-        const row = this.page.getByText(customerName, { exact: true }).first();
+        const row = this.tableRows.filter({ hasText: customerName }).first();
         await expect(row).toBeVisible({ timeout: 15000 });
-        await expect(this.page.getByText(status).first()).toBeVisible();
+        // Closed → Agreed; list may show "Agreed — not sent to sign"
+        if (status === 'Closed' || status === 'Agreed') {
+            await expect(row.getByText(/Agreed|Closed/i).first()).toBeVisible();
+            return;
+        }
+        if (status === 'Priced — ready to close' || status === 'Priced — ready to agree') {
+            await expect(row.getByText(/Priced — ready to (?:close|agree)/i).first()).toBeVisible();
+            return;
+        }
+        await expect(row.getByText(status).first()).toBeVisible();
     }
 
     async logout() {

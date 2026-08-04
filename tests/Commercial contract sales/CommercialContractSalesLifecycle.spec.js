@@ -113,7 +113,7 @@ test.describe('Commercial Contract Sales Lifecycle', () => {
             // AC-2.3.1 — amber "Awaiting pricing"
             await contractsPage.verifyStatusBadge('awaitingPricing');
 
-            // AC-2.3.2 / AC-2.3.3 — when priced/closed rows exist, verify blue/green badges
+            // AC-2.3.2 / AC-2.3.3 — when priced/agreed rows exist, verify blue/green badges
             await contractsPage.selectStatusFilter('Priced');
             if ((await contractsPage.tableRows.count()) > 0) {
                 await contractsPage.verifyStatusBadge('priced');
@@ -122,7 +122,7 @@ test.describe('Commercial Contract Sales Lifecycle', () => {
                 await contractsPage.verifyBadgeColourContract('priced');
             }
 
-            await contractsPage.selectStatusFilter('Closed');
+            await contractsPage.selectStatusFilter('Agreed');
             if ((await contractsPage.tableRows.count()) > 0) {
                 await contractsPage.verifyStatusBadge('closed');
             } else {
@@ -238,11 +238,12 @@ test.describe('Commercial Contract Sales Lifecycle', () => {
             await expect(await newRequestPage.getRequirementLineCount()).toBe(1);
             await newRequestPage.verifyRequirementLineDefaults(0);
 
-            // AC-3.3.6
+            // AC-3.3.6 — empty qty must not submit
             await newRequestPage.fillRequiredCustomerFields({
                 customer: 'Qty Validation Customer',
                 area: 'B29',
             });
+            await newRequestPage.qtyInput(0).fill('');
             await newRequestPage.clickSendToPricing();
             await expect(page).toHaveURL(/\/sales\/contracts\/new/);
             await expect(newRequestPage.qtyRequiredMessage).toBeVisible();
@@ -370,7 +371,9 @@ test.describe('4 — Admin Pricing Queue', () => {
 
         await adminContractsPage.selectTab('Priced');
         if ((await adminContractsPage.tableRows.count()) > 0) {
-            await expect(adminContractsPage.tableRows.first().getByText('Priced — ready to close')).toBeVisible();
+            await expect(
+                adminContractsPage.tableRows.first().getByText(/Priced — ready to (?:close|agree)/i)
+            ).toBeVisible();
             await expect(adminContractsPage.tableRows.first().getByRole('button', { name: 'Open' })).toBeVisible();
         }
 
@@ -453,9 +456,9 @@ test.describe('4 — Admin Pricing Queue', () => {
         }
         await adminPricingPage.verifySupplierCostHint();
 
-        // AC-5.1.2 — closed request is read-only with warning
+        // AC-5.1.2 — agreed request is read-only with warning
         await adminContractsPage.gotoContractsPage();
-        await adminContractsPage.selectTab('Closed');
+        await adminContractsPage.selectTab('Agreed');
         const closed = await adminContractsPage.openFirstRequest('Open');
         await adminPricingPage.verifyDetailPageLayout({
             customerName: closed.customerName,
@@ -463,7 +466,7 @@ test.describe('4 — Admin Pricing Queue', () => {
             area: closed.area,
             termMonths: closed.termMonths,
         });
-        await adminPricingPage.verifyReadOnlyWarning('closed');
+        await adminPricingPage.verifyReadOnlyWarning('agreed');
     });
 
     test('AC-5.4 & 5.5 & 5.6: Grid parameters, worst-combo preview, and lock action', async () => {
@@ -478,7 +481,9 @@ test.describe('4 — Admin Pricing Queue', () => {
         await expect(adminPricingPage.lockGridBtn).toHaveText('Lock grid');
         await expect(adminPricingPage.lockGridBtn).toBeDisabled();
 
-        await adminPricingPage.selectFirstSupplier();
+        const selectedSupplier = await adminPricingPage.selectFirstSupplier();
+        expect(selectedSupplier).toBe(TestData.contractPricingSupplier.label);
+        await expect(adminPage.getByText(TestData.contractPricingSupplier.label)).toBeVisible();
         await adminPricingPage.fillAllLineCosts('100');
 
         // AC-5.4.2 — base must be greater than floor
@@ -511,6 +516,7 @@ test.describe('4 — Admin Pricing Queue', () => {
             await expect(
                 adminPage
                     .getByText(/Every line needs a supplier cost of at least £1/i)
+                    .or(adminPage.getByText(/needs transport cost,\s*£\/tonne and included tonnage/i))
                     .or(adminPage.getByText(/Something went wrong while locking the grid/i))
             ).toBeVisible({ timeout: 10000 });
         } else {
@@ -690,7 +696,7 @@ test.describe('6 — Agent Quote Calculator & Close', () => {
         lockedSupplierLabel = lock.supplierLabel;
 
         await agentContractsPage.openRequestByCustomer(quoteCustomerName);
-        await expect(agentPage.getByText('Priced — ready to close').first()).toBeVisible({
+        await expect(agentPage.getByText(/Priced — ready to (?:close|agree)/i).first()).toBeVisible({
             timeout: 20000,
         });
 
@@ -759,7 +765,7 @@ test.describe('6 — Agent Quote Calculator & Close', () => {
         await agentDetailPage.verifyWholePoundPrices();
     });
 
-    test('AC-6.5: Close deal modal and confirm closes the request', async () => {
+    test('AC-6.5: Mark deal as agreed modal and confirm agrees the request', async () => {
         await agentContractsPage.openRequestByCustomer(quoteCustomerName);
         await expect(agentDetailPage.quoteCalculatorHeading).toBeVisible({ timeout: 20000 });
 
@@ -781,16 +787,16 @@ test.describe('6 — Agent Quote Calculator & Close', () => {
 
         // AC-6.5.3
         await agentDetailPage.confirmCloseContract();
-        await agentContractsPage.verifyRequestInList(quoteCustomerName, 'Closed');
+        await agentContractsPage.verifyRequestInList(quoteCustomerName, 'Agreed');
     });
 
-    test('AC-6.7: Closed state — read-only quote, green value card, deposit, Phase 2 note', async () => {
+    test('AC-6.7: Agreed state — read-only quote, green value card, deposit, Phase 2 note', async () => {
         await agentContractsPage.openRequestByCustomer(quoteCustomerName);
         await agentDetailPage.verifyClosedState({
             termLabel: selectedTermLabel,
             upfrontLabel: selectedUpfrontLabel,
         });
-        // AC-7.4.1 — deposit warning remains on closed RoRo detail
+        // AC-7.4.1 — deposit warning remains on agreed RoRo detail
         await agentDetailPage.verifyDepositWarningVisible();
     });
 });

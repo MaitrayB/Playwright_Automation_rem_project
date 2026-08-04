@@ -35,6 +35,15 @@ export const TestData = {
     }
   },
 
+  /** Supplier used when locking commercial contract pricing grids */
+  contractPricingSupplier: {
+    id: 780,
+    displayName: 'LAISHA DOOLEY',
+    label: 'LAISHA DOOLEY (#780)',
+    search: 'laisha',
+    email: 'Laisha_Dooley@mailinator.com',
+  },
+
   customer: {
     credentials: {
       username: 'navin@yopmail.com',
