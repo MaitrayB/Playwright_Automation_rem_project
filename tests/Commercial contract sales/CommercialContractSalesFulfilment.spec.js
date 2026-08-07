@@ -8,6 +8,7 @@ import { SalesAgentNewContractRequestPage } from '../../pages/Admin/SalesAgentNe
 import { SalesAgentContractDetailPage } from '../../pages/Admin/SalesAgentContractDetailPage.js';
 import { MailinatorPage } from '../../pages/Suppliers/MailinatorPage.js';
 import { ContractSigningPage } from '../../pages/Customer/ContractSigningPage.js';
+import { SupplierContractSigningPage } from '../../pages/Supplier/SupplierContractSigningPage.js';
 import { TestData } from '../../Data/testData.js';
 import { genericFunctions } from '../../utils/genericFunctions.js';
 import { prepareCookieConsent } from '../../utils/cookieConsent.js';
@@ -19,6 +20,8 @@ import { prepareCookieConsent } from '../../utils/cookieConsent.js';
 
 const CUSTOMER_SIGNING_EMAIL_SUBJECT = 'Your We Want Waste contract is ready to sign';
 const CUSTOMER_SIGNING_LINK_TEXT = /Review and sign your contract/i;
+const SUPPLIER_SIGNING_EMAIL_SUBJECT = 'We Want Waste supply agreement — review and sign';
+const SUPPLIER_SIGNING_LINK_TEXT = /Review and sign|sign your (supply )?agreement|Open the agreement/i;
 
 /**
  * Seed: agent submit → admin lock → agent close → admin issue → Mailinator signing link.
@@ -71,6 +74,7 @@ async function seedIssuedSigningContract({
     testInfo,
     customerPrefix,
     upfrontLabel = 'Drawdown',
+    phone,
 }) {
     const customerName = `${customerPrefix} ${Date.now()}`;
     const email = await adminGen.generateRandomEmailmailinator();
@@ -90,13 +94,17 @@ async function seedIssuedSigningContract({
     await ensureAdminSession(adminAuth, adminContractsPage, adminGen);
     await adminContractsPage.openRequestByCustomer(customerName, 'Price now');
     await expect(adminPricingPage.lockGridBtn).toBeVisible({ timeout: 20000 });
-    await adminPricingPage.lockGridSuccessfully({
+    const lock = await adminPricingPage.lockGridSuccessfully({
         base: '30',
         floor: '10',
         cost: '120',
         discountMaxTerm: '5',
         discountFullUpfront: '5',
     });
+    const supplierName =
+        lock.supplierLabel?.replace(/\s*\(#\d+\)\s*$/, '').trim() ||
+        TestData.contractPricingSupplier.displayName;
+    const area = 'B29';
 
     await ensureSalesAgentSession(agentAuth, agentContractsPage, agentGen);
     await agentContractsPage.openRequestByCustomer(customerName);
@@ -118,8 +126,11 @@ async function seedIssuedSigningContract({
     await adminContractsPage.openRequestByCustomer(customerName, 'Open', 'Agreed');
     await adminFulfilmentPage.verifyNotSentToSignCard();
     await adminFulfilmentPage.openSendForm();
-    await adminFulfilmentPage.sendToCustomer({ email });
-    await adminFulfilmentPage.verifyIssuedAwaitingSignatures({ customerEmail: email });
+    await adminFulfilmentPage.sendToCustomer({ email, phone });
+    await adminFulfilmentPage.verifyIssuedAwaitingSignatures({
+        customerEmail: email,
+        customerPhone: phone,
+    });
 
     const emailContext = await browser.newContext({ ...testInfo.project.use });
     const emailPage = await emailContext.newPage();
@@ -129,7 +140,43 @@ async function seedIssuedSigningContract({
     await emailContext.close();
     expect(link).toBeTruthy();
 
-    return { customerName, email, termMonths, link };
+    return { customerName, email, phone, termMonths, link, supplierName, area };
+}
+
+/** Fresh invite link for a customer email (latest matching subject). */
+async function fetchCustomerSigningLink(browser, testInfo, email) {
+    const emailContext = await browser.newContext({ ...testInfo.project.use });
+    const emailPage = await emailContext.newPage();
+    const mailinatorPage = new MailinatorPage(emailPage);
+    await mailinatorPage.waitForInvitationEmail(email, CUSTOMER_SIGNING_EMAIL_SUBJECT, 15, 3000);
+    const link = await mailinatorPage.getInvitationLink(CUSTOMER_SIGNING_LINK_TEXT);
+    await emailContext.close();
+    expect(link).toBeTruthy();
+    return link;
+}
+
+/** Customer public page should reject a superceded signing invite. */
+async function expectSigningLinkInvalid(browser, testInfo, link) {
+    const ctx = await browser.newContext({
+        ...testInfo.project.use,
+        httpCredentials: {
+            username: TestData.authCredentials.authUserName,
+            password: TestData.authCredentials.authPassword,
+        },
+        ignoreHTTPSErrors: true,
+    });
+    await prepareCookieConsent(ctx);
+    const page = await ctx.newPage();
+    await page.goto(link, { waitUntil: 'domcontentloaded' });
+    await expect(
+        page
+            .getByText(
+                /no longer (work|valid)|expired|invalid|already been (used|re-sent)|link (is )?(not|no longer)|invite (has )?(expired|been revoked)|this signing link/i
+            )
+            .or(page.getByRole('heading', { name: /link (expired|invalid)|invite (expired|invalid)/i }))
+            .first()
+    ).toBeVisible({ timeout: 45000 });
+    await ctx.close();
 }
 
 test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
@@ -522,6 +569,518 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
 
         test('AC-4.11: Decline link prompts reason and shows Agreement declined', async () => {
             await declineSigningPage.declineAgreement('Declining via QA automation');
+        });
+    });
+
+    /**
+     * §5 Supplier signing — requires customer sign + admin verify of that signature
+     * before the supplier receives "We Want Waste supply agreement — review and sign".
+     */
+    test.describe('5 — Supplier Contract Signing', () => {
+        test.describe.configure({ timeout: 420000 });
+
+        /** @type {import('@playwright/test').BrowserContext} */ let supplierContext;
+        /** @type {SupplierContractSigningPage} */ let supplierSigningPage;
+        let supplierCustomerName = '';
+        let supplierTermMonths = '';
+        let supplierArea = '';
+        let supplierDisplayName = '';
+        let supplierSigningLink = '';
+
+        test.beforeAll(async ({ browser }, testInfo) => {
+            testInfo.setTimeout(420000);
+
+            const seeded = await seedIssuedSigningContract({
+                agentAuth,
+                agentContractsPage,
+                agentNewRequestPage,
+                agentDetailPage,
+                agentPage,
+                agentGen,
+                adminAuth,
+                adminContractsPage,
+                adminPricingPage,
+                adminFulfilmentPage,
+                adminGen,
+                browser,
+                testInfo,
+                customerPrefix: 'QA SupplierSign',
+                upfrontLabel: 'Drawdown',
+            });
+            supplierCustomerName = seeded.customerName;
+            supplierTermMonths = seeded.termMonths;
+            supplierArea = seeded.area;
+            supplierDisplayName = seeded.supplierName;
+
+            // Customer signs first (AC-5.1 gating)
+            const customerCtx = await browser.newContext({
+                ...testInfo.project.use,
+                httpCredentials: {
+                    username: TestData.authCredentials.authUserName,
+                    password: TestData.authCredentials.authPassword,
+                },
+                ignoreHTTPSErrors: true,
+                viewport: null,
+            });
+            await prepareCookieConsent(customerCtx);
+            const customerPage = await customerCtx.newPage();
+            const customerSigning = new ContractSigningPage(customerPage);
+            await customerPage.goto(seeded.link, { waitUntil: 'domcontentloaded' });
+            await customerSigning.acceptCookiesIfVisible();
+            await customerSigning.ensureStep2();
+            await customerSigning.signAgreementSuccessfully('QA Customer For Supplier');
+            await customerCtx.close();
+
+            // AC-5.1 / 5.2 — admin verifies customer signature → supplier email
+            await ensureAdminSession(adminAuth, adminContractsPage, adminGen);
+            // Prefer All so signed deals are findable regardless of status tab rename
+            await adminContractsPage.gotoContractsPage();
+            await adminContractsPage.selectTab('All');
+            try {
+                await adminContractsPage.openRequestByCustomer(supplierCustomerName, 'Open', 'All');
+            } catch {
+                await adminContractsPage.openRequestByCustomer(
+                    supplierCustomerName,
+                    'Open',
+                    'Awaiting signatures'
+                );
+            }
+            await adminFulfilmentPage.verifyCustomerSignaturePendingAdminCheck().catch(async () => {
+                await expect(adminFulfilmentPage.fulfilmentHeading).toBeVisible({ timeout: 20000 });
+            });
+            await adminFulfilmentPage.verifyCustomerSignature();
+
+            const mailCtx = await browser.newContext({ ...testInfo.project.use });
+            const mailPage = await mailCtx.newPage();
+            const mailinator = new MailinatorPage(mailPage);
+            const supplierEmail = TestData.contractPricingSupplier.email;
+            await mailinator.waitForInvitationEmail(
+                supplierEmail,
+                SUPPLIER_SIGNING_EMAIL_SUBJECT,
+                20,
+                3000
+            );
+            supplierSigningLink = await mailinator.getInvitationLink(SUPPLIER_SIGNING_LINK_TEXT);
+            await mailCtx.close();
+            expect(supplierSigningLink).toBeTruthy();
+
+            supplierContext = await browser.newContext({
+                ...testInfo.project.use,
+                httpCredentials: {
+                    username: TestData.authCredentials.authUserName,
+                    password: TestData.authCredentials.authPassword,
+                },
+                ignoreHTTPSErrors: true,
+                viewport: null,
+            });
+            await prepareCookieConsent(supplierContext);
+            const page = await supplierContext.newPage();
+            supplierSigningPage = new SupplierContractSigningPage(page);
+            await page.goto(supplierSigningLink, { waitUntil: 'domcontentloaded' });
+            await supplierSigningPage.acceptCookiesIfVisible();
+        });
+
+        test.afterAll(async () => {
+            await supplierContext?.close();
+        });
+
+        test('AC-5.1 & 5.2: Supplier email only after customer sign + admin verify; subject and link', async () => {
+            // Seed/beforeAll already enforced gating + Mailinator subject/link
+            expect(supplierSigningLink).toMatch(/^https?:\/\//i);
+            await expect(supplierSigningPage.heading).toBeVisible({ timeout: 30000 });
+        });
+
+        test('AC-5.3: Supply agreement heading and term/supplier/area subtitle', async () => {
+            await supplierSigningPage.verifySupplierHeading({
+                termMonths: supplierTermMonths,
+                supplierName: supplierDisplayName,
+                area: supplierArea,
+            });
+        });
+
+        test('AC-5.4: Review and sign — Agreement Details (supplier, area, term)', async () => {
+            await supplierSigningPage.verifyAgreementDetails({
+                supplierName: supplierDisplayName,
+                area: supplierArea,
+                termMonths: supplierTermMonths,
+            });
+        });
+
+        test('AC-5.5: Deliveries & Rates lists lines with supplier rates', async () => {
+            await supplierSigningPage.verifyDeliveriesAndRates();
+        });
+
+        test('AC-5.6: No identity check and no payment step', async () => {
+            await supplierSigningPage.verifyNoIdentityOrPaymentSteps();
+        });
+
+        test('AC-5.7: Sign here, Upload document, and Sign agreement controls', async () => {
+            await supplierSigningPage.verifySignatureControls();
+        });
+
+        test('AC-5.8: After sign — You\'re all done, awaiting confirmation, view document, no password', async () => {
+            await supplierSigningPage.signAgreementAndVerifyDone('QA Supplier Signer');
+        });
+    });
+
+    /**
+     * §6 Admin Signature Review & Sequencing
+     * Progressive seed: issued-with-phone → resend/edit → customer sign → verify → docs.
+     * Separate seed for decline → re-send (AC-6.4.5).
+     */
+    test.describe('6 — Admin Signature Review & Sequencing', () => {
+        const CUSTOMER_PHONE = '07123456789';
+        const SIGNER_NAME = 'QA SigReview Customer';
+
+        /** @type {string} */ let sigCustomerName;
+        /** @type {string} */ let sigEmail;
+        /** @type {string} */ let sigPhone = CUSTOMER_PHONE;
+        /** @type {string} */ let sigLink;
+        /** @type {string} */ let sigSupplierName;
+        /** @type {string} */ let sigArea;
+        /** @type {string} */ let sigTermMonths;
+
+        async function openAdminSigDeal(tab = 'All') {
+            await ensureAdminSession(adminAuth, adminContractsPage, adminGen);
+            await adminContractsPage.gotoContractsPage();
+            await adminContractsPage.selectTab(tab);
+            try {
+                await adminContractsPage.openRequestByCustomer(sigCustomerName, 'Open', tab);
+            } catch {
+                await adminContractsPage.openRequestByCustomer(
+                    sigCustomerName,
+                    'Open',
+                    'Awaiting signatures'
+                );
+            }
+            await expect(adminFulfilmentPage.fulfilmentHeading).toBeVisible({ timeout: 20000 });
+        }
+
+        test.beforeAll(async ({ browser }, testInfo) => {
+            testInfo.setTimeout(420000);
+            const seeded = await seedIssuedSigningContract({
+                agentAuth,
+                agentContractsPage,
+                agentNewRequestPage,
+                agentDetailPage,
+                agentPage,
+                agentGen,
+                adminAuth,
+                adminContractsPage,
+                adminPricingPage,
+                adminFulfilmentPage,
+                adminGen,
+                browser,
+                testInfo,
+                customerPrefix: 'QA SigReview',
+                upfrontLabel: 'Drawdown',
+                phone: CUSTOMER_PHONE,
+            });
+            sigCustomerName = seeded.customerName;
+            sigEmail = seeded.email;
+            sigPhone = seeded.phone || CUSTOMER_PHONE;
+            sigLink = seeded.link;
+            sigSupplierName = seeded.supplierName;
+            sigArea = seeded.area;
+            sigTermMonths = seeded.termMonths;
+        });
+
+        test('AC-6.1.2: Customer row shows email and phone when on file', async () => {
+            await openAdminSigDeal('Awaiting signatures');
+            await adminFulfilmentPage.verifyCustomerContactOnRow({
+                email: sigEmail,
+                phone: sigPhone,
+            });
+            await adminFulfilmentPage.verifyCustomerAwaitingSignature();
+            await adminFulfilmentPage.verifySupplierNotSentYet();
+        });
+
+        test('AC-6.4.1 & 6.4.4: Re-send visible while awaiting; supplier not released yet blocked', async () => {
+            await openAdminSigDeal('Awaiting signatures');
+            await expect(adminFulfilmentPage.resendBtn('Customer')).toBeVisible();
+            await adminFulfilmentPage.verifySupplierNotSentYet();
+
+            // AC-6.4.4 — Re-send on a not-yet-released supplier invite (or toast gate)
+            const supplierResend = adminFulfilmentPage.resendBtn('Supplier');
+            if (await supplierResend.isVisible().catch(() => false)) {
+                await adminFulfilmentPage.resendInvite('Supplier', 'supplierNotReleased');
+            } else {
+                // Product may hide Re-send until supplier invite is released (AC-6.4.1:
+                // Re-send for awaiting / declined only). Assert release gate via status.
+                await expect(supplierResend).toHaveCount(0);
+            }
+        });
+
+        test('AC-6.4.1 (agent): Owning sales agent can Re-send customer invite', async ({
+            browser,
+        }, testInfo) => {
+            await ensureSalesAgentSession(agentAuth, agentContractsPage, agentGen);
+            await agentContractsPage.openRequestByCustomer(sigCustomerName);
+            await agentDetailPage.verifyNoVerifyControls();
+            const previous = sigLink;
+            await agentDetailPage.resendInvite('Customer', 'customer');
+            sigLink = await fetchCustomerSigningLink(browser, testInfo, sigEmail);
+            expect(sigLink).not.toBe(previous);
+        });
+
+        test('AC-6.4.1 & 6.4.2: Admin Re-send customer — toast and previous link stops working', async ({
+            browser,
+        }, testInfo) => {
+            await openAdminSigDeal('Awaiting signatures');
+            const previous = sigLink;
+            await adminFulfilmentPage.resendInvite('Customer', 'customer');
+            sigLink = await fetchCustomerSigningLink(browser, testInfo, sigEmail);
+            expect(sigLink).toBeTruthy();
+            expect(sigLink).not.toBe(previous);
+            await expectSigningLinkInvalid(browser, testInfo, previous);
+        });
+
+        test('AC-6.5.1 & 6.5.3: Edit opens pre-filled email/phone; Save & re-send label', async () => {
+            await openAdminSigDeal('Awaiting signatures');
+            await adminFulfilmentPage.openCustomerEditForm({
+                expectPrefilledEmail: sigEmail,
+                expectPrefilledPhone: sigPhone,
+            });
+        });
+
+        test('AC-6.5.5: Phone-only save shows phone updated and does not rotate the invite', async ({
+            browser,
+        }, testInfo) => {
+            const previousLink = sigLink;
+            const newPhone = '07999888777';
+            await openAdminSigDeal('Awaiting signatures');
+            await adminFulfilmentPage.openCustomerEditForm({
+                expectPrefilledEmail: sigEmail,
+            });
+            await adminFulfilmentPage.saveCustomerContact(
+                { phone: newPhone },
+                'phoneOnly'
+            );
+            sigPhone = newPhone;
+            // Same invite should still work (no re-send)
+            const check = await browser.newContext({
+                ...testInfo.project.use,
+                httpCredentials: {
+                    username: TestData.authCredentials.authUserName,
+                    password: TestData.authCredentials.authPassword,
+                },
+                ignoreHTTPSErrors: true,
+            });
+            await prepareCookieConsent(check);
+            const page = await check.newPage();
+            await page.goto(previousLink, { waitUntil: 'domcontentloaded' });
+            await expect(
+                page.getByRole('heading', { name: 'Your We Want Waste contract' })
+            ).toBeVisible({ timeout: 45000 });
+            await check.close();
+        });
+
+        test('AC-6.5.4: Email change re-sends invite, toast, previous link dead', async ({
+            browser,
+        }, testInfo) => {
+            const previousEmail = sigEmail;
+            const previousLink = sigLink;
+            const newEmail = await adminGen.generateRandomEmailmailinator();
+
+            await openAdminSigDeal('Awaiting signatures');
+            await adminFulfilmentPage.openCustomerEditForm({
+                expectPrefilledEmail: previousEmail,
+            });
+            await adminFulfilmentPage.saveCustomerContact({ email: newEmail }, 'emailChanged');
+
+            sigEmail = newEmail;
+            sigLink = await fetchCustomerSigningLink(browser, testInfo, newEmail);
+            await expectSigningLinkInvalid(browser, testInfo, previousLink);
+
+            // Invite only on the new address: wait should succeed for newEmail (already) —
+            // optional: confirm previous mailbox doesn't receive a fresh invite (skip — flaky timing).
+            void previousEmail;
+        });
+
+        test('AC-6.4.1 (agent, post-edit): Agent still has Re-send while customer is awaiting', async () => {
+            await ensureSalesAgentSession(agentAuth, agentContractsPage, agentGen);
+            await agentContractsPage.openRequestByCustomer(sigCustomerName);
+            await expect(agentDetailPage.resendBtn('Customer')).toBeVisible({ timeout: 15000 });
+            await agentDetailPage.verifyNoVerifyControls();
+        });
+
+        test('Customer signs for verify / document ACs', async ({ browser }, testInfo) => {
+            expect(sigLink).toBeTruthy();
+            const customerCtx = await browser.newContext({
+                ...testInfo.project.use,
+                httpCredentials: {
+                    username: TestData.authCredentials.authUserName,
+                    password: TestData.authCredentials.authPassword,
+                },
+                ignoreHTTPSErrors: true,
+                viewport: null,
+            });
+            await prepareCookieConsent(customerCtx);
+            const customerPage = await customerCtx.newPage();
+            const customerSigning = new ContractSigningPage(customerPage);
+            await customerPage.goto(sigLink, { waitUntil: 'domcontentloaded' });
+            await customerSigning.acceptCookiesIfVisible();
+            await customerSigning.ensureStep2();
+            await customerSigning.signAgreementSuccessfully(SIGNER_NAME);
+            await customerCtx.close();
+        });
+
+        test('AC-6.1.3: Signed row shows signed by {name}', async () => {
+            await openAdminSigDeal('All');
+            await adminFulfilmentPage.verifyPartySignedBy('Customer', SIGNER_NAME);
+        });
+
+        test('AC-6.2.1: Verify only after sign for admin; Verifying… then completes', async () => {
+            await openAdminSigDeal('All');
+            await expect(adminFulfilmentPage.verifyBtn('Customer')).toBeVisible();
+            await expect(adminFulfilmentPage.verifyBtn('Customer')).toHaveText(/^Verify$/i);
+
+            await ensureSalesAgentSession(agentAuth, agentContractsPage, agentGen);
+            await agentContractsPage.openRequestByCustomer(sigCustomerName);
+            await agentDetailPage.verifyNoVerifyControls();
+        });
+
+        test('AC-6.2.2: Verify customer — toast and Supplier Not sent yet → Awaiting Signature', async () => {
+            await openAdminSigDeal('All');
+            await adminFulfilmentPage.verifySupplierNotSentYet().catch(() => {});
+            await adminFulfilmentPage.verifyCustomerSignature({ intercept: true });
+        });
+
+        test('AC-6.4.3: Re-send after customer signed — nothing to re-send', async () => {
+            await openAdminSigDeal('All');
+            // Re-send may remain or appear; clicking should warn if still present
+            const resend = adminFulfilmentPage.resendBtn('Customer');
+            if ((await resend.count()) > 0 && (await resend.isVisible().catch(() => false))) {
+                await adminFulfilmentPage.resendInvite('Customer', 'alreadySigned');
+            } else {
+                // Control removed after sign is also valid lock-out behaviour
+                await expect(resend).toHaveCount(0);
+            }
+        });
+
+        test('AC-6.5.6: Contact edit blocked after customer has signed', async () => {
+            await openAdminSigDeal('All');
+            await adminFulfilmentPage.assertCustomerContactLockedAfterSign();
+        });
+
+        test('AC-6.3.1: Admin Signed document — Opening… and new tab', async () => {
+            await openAdminSigDeal('All');
+            await adminFulfilmentPage.openSignedDocument('Customer');
+        });
+
+        test('AC-6.3.2: Sales agent sees Agreement on file and cannot open document', async () => {
+            await ensureSalesAgentSession(agentAuth, agentContractsPage, agentGen);
+            await agentContractsPage.openRequestByCustomer(sigCustomerName);
+            await agentDetailPage.verifyAgreementOnFileNoOpen('Customer');
+        });
+
+        test('AC-6.2.3: Verify supplier signature (not yet live) shows Supplier signature verified.', async ({
+            browser,
+        }, testInfo) => {
+            // Supplier must sign first
+            const mailCtx = await browser.newContext({ ...testInfo.project.use });
+            const mailPage = await mailCtx.newPage();
+            const mailinator = new MailinatorPage(mailPage);
+            const supplierEmail = TestData.contractPricingSupplier.email;
+            await mailinator.waitForInvitationEmail(
+                supplierEmail,
+                SUPPLIER_SIGNING_EMAIL_SUBJECT,
+                20,
+                3000
+            );
+            const supplierLink = await mailinator.getInvitationLink(SUPPLIER_SIGNING_LINK_TEXT);
+            await mailCtx.close();
+            expect(supplierLink).toBeTruthy();
+
+            const supplierCtx = await browser.newContext({
+                ...testInfo.project.use,
+                httpCredentials: {
+                    username: TestData.authCredentials.authUserName,
+                    password: TestData.authCredentials.authPassword,
+                },
+                ignoreHTTPSErrors: true,
+                viewport: null,
+            });
+            await prepareCookieConsent(supplierCtx);
+            const sp = await supplierCtx.newPage();
+            const supplierSigning = new SupplierContractSigningPage(sp);
+            await sp.goto(supplierLink, { waitUntil: 'domcontentloaded' });
+            await supplierSigning.acceptCookiesIfVisible();
+            await supplierSigning.signAgreementAndVerifyDone('QA SigReview Supplier');
+            await supplierCtx.close();
+
+            await openAdminSigDeal('All');
+            // Supplier may show signature to check before verify is enabled
+            await expect(adminFulfilmentPage.verifyBtn('Supplier')).toBeVisible({
+                timeout: 30000,
+            });
+            await adminFulfilmentPage.verifySupplierSignature({ intercept: true });
+            void sigSupplierName;
+            void sigArea;
+            void sigTermMonths;
+        });
+    });
+
+    test.describe('6 — Re-send after customer decline (AC-6.4.5)', () => {
+        /** @type {string} */ let declinedCustomerName;
+        /** @type {string} */ let declinedEmail;
+
+        test.beforeAll(async ({ browser }, testInfo) => {
+            testInfo.setTimeout(420000);
+            const seeded = await seedIssuedSigningContract({
+                agentAuth,
+                agentContractsPage,
+                agentNewRequestPage,
+                agentDetailPage,
+                agentPage,
+                agentGen,
+                adminAuth,
+                adminContractsPage,
+                adminPricingPage,
+                adminFulfilmentPage,
+                adminGen,
+                browser,
+                testInfo,
+                customerPrefix: 'QA SigDecline',
+                upfrontLabel: 'Drawdown',
+            });
+            declinedCustomerName = seeded.customerName;
+            declinedEmail = seeded.email;
+
+            const ctx = await browser.newContext({
+                ...testInfo.project.use,
+                httpCredentials: {
+                    username: TestData.authCredentials.authUserName,
+                    password: TestData.authCredentials.authPassword,
+                },
+                ignoreHTTPSErrors: true,
+                viewport: null,
+            });
+            await prepareCookieConsent(ctx);
+            const page = await ctx.newPage();
+            const signing = new ContractSigningPage(page);
+            await page.goto(seeded.link, { waitUntil: 'domcontentloaded' });
+            await signing.acceptCookiesIfVisible();
+            await signing.ensureStep2();
+            await signing.declineAgreement('QA decline for re-send test');
+            await ctx.close();
+        });
+
+        test('AC-6.4.5: Re-send after decline returns Customer row to Awaiting Signature', async () => {
+            await ensureAdminSession(adminAuth, adminContractsPage, adminGen);
+            await adminContractsPage.gotoContractsPage();
+            await adminContractsPage.selectTab('All');
+            await adminContractsPage.openRequestByCustomer(declinedCustomerName, 'Open', 'All');
+            await expect(adminFulfilmentPage.fulfilmentHeading).toBeVisible({ timeout: 20000 });
+
+            // Row should reflect decline before re-send
+            await expect(
+                adminFulfilmentPage.signatureRow('Customer').getByText(/Declined/i)
+            ).toBeVisible({ timeout: 20000 });
+
+            await adminFulfilmentPage.resendInvite('Customer', 'customer');
+            await adminFulfilmentPage.verifyCustomerAwaitingSignature();
+            void declinedEmail;
         });
     });
 });

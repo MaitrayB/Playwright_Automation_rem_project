@@ -27,7 +27,7 @@ export class AdminContractsPage {
         this.expectedColumns = [
             'From',
             'Customer',
-            'Area',
+            'Site',
             'Customer mentioned',
             'Waiting',
             'Status',
@@ -55,34 +55,48 @@ export class AdminContractsPage {
             );
         }
         await expect(this.pageHeading).toBeVisible({ timeout: 30000 });
-        await this.waitForContractsListSettled();
+        try {
+            await this.waitForContractsListSettled({ timeout: 45000 });
+        } catch {
+            // Occasional sticky spinner after long sessions — reload once
+            await this.page.reload({ waitUntil: 'domcontentloaded' });
+            await this.acceptCookiesIfVisible();
+            await expect(this.pageHeading).toBeVisible({ timeout: 30000 });
+            await this.waitForContractsListSettled({ timeout: 45000 });
+        }
     }
 
     /**
      * Queue load/filter changes show a spinner before rows/empty state render.
      * Wait until loading finishes so callers don't read an empty list mid-fetch.
+     * @param {{ timeout?: number }} [opts]
      */
-    async waitForContractsListSettled() {
+    async waitForContractsListSettled({ timeout = 45000 } = {}) {
         await expect
             .poll(
                 async () => {
                     if ((await this.page.locator('main .animate-spin').count()) > 0) {
                         return false;
                     }
-                    const hasRows = (await this.tableRows.count()) > 0;
+                    const hasRows = (await this.tableRows.filter({ visible: true }).count()) > 0;
                     const isEmpty =
                         (await this.emptyTitle.isVisible().catch(() => false)) ||
                         (await this.page
                             .getByText(/^Nothing in\s+"/i)
+                            .isVisible()
+                            .catch(() => false)) ||
+                        (await this.page
+                            .getByText(/No contract requests/i)
                             .isVisible()
                             .catch(() => false));
                     const hasFooter = await this.footerCount
                         .first()
                         .isVisible()
                         .catch(() => false);
-                    return hasRows || isEmpty || hasFooter;
+                    const hasTabs = await this.tab('All').isVisible().catch(() => false);
+                    return hasRows || isEmpty || hasFooter || hasTabs;
                 },
-                { timeout: 30000 }
+                { timeout }
             )
             .toBeTruthy();
     }

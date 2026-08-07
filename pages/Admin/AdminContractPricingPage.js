@@ -64,7 +64,19 @@ export class AdminContractPricingPage {
         await expect(main.getByText(customerName, { exact: true }).first()).toBeVisible();
 
         if (area) {
-            await expect(main.getByText(new RegExp(escapeRegExp(area))).first()).toBeVisible();
+            // Site column may be multi-line (postcode + street); detail shows a single
+            // comma-joined line e.g. "750 Bristol Road, Birmingham, B29 6NA".
+            const fragments = String(area)
+                .split(/[\n·|,]+/)
+                .map((s) => s.trim())
+                .filter((s) => s.length >= 3);
+            const postcode = fragments.find((s) =>
+                /^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i.test(s)
+            );
+            const matcher = postcode
+                ? new RegExp(escapeRegExp(postcode).replace(/\s+/g, '\\s*'), 'i')
+                : new RegExp(escapeRegExp(fragments[0] || area), 'i');
+            await expect(main.getByText(matcher).first()).toBeVisible();
         }
         if (termMonths) {
             await expect(

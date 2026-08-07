@@ -370,6 +370,62 @@ export class SalesAgentContractDetailPage {
 
         await expect(this.depositWarning).toBeVisible();
     }
+
+    // ── §6 — agent-facing fulfilment / signature rows ───────────────────
+
+    /** Customer or Supplier row on the agent detail view */
+    signatureRow(party) {
+        return this.page
+            .locator('main')
+            .locator('span')
+            .filter({ hasText: new RegExp(`^${party}$`) })
+            .first()
+            .locator(
+                'xpath=ancestor::div[.//text()[contains(.,"Awaiting Signature") or contains(.,"Not sent yet") or contains(.,"signed by") or contains(.,"Declined") or contains(.,"Agreement on file") or contains(.,"signature") or .//button]][1]'
+            );
+    }
+
+    resendBtn(party) {
+        return this.signatureRow(party).getByRole('button', {
+            name: /^(Re-send|Sending…)$/,
+        });
+    }
+
+    /** AC-6.3.2 — agent sees Agreement on file, no open control */
+    async verifyAgreementOnFileNoOpen(party = 'Customer') {
+        await expect(
+            this.signatureRow(party).getByText(/Agreement on file/i)
+        ).toBeVisible({ timeout: 20000 });
+        await expect(
+            this.signatureRow(party).getByRole('button', { name: /Signed document/i })
+        ).toHaveCount(0);
+        await expect(
+            this.page.getByRole('button', { name: /Signed document|Opening…/i })
+        ).toHaveCount(0);
+    }
+
+    /** Admin-only Verify must not appear for sales agents */
+    async verifyNoVerifyControls() {
+        await expect(
+            this.page.getByRole('button', { name: /^(Verify|Verifying…)$/ })
+        ).toHaveCount(0);
+    }
+
+    /** AC-6.4.1 — owning agent can re-send while awaiting / declined */
+    async resendInvite(party = 'Customer', expected = 'customer') {
+        const btn = this.resendBtn(party);
+        await expect(btn).toBeVisible({ timeout: 15000 });
+        await btn.click();
+        if (expected === 'customer') {
+            await expect(
+                this.page.getByText(/Signing invite re-sent to the customer\./i)
+            ).toBeVisible({ timeout: 20000 });
+        } else if (expected === 'supplier') {
+            await expect(
+                this.page.getByText(/Signing invite re-sent to the supplier\./i)
+            ).toBeVisible({ timeout: 20000 });
+        }
+    }
 }
 
 function escapeRegExp(value) {

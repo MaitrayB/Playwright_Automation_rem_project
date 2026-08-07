@@ -30,7 +30,7 @@ export class SalesAgentContractsPage {
             'Ended',
             'Cancelled',
         ];
-        this.expectedColumns = ['Customer', 'Area', 'Lines', 'Status', 'Supplier', 'Submitted'];
+        this.expectedColumns = ['Customer', 'Postcode', 'Lines', 'Status', 'Supplier', 'Submitted'];
         // Product rename: Closed → Agreed, ready to close → ready to agree
         this.statusBadges = {
             awaitingPricing: {

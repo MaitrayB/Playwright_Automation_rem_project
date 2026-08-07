@@ -195,8 +195,9 @@ test.describe('Commercial Contract Sales Lifecycle', () => {
             // AC-3.1.1
             await newRequestPage.verifyPageLayout();
 
-            // AC-3.2.1
+            // AC-3.2.1 — customer contact + Delivery address (replaces free-text Area)
             await newRequestPage.verifyCustomerFields();
+            await newRequestPage.verifyDeliveryAddressField();
 
             // AC-3.2.2
             await newRequestPage.verifyRoughTermField();
