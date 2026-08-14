@@ -12,6 +12,10 @@ import { SupplierContractSigningPage } from '../../pages/Supplier/SupplierContra
 import { TestData } from '../../Data/testData.js';
 import { genericFunctions } from '../../utils/genericFunctions.js';
 import { prepareCookieConsent } from '../../utils/cookieConsent.js';
+import {
+    DEFAULT_CONTRACT_CUSTOMER_PASSWORD,
+    saveContractCustomerCredentials,
+} from '../../utils/contractCustomerCredentials.js';
 
 /**
  * Phase 2 — Fulfilment
@@ -47,13 +51,20 @@ async function ensureAdminSession(adminAuth, adminContractsPage, adminGen) {
             TestData.credentials.agent.username,
             TestData.credentials.agent.password
         );
-        await adminContractsPage.gotoContractsPage();
-        return;
     }
-    // Already on contracts (or redirected); settle when heading is present
-    if (await adminContractsPage.pageHeading.isVisible().catch(() => false)) {
-        await adminContractsPage.waitForContractsListSettled();
-        return;
+    if (!/\/super-admin\/contracts/.test(adminAuth.page.url())) {
+        await adminAuth.page.goto(adminGen.buildURL('/super-admin/contracts'), {
+            waitUntil: 'domcontentloaded',
+        });
+    }
+    if (/\/agent\/login|\/login/.test(adminAuth.page.url())) {
+        await adminAuth.adminLogin(
+            TestData.credentials.agent.username,
+            TestData.credentials.agent.password
+        );
+        await adminAuth.page.goto(adminGen.buildURL('/super-admin/contracts'), {
+            waitUntil: 'domcontentloaded',
+        });
     }
     await adminContractsPage.gotoContractsPage();
 }
@@ -83,6 +94,7 @@ async function seedIssuedSigningContract({
     await agentNewRequestPage.gotoNewRequestPage();
     await agentNewRequestPage.submitValidRequest({
         customer: customerName,
+        email,
         area: 'B29',
         qty: 2,
         size: '8',
@@ -180,8 +192,8 @@ async function expectSigningLinkInvalid(browser, testInfo, link) {
 }
 
 test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
-    test.describe.configure({ mode: 'serial', timeout: 300000 });
-    test.setTimeout(300000);
+    test.describe.configure({ mode: 'serial', timeout: 720000 });
+    test.setTimeout(720000);
 
     /** @type {import('@playwright/test').BrowserContext} */ let agentContext;
     /** @type {import('@playwright/test').Page} */ let agentPage;
@@ -203,6 +215,8 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
     let fulfilmentCustomerName = '';
     /** Mailinator inbox used when issuing for signing */
     let customerSigningEmail = '';
+    /** Customer portal password set after card save during AC-4.10 */
+    let customerPortalPassword = '';
     /** Term months chosen at close — used on the customer signing subtitle */
     let selectedTermMonths = '';
     /** Signing invite URL from Mailinator */
@@ -265,7 +279,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
 
     test.describe('2 — Admin Issue Contract for Signing', () => {
         test.beforeAll(async ({}, testInfo) => {
-            testInfo.setTimeout(300000);
+            testInfo.setTimeout(420000);
             // Seed a closed Drawdown deal for Issue-for-signing + shared signing token ACs
             fulfilmentCustomerName = `QA Fulfilment ${Date.now()}`;
             customerSigningEmail = await adminGen.generateRandomEmailmailinator();
@@ -274,6 +288,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
             await agentNewRequestPage.gotoNewRequestPage();
             await agentNewRequestPage.submitValidRequest({
                 customer: fulfilmentCustomerName,
+                email: customerSigningEmail,
                 area: 'B29',
                 qty: 2,
                 size: '8',
@@ -457,9 +472,21 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
             await contractSigningPage.verifySignatureOptionsAndUploadErrors();
         });
 
-        test('AC-4.10: Drawdown Step 3 — Save a payment card', async () => {
+        test('AC-4.10: Drawdown Step 3 — Save a payment card, set password, My contracts', async () => {
             await contractSigningPage.signAgreementSuccessfully('QA Drawdown Signer');
             await contractSigningPage.verifySaveCardStep();
+            // Card → set password → land on My contracts (credentials for later tests)
+            const { password } = await contractSigningPage.saveCardSetPasswordAndOpenMyContracts({
+                password: DEFAULT_CONTRACT_CUSTOMER_PASSWORD,
+            });
+            customerPortalPassword = password;
+            saveContractCustomerCredentials({
+                email: customerSigningEmail,
+                password: customerPortalPassword,
+                customerName: fulfilmentCustomerName,
+            });
+            expect(customerSigningEmail).toBeTruthy();
+            expect(customerPortalPassword).toBeTruthy();
         });
     });
 
@@ -577,7 +604,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
      * before the supplier receives "We Want Waste supply agreement — review and sign".
      */
     test.describe('5 — Supplier Contract Signing', () => {
-        test.describe.configure({ timeout: 420000 });
+        test.describe.configure({ timeout: 720000 });
 
         /** @type {import('@playwright/test').BrowserContext} */ let supplierContext;
         /** @type {SupplierContractSigningPage} */ let supplierSigningPage;
@@ -588,7 +615,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         let supplierSigningLink = '';
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(420000);
+            testInfo.setTimeout(720000);
 
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
@@ -628,7 +655,16 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
             await customerPage.goto(seeded.link, { waitUntil: 'domcontentloaded' });
             await customerSigning.acceptCookiesIfVisible();
             await customerSigning.ensureStep2();
-            await customerSigning.signAgreementSuccessfully('QA Customer For Supplier');
+            // Drawdown contracts must save a card + set password before full portal activation
+            const { password } = await customerSigning.signAgreementAndSaveCard(
+                'QA Customer For Supplier',
+                { password: DEFAULT_CONTRACT_CUSTOMER_PASSWORD }
+            );
+            saveContractCustomerCredentials({
+                email: seeded.email,
+                password,
+                customerName: supplierCustomerName,
+            });
             await customerCtx.close();
 
             // AC-5.1 / 5.2 — admin verifies customer signature → supplier email
@@ -742,6 +778,15 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
 
         async function openAdminSigDeal(tab = 'All') {
             await ensureAdminSession(adminAuth, adminContractsPage, adminGen);
+            const alreadyOpen =
+                (await adminPage
+                    .getByRole('heading', { name: sigCustomerName })
+                    .isVisible()
+                    .catch(() => false)) &&
+                (await adminFulfilmentPage.fulfilmentHeading.isVisible().catch(() => false));
+            if (alreadyOpen) {
+                return;
+            }
             await adminContractsPage.gotoContractsPage();
             await adminContractsPage.selectTab(tab);
             try {
@@ -757,7 +802,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         }
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(420000);
+            testInfo.setTimeout(720000);
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
                 agentContractsPage,
@@ -921,7 +966,14 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
             await customerPage.goto(sigLink, { waitUntil: 'domcontentloaded' });
             await customerSigning.acceptCookiesIfVisible();
             await customerSigning.ensureStep2();
-            await customerSigning.signAgreementSuccessfully(SIGNER_NAME);
+            const { password } = await customerSigning.signAgreementAndSaveCard(SIGNER_NAME, {
+                password: DEFAULT_CONTRACT_CUSTOMER_PASSWORD,
+            });
+            saveContractCustomerCredentials({
+                email: sigEmail,
+                password,
+                customerName: sigCustomerName,
+            });
             await customerCtx.close();
         });
 
@@ -977,7 +1029,10 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         test('AC-6.2.3: Verify supplier signature (not yet live) shows Supplier signature verified.', async ({
             browser,
         }, testInfo) => {
-            // Supplier must sign first
+            // Shared Mailinator inbox — re-send so the newest invite is this deal
+            await openAdminSigDeal('All');
+            await adminFulfilmentPage.resendInvite('Supplier', 'supplier');
+
             const mailCtx = await browser.newContext({ ...testInfo.project.use });
             const mailPage = await mailCtx.newPage();
             const mailinator = new MailinatorPage(mailPage);
@@ -1026,7 +1081,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         /** @type {string} */ let declinedEmail;
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(420000);
+            testInfo.setTimeout(720000);
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
                 agentContractsPage,

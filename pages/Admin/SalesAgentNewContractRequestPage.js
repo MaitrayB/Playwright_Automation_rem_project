@@ -249,12 +249,15 @@ export class SalesAgentNewContractRequestPage {
     }
 
     /**
-     * Required capture fields: customer name + delivery address.
+     * Required capture fields: customer name, email, delivery address.
      * `area` remains the short code used by callers (e.g. 'B29') for list/detail assertions.
-     * @param {{ customer: string, area?: string, postcode?: string }} fields
+     * @param {{ customer: string, email?: string, area?: string, postcode?: string }} fields
      */
-    async fillRequiredCustomerFields({ customer, area = 'B29', postcode } = {}) {
+    async fillRequiredCustomerFields({ customer, email, area = 'B29', postcode } = {}) {
         await this.customerInput.fill(customer);
+        const customerEmail =
+            email || `qa.contract.${Date.now()}.${Math.floor(Math.random() * 1e6)}@mailinator.com`;
+        await this.emailInput.fill(customerEmail);
         await this.selectDeliveryAddress({ area, postcode });
     }
 
@@ -296,10 +299,11 @@ export class SalesAgentNewContractRequestPage {
     }
 
     /**
-     * @param {{ customer: string, area?: string, postcode?: string, qty?: number, size?: string, wasteType?: string }} opts
+     * @param {{ customer: string, email?: string, area?: string, postcode?: string, qty?: number, size?: string, wasteType?: string }} opts
      */
     async submitValidRequest({
         customer,
+        email,
         area = 'B29',
         postcode,
         qty = 1,
@@ -307,7 +311,7 @@ export class SalesAgentNewContractRequestPage {
         wasteType = 'Mixed C&D',
     }) {
         await this.acceptCookiesIfVisible();
-        await this.fillRequiredCustomerFields({ customer, area, postcode });
+        await this.fillRequiredCustomerFields({ customer, email, area, postcode });
         await this.setLineQty(0, qty);
         await this.setLineSize(0, size);
         await this.wasteTypeSelect(0).selectOption(wasteType);

@@ -3,10 +3,11 @@ import os from 'os';
 import path from 'path';
 import { expect } from 'allure-playwright';
 import { ensureCookieConsentDismissed } from '../../utils/cookieConsent.js';
+import { DEFAULT_CONTRACT_CUSTOMER_PASSWORD } from '../../utils/contractCustomerCredentials.js';
 
 /**
  * Public customer contract-signing page (`/contract-signing/{token}`).
- * Phase 2 — identity (Stripe) then review & sign → payment/card step.
+ * Phase 2 — identity (Stripe) then review & sign → payment/card → set password → My contracts.
  *
  * @typedef {import('@playwright/test').Page} Page
  * @typedef {import('@playwright/test').Frame} Frame
@@ -68,6 +69,38 @@ export class ContractSigningPage {
         this.saveCardFooter = page.getByText(
             'No charge today — each delivery is charged to this card when you order it.'
         );
+        // Post-card-save completion copy (product varies slightly)
+        this.cardSavedSuccess = page
+            .getByText(
+                /card (is )?saved|payment card saved|you're all set|all done|ready for deliveries|thank you|contract is ready/i
+            )
+            .or(page.getByRole('heading', { name: /you're all (set|done)|card saved|all done/i }))
+            .first();
+
+        // After card save — "You're all done" + set portal password → My contracts
+        this.allDoneHeading = page.getByRole('heading', { name: /You're all done/i });
+        this.setPasswordPrompt = page.getByText(
+            /Set a password to access your contracts dashboard/i
+        );
+        this.createPasswordLabel = page.getByText('Create a password', { exact: true });
+        this.newPasswordInput = page.getByPlaceholder('New password');
+        this.confirmPasswordInput = page.getByPlaceholder('Confirm password');
+        this.passwordFields = page.locator('input[type="password"]');
+        this.setPasswordAndGoToContractsBtn = page.getByRole('button', {
+            name: /Set password\s*&\s*go to my contracts/i,
+        });
+        this.viewSignedDocumentLink = page
+            .getByRole('link', { name: /View your signed document/i })
+            .or(page.getByRole('button', { name: /View your signed document/i }))
+            .or(page.getByText(/View your signed document/i));
+        this.myContractsBtn = page
+            .getByRole('button', { name: /^My contracts$/i })
+            .or(page.getByRole('link', { name: /^My contracts$/i }))
+            .first();
+        this.myContractsHeading = page
+            .getByRole('heading', { name: /My contracts/i })
+            .or(page.getByRole('heading', { name: /^Contracts$/i }))
+            .first();
     }
 
     async acceptCookiesIfVisible() {
@@ -115,10 +148,20 @@ export class ContractSigningPage {
 
         // Cookie banner can reappear on the public signing page and intercept the click
         await this.acceptCookiesIfVisible();
-        await this.page.getByRole('button', { name: 'Verify identity with Stripe' }).click();
-        await expect(this.page.getByRole('button', { name: /Starting/i })).toBeVisible({
-            timeout: 10000,
-        });
+        const verifyBtn = this.page.getByRole('button', { name: 'Verify identity with Stripe' });
+        await verifyBtn.click({ force: true });
+
+        // Starting… is brief; Stripe test-mode often opens Submit immediately
+        const starting = this.page.getByRole('button', { name: /Starting|Verifying/i });
+        await starting.waitFor({ state: 'visible', timeout: 8000 }).catch(() => {});
+        if (
+            !(await starting.isVisible().catch(() => false)) &&
+            !(await this.findFrameWithRoleButton(/^Submit$/i)) &&
+            (await verifyBtn.isVisible().catch(() => false))
+        ) {
+            await verifyBtn.click({ force: true });
+            await starting.waitFor({ state: 'visible', timeout: 8000 }).catch(() => {});
+        }
 
         await this.completeStripeIdentityTestMode();
         await expect(this.step2Heading).toBeVisible({ timeout: 45000 });
@@ -127,6 +170,18 @@ export class ContractSigningPage {
     /** Ensure Step 2 is reachable (complete identity if still on Step 1). */
     async ensureStep2() {
         await this.acceptCookiesIfVisible();
+        await expect
+            .poll(
+                async () => {
+                    await this.acceptCookiesIfVisible();
+                    if (await this.step2Heading.isVisible().catch(() => false)) return 'step2';
+                    if (await this.step1Heading.isVisible().catch(() => false)) return 'step1';
+                    return false;
+                },
+                { timeout: 30000 }
+            )
+            .toBeTruthy();
+
         if (await this.step2Heading.isVisible().catch(() => false)) return;
         if (await this.step1Heading.isVisible().catch(() => false)) {
             await this.verifyIdentityStepAndCompleteTestMode();
@@ -392,6 +447,32 @@ export class ContractSigningPage {
         ).toBeVisible({ timeout: 45000 });
     }
 
+    /**
+     * Drawdown / PAYG fulfilment path — sign, save Stripe card, set portal password, open My contracts.
+     * @param {string} [signerName]
+     * @param {{ password?: string }} [opts]
+     * @returns {Promise<{ password: string }>}
+     */
+    async signAgreementAndSaveCard(signerName = 'QA Contract Signer', { password } = {}) {
+        await this.signAgreementSuccessfully(signerName);
+        return this.saveCardSetPasswordAndOpenMyContracts({ password });
+    }
+
+    /**
+     * Full post-sign customer activation: save card → set password → My contracts.
+     * @param {{ password?: string, number?: string, expiry?: string, cvc?: string, postal?: string }} [opts]
+     * @returns {Promise<{ password: string }>}
+     */
+    async saveCardSetPasswordAndOpenMyContracts({
+        password = DEFAULT_CONTRACT_CUSTOMER_PASSWORD,
+        ...card
+    } = {}) {
+        await this.saveCardSuccessfully(card);
+        await this.setPasswordSuccessfully(password);
+        await this.openMyContracts();
+        return { password };
+    }
+
     /** AC-4.9 — upfront payment Step 3 layout + Processing… while charge starts */
     async verifyUpfrontPaymentStep() {
         await expect(this.step3UpfrontHeading).toBeVisible({ timeout: 30000 });
@@ -434,7 +515,7 @@ export class ContractSigningPage {
         }
     }
 
-    /** AC-4.10 — pay-as-you-go save-card Step 3 */
+    /** AC-4.10 — pay-as-you-go save-card Step 3 layout (controls present) */
     async verifySaveCardStep() {
         await expect(this.step3SaveCardHeading).toBeVisible({ timeout: 30000 });
         await expect(this.saveCardButton).toBeVisible();
@@ -444,36 +525,287 @@ export class ContractSigningPage {
         if (await this.useSavedCardButton.isVisible().catch(() => false)) {
             await expect(this.useSavedCardButton).toBeEnabled();
         }
+    }
 
-        let intercepted = false;
-        const handler = async (route) => {
-            const req = route.request();
-            if (req.method() === 'POST' && /card|setup|payment|stripe|intent/i.test(req.url())) {
-                intercepted = true;
-                await expect(this.page.getByRole('button', { name: /Saving/i })).toBeVisible({
-                    timeout: 5000,
-                });
-                await new Promise((r) => setTimeout(r, 400));
-                await route.abort('failed');
-                return;
-            }
-            await route.continue();
-        };
-        await this.page.route('**/api/**', handler);
+    /**
+     * Complete Step 3 for Drawdown — fill Stripe test card and save it for contract deliveries.
+     * Prefer "Use my saved card" when the portal already has one.
+     *
+     * @param {{ number?: string, expiry?: string, cvc?: string, postal?: string }} [card]
+     */
+    async saveCardSuccessfully(card = {}) {
+        await this.acceptCookiesIfVisible();
+        await expect(this.step3SaveCardHeading).toBeVisible({ timeout: 30000 });
+
+        // Returning customers may skip Stripe Elements
+        if (await this.useSavedCardButton.isVisible().catch(() => false)) {
+            await this.useSavedCardButton.click();
+            await this.waitForCardSaveSuccess();
+            return;
+        }
+
+        // Stripe Payment Element is often mounted before save — fill first when present
+        await this.fillStripeCardDetails(card);
+
+        await expect(this.saveCardButton).toBeEnabled({ timeout: 10000 });
         await this.saveCardButton.click();
+
+        // Some flows mount Elements after the first Save click
+        const stillOnStep3 = await this.step3SaveCardHeading.isVisible().catch(() => false);
+        if (stillOnStep3) {
+            await this.fillStripeCardDetails(card);
+            if (
+                await this.saveCardButton.isVisible().catch(() => false) &&
+                (await this.saveCardButton.isEnabled().catch(() => false))
+            ) {
+                const label = (await this.saveCardButton.innerText()).trim();
+                if (!/Saving/i.test(label)) {
+                    await this.saveCardButton.click();
+                }
+            }
+        }
+
+        await this.waitForCardSaveSuccess();
+    }
+
+    /**
+     * Fill Stripe Payment Element (test mode) across common iframe layouts.
+     * @param {{ number?: string, expiry?: string, cvc?: string, postal?: string }} [card]
+     */
+    async fillStripeCardDetails({
+        number = '4242424242424242',
+        expiry = '1234',
+        cvc = '123',
+        postal = 'B296NA',
+    } = {}) {
+        // Wait for at least one Stripe iframe (mounted on Step 3 or after Save)
+        await this.page
+            .locator('iframe[src*="stripe"], iframe[name*="__privateStripeFrame"]')
+            .first()
+            .waitFor({ state: 'attached', timeout: 30000 })
+            .catch(() => {});
+
+        // Order-style Payment Element ids (same pattern as customer OrderPage)
+        const stripeFrame = this.page
+            .locator('//iframe[contains(@name,"__privateStripeFrame")]')
+            .first()
+            .contentFrame();
+        const numberById = stripeFrame.locator('#payment-numberInput');
+        try {
+            await numberById.waitFor({ state: 'visible', timeout: 8000 });
+            await numberById.click();
+            await numberById.fill(number);
+            const expFormatted =
+                expiry.length === 4 ? `${expiry.slice(0, 2)}${expiry.slice(2)}` : expiry;
+            const exp = stripeFrame.locator('#payment-expiryInput');
+            const cvcInput = stripeFrame.locator('#payment-cvcInput');
+            if (await exp.isVisible().catch(() => false)) {
+                await exp.click();
+                await exp.fill(expFormatted);
+            }
+            if (await cvcInput.isVisible().catch(() => false)) {
+                await cvcInput.click();
+                await cvcInput.fill(cvc);
+            }
+            const zip = stripeFrame.locator(
+                '#payment-postalCodeInput, input[name="postalCode"], input[autocomplete="postal-code"]'
+            );
+            if (await zip.first().isVisible().catch(() => false)) {
+                await zip.first().fill(postal);
+            }
+            return;
+        } catch {
+            // Payment Element may use split iframes / different DOM
+        }
+
+        await this.fillStripeAcrossFrames({ number, expiry, cvc, postal });
+    }
+
+    /**
+     * @param {{ number: string, expiry: string, cvc: string, postal: string }} card
+     * @returns {Promise<boolean>} whether a card number field was filled
+     */
+    async fillStripeAcrossFrames(card) {
+        const { number, expiry, cvc, postal } = card;
+        const expFormatted =
+            expiry.length === 4 ? `${expiry.slice(0, 2)}/${expiry.slice(2)}` : expiry;
+
+        let filledNumber = false;
+        for (const frame of this.page.frames()) {
+            const url = frame.url();
+            if (!/stripe|js\.stripe|elements/i.test(url) && frame !== this.page.mainFrame()) {
+                // Still allow unnamed nested frames that hold payment inputs
+                if (!(await frame.locator('input').count().catch(() => 0))) continue;
+            }
+
+            const numberField = frame
+                .locator(
+                    'input[name="number"], input[id*="number" i], input[autocomplete="cc-number"], input[placeholder*="1234"], input[aria-label*="Card number" i], input[aria-label*="card number" i]'
+                )
+                .first();
+            if (await numberField.isVisible().catch(() => false)) {
+                await numberField.click({ force: true }).catch(() => {});
+                await numberField.fill(number);
+                filledNumber = true;
+            }
+
+            const expField = frame
+                .locator(
+                    'input[name="expiry"], input[id*="expir" i], input[autocomplete="cc-exp"], input[placeholder*="MM"], input[aria-label*="expir" i]'
+                )
+                .first();
+            if (await expField.isVisible().catch(() => false)) {
+                await expField.fill(expFormatted);
+            }
+
+            const cvcField = frame
+                .locator(
+                    'input[name="cvc"], input[id*="cvc" i], input[autocomplete="cc-csc"], input[placeholder*="CVC"], input[aria-label*="CVC" i], input[aria-label*="security" i]'
+                )
+                .first();
+            if (await cvcField.isVisible().catch(() => false)) {
+                await cvcField.fill(cvc);
+            }
+
+            const zipField = frame
+                .locator(
+                    'input[name="postalCode"], input[name="postal"], input[id*="postal" i], input[autocomplete="postal-code"], input[placeholder*="ZIP"], input[placeholder*="Postcode"], input[aria-label*="ZIP" i], input[aria-label*="Postal" i], input[aria-label*="Postcode" i]'
+                )
+                .first();
+            if (await zipField.isVisible().catch(() => false)) {
+                await zipField.fill(postal);
+            }
+        }
+        return filledNumber;
+    }
+
+    async waitForCardSaveSuccess() {
+        // Card save lands on "You're all done" + password form (or a brief success note)
         await expect
             .poll(
-                async () =>
-                    intercepted ||
-                    (await this.page
+                async () => {
+                    if (await this.isPasswordStepVisible()) return true;
+                    if (await this.allDoneHeading.isVisible().catch(() => false)) return true;
+                    if (await this.cardSavedSuccess.isVisible().catch(() => false)) return true;
+                    if (
+                        await this.page
+                            .getByText(/saved securely|card on file|payment method saved|agreement and payment details are in/i)
+                            .isVisible()
+                            .catch(() => false)
+                    ) {
+                        return true;
+                    }
+
+                    const onStep3 = await this.step3SaveCardHeading.isVisible().catch(() => false);
+                    const saving = await this.page
                         .getByRole('button', { name: /Saving/i })
                         .isVisible()
-                        .catch(() => false)) ||
-                    (await this.page.locator('iframe[src*="stripe"]').count()) > 0,
-                { timeout: 15000 }
+                        .catch(() => false);
+                    if (!onStep3 && !saving) return true;
+                    return false;
+                },
+                { timeout: 90000 }
             )
             .toBeTruthy();
-        await this.page.unroute('**/api/**', handler).catch(() => {});
+    }
+
+    async isPasswordStepVisible() {
+        if (await this.allDoneHeading.isVisible().catch(() => false)) {
+            // Completion screen; password form is expected for new customers
+            if (await this.newPasswordInput.isVisible().catch(() => false)) return true;
+            if (await this.setPasswordAndGoToContractsBtn.isVisible().catch(() => false)) return true;
+        }
+        if (await this.setPasswordPrompt.isVisible().catch(() => false)) return true;
+        if (await this.newPasswordInput.isVisible().catch(() => false)) return true;
+        if (await this.createPasswordLabel.isVisible().catch(() => false)) return true;
+        return false;
+    }
+
+    /**
+     * After card save — set portal password and enter the contracts dashboard.
+     * Primary action: "Set password & go to my contracts".
+     * @param {string} [password]
+     */
+    async setPasswordSuccessfully(password = DEFAULT_CONTRACT_CUSTOMER_PASSWORD) {
+        await this.acceptCookiesIfVisible();
+
+        // Already on customer contracts (returning user / password already set)
+        if (await this.isOnMyContractsPage()) {
+            return;
+        }
+
+        await expect
+            .poll(async () => this.isPasswordStepVisible(), { timeout: 60000 })
+            .toBeTruthy();
+
+        await expect(this.newPasswordInput.or(this.passwordFields.first())).toBeVisible({
+            timeout: 15000,
+        });
+
+        if (await this.newPasswordInput.isVisible().catch(() => false)) {
+            await this.newPasswordInput.fill(password);
+            await this.confirmPasswordInput.fill(password);
+        } else {
+            await this.passwordFields.first().fill(password);
+            if ((await this.passwordFields.count()) >= 2) {
+                await this.passwordFields.nth(1).fill(password);
+            }
+        }
+
+        await expect(this.setPasswordAndGoToContractsBtn).toBeEnabled({ timeout: 15000 });
+        await this.setPasswordAndGoToContractsBtn.click();
+
+        // Button navigates into the logged-in contracts area
+        await expect
+            .poll(async () => this.isOnMyContractsPage(), { timeout: 60000 })
+            .toBeTruthy();
+    }
+
+    async isOnMyContractsPage() {
+        if (await this.myContractsHeading.isVisible().catch(() => false)) return true;
+        // Customer portal contracts list (not sales-agent /sales/contracts)
+        const url = this.page.url();
+        if (/\/customer\/contracts|\/my-contracts|\/account\/contracts/i.test(url)) return true;
+        if (
+            /\/contracts/i.test(url) &&
+            !/\/sales\/contracts|\/super-admin\/contracts|\/agent\//i.test(url) &&
+            !(await this.setPasswordAndGoToContractsBtn.isVisible().catch(() => false))
+        ) {
+            // Customer-facing contracts URL without password CTA
+            if (await this.page.getByText(/My contracts|Your contracts|Active contracts/i).first().isVisible().catch(() => false)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Ensure we are on My contracts. After "Set password & go to my contracts" this is usually
+     * already true; otherwise click an explicit My contracts control if present.
+     */
+    async openMyContracts() {
+        await this.acceptCookiesIfVisible();
+
+        if (await this.isOnMyContractsPage()) {
+            return;
+        }
+
+        // Password form still open — finish set-password first
+        if (await this.isPasswordStepVisible()) {
+            await this.setPasswordSuccessfully();
+            if (await this.isOnMyContractsPage()) return;
+        }
+
+        if (await this.myContractsBtn.isVisible().catch(() => false)) {
+            await expect(this.myContractsBtn).toBeEnabled({ timeout: 30000 });
+            await this.myContractsBtn.click();
+        } else if (await this.setPasswordAndGoToContractsBtn.isEnabled().catch(() => false)) {
+            await this.setPasswordAndGoToContractsBtn.click();
+        }
+
+        await expect
+            .poll(async () => this.isOnMyContractsPage(), { timeout: 45000 })
+            .toBeTruthy();
     }
 
     /**

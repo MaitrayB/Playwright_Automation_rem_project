@@ -71,9 +71,43 @@ export class MailinatorPage {
     }
 
     async getInvitationLink(linkText = /Accept [Ii]nvitation/) {
-        const link = this.inboxFrame.locator('a', { hasText: linkText }).first();
-        await link.waitFor({ state: 'visible', timeout: 15000 });
-        return await link.getAttribute('href');
+        const pattern = linkText instanceof RegExp ? linkText : new RegExp(String(linkText), 'i');
+
+        const findHref = async () => {
+            for (const frame of this.page.frames()) {
+                const loc = frame.locator('a').filter({ hasText: pattern }).first();
+                if (await loc.count().catch(() => 0)) {
+                    const href = await loc.getAttribute('href', { timeout: 2000 }).catch(() => null);
+                    if (href) return href;
+                }
+            }
+            const pageLink = this.page.locator('a').filter({ hasText: pattern }).first();
+            if (await pageLink.count().catch(() => 0)) {
+                return await pageLink.getAttribute('href', { timeout: 2000 }).catch(() => null);
+            }
+            return null;
+        };
+
+        const deadline = Date.now() + 25000;
+        while (Date.now() < deadline) {
+            const href = await findHref();
+            if (href) return href;
+
+            const linksTab = this.page.getByText(/^LINKS$/i).first();
+            if (await linksTab.isVisible().catch(() => false)) {
+                await linksTab.click().catch(() => {});
+                await this.page.waitForTimeout(800);
+                const contractLink = this.page
+                    .locator('a[href*="wewantwaste"], a[href*="contract-signing"], a[href*="onboard"]')
+                    .first();
+                if (await contractLink.count().catch(() => 0)) {
+                    const href = await contractLink.getAttribute('href');
+                    if (href) return href;
+                }
+            }
+            await this.page.waitForTimeout(500);
+        }
+        throw new Error('Invitation link not found in Mailinator message');
     }
 
     async clickInvitationLinkInEmail() {

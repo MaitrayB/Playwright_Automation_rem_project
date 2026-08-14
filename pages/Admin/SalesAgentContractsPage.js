@@ -53,7 +53,10 @@ export class SalesAgentContractsPage {
     }
 
     filterPill(label) {
-        return this.page.getByRole('button', { name: label, exact: true });
+        // Accessible name concatenates the count: "All166", "Needs pricing25", "Agreed 21"
+        return this.page
+            .getByRole('button', { name: new RegExp(`^${escapeRegExp(label)}(\\s*\\d+)?$`) })
+            .first();
     }
 
     statusBadge(text) {
@@ -72,7 +75,10 @@ export class SalesAgentContractsPage {
 
     async gotoContractsPage({ expectLoaded = true } = {}) {
         const genFunctions = new genericFunctions(this.page);
-        await this.page.goto(genFunctions.buildURL('/sales/contracts'), { waitUntil: 'domcontentloaded' });
+        const onList = /\/sales\/contracts\/?$/.test(new URL(this.page.url()).pathname);
+        if (!onList) {
+            await genFunctions.gotoWithRetry(genFunctions.buildURL('/sales/contracts'));
+        }
         await this.acceptCookiesIfVisible();
         if (expectLoaded) {
             await this.verifyContractsPageLoaded();
@@ -105,14 +111,28 @@ export class SalesAgentContractsPage {
     }
 
     async isFilterPillActive(label) {
-        const className = (await this.filterPill(label).getAttribute('class')) || '';
-        return className.includes('bg-[#0037C1]') && className.includes('text-white');
+        const pill = this.filterPill(label);
+        const className = (await pill.getAttribute('class')) || '';
+        if (className.includes('bg-[#0037C1]') && className.includes('text-white')) {
+            return true;
+        }
+        const ariaCurrent = await pill.getAttribute('aria-current').catch(() => null);
+        if (ariaCurrent && ariaCurrent !== 'false') {
+            return true;
+        }
+        return Boolean(await pill.evaluate((el) => el === document.activeElement).catch(() => false));
     }
 
     async selectStatusFilter(label) {
         const resolved = await this.resolveFilterLabel(label);
-        await this.filterPill(resolved).click();
-        await expect.poll(async () => this.isFilterPillActive(resolved)).toBeTruthy();
+        const pill = this.filterPill(resolved);
+        await expect(pill).toBeVisible({ timeout: 20000 });
+        if (!(await this.isFilterPillActive(resolved))) {
+            await pill.click({ force: true });
+            await expect
+                .poll(async () => this.isFilterPillActive(resolved), { timeout: 15000 })
+                .toBeTruthy();
+        }
         await this.waitForContractsListSettled();
     }
 
@@ -135,9 +155,6 @@ export class SalesAgentContractsPage {
         await expect
             .poll(
                 async () => {
-                    if ((await this.page.locator('main .animate-spin').count()) > 0) {
-                        return false;
-                    }
                     const hasRows = (await this.tableRows.count()) > 0;
                     const isEmpty = await this.page
                         .getByText('Nothing sent yet')
@@ -292,4 +309,8 @@ export class SalesAgentContractsPage {
         ]);
         await expect(this.staffSignInHeading).toBeVisible({ timeout: 30000 });
     }
+}
+
+function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

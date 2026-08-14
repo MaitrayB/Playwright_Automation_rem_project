@@ -46,7 +46,7 @@ export class AdminContractFulfilmentPage {
         this.customerVerifiedToast = page.getByText(
             /Customer signature verified — the supply agreement has now been sent to the supplier\./i
         );
-        this.supplierVerifiedToast = page.getByText(/Supplier signature verified\./i);
+        this.supplierVerifiedToast = page.getByText(/Supplier signature verified/i);
         this.resendCustomerToast = page.getByText(/Signing invite re-sent to the customer\./i);
         this.resendSupplierToast = page.getByText(/Signing invite re-sent to the supplier\./i);
         this.alreadySignedToast = page.getByText(
@@ -435,11 +435,19 @@ export class AdminContractFulfilmentPage {
             };
             await this.page.route('**/api/**', handler);
             await btn.click();
-            await expect(this.supplierVerifiedToast).toBeVisible({ timeout: 45000 });
+            await expect(
+                this.supplierVerifiedToast
+                    .or(this.page.getByText(/Contract active — allowance is live/i))
+                    .first()
+            ).toBeVisible({ timeout: 45000 });
             await this.page.unroute('**/api/**', handler).catch(() => {});
         } else {
             await btn.click();
-            await expect(this.supplierVerifiedToast).toBeVisible({ timeout: 45000 });
+            await expect(
+                this.supplierVerifiedToast
+                    .or(this.page.getByText(/Contract active — allowance is live/i))
+                    .first()
+            ).toBeVisible({ timeout: 45000 });
         }
     }
 

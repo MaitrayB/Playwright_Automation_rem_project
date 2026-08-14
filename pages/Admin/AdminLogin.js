@@ -27,7 +27,8 @@ export class AdminLogin {
     }
     async goto(url) {
         await prepareCookieConsent(this.page.context());
-        await this.page.goto(url, { waitUntil: 'domcontentloaded' });
+        const genFunctions = new genericFunctions(this.page);
+        await genFunctions.gotoWithRetry(url);
         await this.emailInput.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
         await ensureCookieConsentDismissed(this.page);
     }
@@ -40,10 +41,17 @@ export class AdminLogin {
         await ensureCookieConsentDismissed(this.page);
         await this.signInBtn.scrollIntoViewIfNeeded();
         await Promise.all([
-            this.page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 30000 }),
+            this.page.waitForURL(url => !url.pathname.includes('/login'), {
+                timeout: 45000,
+                waitUntil: 'commit',
+            }),
             this.signInBtn.click(),
         ]);
-        await expect(this.landingPageTitle).toHaveText('Orders', { timeout: 30000 });
+        await expect(
+            this.landingPageTitle
+                .or(this.contractsPageHeading)
+                .or(this.page.getByRole('heading', { name: /Orders|Contracts|Dashboard/i }).first())
+        ).toBeVisible({ timeout: 30000 });
     }
 
     async salesAgentLogin(email, password) {
@@ -55,7 +63,10 @@ export class AdminLogin {
         await ensureCookieConsentDismissed(this.page);
         await this.signInBtn.scrollIntoViewIfNeeded();
         await Promise.all([
-            this.page.waitForURL(url => url.pathname.includes('/sales/contracts'), { timeout: 30000 }),
+            this.page.waitForURL(url => url.pathname.includes('/sales/contracts'), {
+                timeout: 45000,
+                waitUntil: 'commit',
+            }),
             this.signInBtn.click(),
         ]);
         await expect(this.contractsPageHeading).toBeVisible({ timeout: 30000 });

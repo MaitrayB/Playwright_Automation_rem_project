@@ -21,13 +21,36 @@ export class genericFunctions {
         return `${TestData.baseURL.replace(/\/$/, '')}${path}`;
     }
 
+    /**
+     * develop.wewantwaste.co.uk occasionally drops TLS mid-suite (ERR_CONNECTION_CLOSED).
+     * Retry only those transport failures — not assertion/timeout bugs.
+     */
+    async gotoWithRetry(url, { waitUntil = 'commit', attempts = 4 } = {}) {
+        let lastErr;
+        for (let i = 1; i <= attempts; i++) {
+            try {
+                await this.page.goto(url, { waitUntil, timeout: 45000 });
+                return;
+            } catch (err) {
+                lastErr = err;
+                const msg = String(err?.message || err);
+                if (/Target closed|has been closed|interrupted/i.test(msg)) {
+                    throw err;
+                }
+                await this.page.waitForTimeout(1500 * i);
+            }
+        }
+        throw lastErr;
+    }
+
     async acceptPrivacyPopupIfVisible(page = this.page) {
         await ensureCookieConsentDismissed(page);
     }
 
     async goto(page, path) {
         await prepareCookieConsent(page.context());
-        await page.goto(this.buildURL(path), { waitUntil: 'domcontentloaded' });
+        const nav = page === this.page ? this : new genericFunctions(page);
+        await nav.gotoWithRetry(this.buildURL(path));
         await this.acceptPrivacyPopupIfVisible(page);
     }
 

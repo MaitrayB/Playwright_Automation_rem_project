@@ -89,45 +89,73 @@ export async function ensureCookieConsentDismissed(page) {
     await seedCookieYesConsent(page.context());
     attachCookieYesTabGuard(page.context());
 
-    const banner = page.locator('.cky-consent-container');
-    const bannerAcceptBtn = page.locator('.cky-consent-bar button[data-cky-tag="accept-button"]');
+    const acceptAll = page.getByRole('button', { name: /^Accept All$/i });
 
-    for (let attempt = 0; attempt < 20; attempt++) {
+    const bannerIsBlocking = async () =>
+        page.evaluate(() => {
+            const btn = [...document.querySelectorAll('button')].find((b) =>
+                /^Accept All$/i.test((b.textContent || '').trim())
+            );
+            if (btn) {
+                const s = getComputedStyle(btn);
+                if (s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity) > 0.05) {
+                    const r = btn.getBoundingClientRect();
+                    if (r.width > 0 && r.height > 0) return true;
+                }
+            }
+            const box = document.querySelector(
+                '.cky-consent-container, .cky-popup-center, [aria-label="We value your privacy"]'
+            );
+            if (!box) return false;
+            const s = getComputedStyle(box);
+            if (s.display === 'none' || s.visibility === 'hidden' || Number(s.opacity) < 0.05) {
+                return false;
+            }
+            const r = box.getBoundingClientRect();
+            return r.width > 0 && r.height > 0;
+        }).catch(() => false);
+
+    for (let attempt = 0; attempt < 8; attempt++) {
+        if (page.isClosed()) return false;
         await closeAccidentalCookieYesTabs(page);
 
-        if (/cookieyes\.com/i.test(page.url())) {
-            await page.goBack({ waitUntil: 'domcontentloaded' }).catch(() => {});
-        }
-
-        if (await banner.isVisible({ timeout: 500 }).catch(() => false)) {
-            await page.evaluate(() => {
-                document.querySelectorAll('.cky-consent-container a[href*="cookieyes"]').forEach((link) => {
-                    link.style.pointerEvents = 'none';
-                    link.removeAttribute('href');
-                });
-            });
-            await bannerAcceptBtn.evaluate((btn) => btn.click()).catch(() => {});
-            await banner.waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {});
+        if (await acceptAll.isVisible({ timeout: 250 }).catch(() => false)) {
+            await acceptAll.click({ force: true }).catch(() => {});
             await seedCookieYesConsent(page.context()).catch(() => {});
+        } else if (await bannerIsBlocking()) {
+            await page.evaluate(() => {
+                const btn = document.querySelector('button[data-cky-tag="accept-button"]');
+                if (btn) btn.click();
+            }).catch(() => {});
+            await acceptAll.click({ force: true }).catch(() => {});
         }
 
-        const stillBlocking = await banner.isVisible({ timeout: 300 }).catch(() => false);
-        if (!stillBlocking) {
-            const cookieYesLoaded = await page
-                .evaluate(() => !!document.getElementById('cookieyes-banner'))
-                .catch(() => false);
-
-            if (!cookieYesLoaded || attempt >= 2) {
+        if (!(await bannerIsBlocking())) {
+            if (attempt >= 1) {
                 await closeAccidentalCookieYesTabs(page);
                 return true;
             }
+        } else if (attempt >= 3) {
+            await page.evaluate(() => {
+                document
+                    .querySelectorAll(
+                        '.cky-consent-container, .cky-overlay, .cky-modal, .cky-popup-center'
+                    )
+                    .forEach((el) => el.remove());
+            }).catch(() => {});
+            return true;
         }
 
-        await page.waitForTimeout(400);
+        await page.waitForTimeout(250).catch(() => {});
     }
 
+    await page.evaluate(() => {
+        document
+            .querySelectorAll('.cky-consent-container, .cky-overlay, .cky-modal, .cky-popup-center')
+            .forEach((el) => el.remove());
+    }).catch(() => {});
     await closeAccidentalCookieYesTabs(page);
-    return !(await banner.isVisible({ timeout: 500 }).catch(() => false));
+    return true;
 }
 
 /** @deprecated Use ensureCookieConsentDismissed */

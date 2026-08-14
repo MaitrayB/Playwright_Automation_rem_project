@@ -22,6 +22,7 @@ export class AdminContractsPage {
         this.tableRows = this.contractsTable.locator('tbody tr');
         this.footerCount = page.getByText(/\d+\s+requests?/i);
         this.emptyTitle = page.getByText('Nothing here', { exact: true });
+        this.searchInput = page.getByPlaceholder(/Search/i);
         // Product rename: Closed → Agreed (Closed still accepted via selectTab mapping)
         this.tabLabels = ['All', 'Needs pricing', 'Priced', 'Agreed', 'Cancelled'];
         this.expectedColumns = [
@@ -35,7 +36,9 @@ export class AdminContractsPage {
     }
 
     tab(label) {
-        return this.page.getByRole('button', { name: label, exact: true });
+        return this.page
+            .getByRole('button', { name: new RegExp(`^${escapeRegExp(label)}(\\s*\\d+)?$`) })
+            .first();
     }
 
     async acceptCookiesIfVisible() {
@@ -44,9 +47,10 @@ export class AdminContractsPage {
 
     async gotoContractsPage() {
         const genFunctions = new genericFunctions(this.page);
-        await this.page.goto(genFunctions.buildURL('/super-admin/contracts'), {
-            waitUntil: 'domcontentloaded',
-        });
+        const listPath = /\/super-admin\/contracts\/?$/;
+        if (!listPath.test(new URL(this.page.url()).pathname)) {
+            await genFunctions.gotoWithRetry(genFunctions.buildURL('/super-admin/contracts'));
+        }
         await this.acceptCookiesIfVisible();
         // Session expiry lands on staff login
         if (/\/agent\/login|\/login/.test(this.page.url())) {
@@ -54,6 +58,23 @@ export class AdminContractsPage {
                 'Admin session expired on /super-admin/contracts — re-login via ensureAdminSession / adminLogin before navigating'
             );
         }
+        // DEV impersonation / wrong role can land on /sales/contracts (agent UI)
+        if (/\/sales\/contracts/.test(this.page.url())) {
+            const adminDev = this.page.getByRole('button', { name: 'Admin', exact: true });
+            if (await adminDev.isVisible().catch(() => false)) {
+                await adminDev.click();
+                await genFunctions.gotoWithRetry(genFunctions.buildURL('/super-admin/contracts'));
+            }
+        }
+        // waitUntil:commit can leave a contract detail; heading is the customer name, not Contracts
+        const back = this.page.getByRole('button', { name: /Back to Contracts/i });
+        if (await back.isVisible().catch(() => false)) {
+            await back.click();
+        }
+        if (!listPath.test(new URL(this.page.url()).pathname)) {
+            await genFunctions.gotoWithRetry(genFunctions.buildURL('/super-admin/contracts'));
+        }
+        await expect(this.page).toHaveURL((url) => listPath.test(url.pathname), { timeout: 20000 });
         await expect(this.pageHeading).toBeVisible({ timeout: 30000 });
         try {
             await this.waitForContractsListSettled({ timeout: 45000 });
@@ -75,9 +96,6 @@ export class AdminContractsPage {
         await expect
             .poll(
                 async () => {
-                    if ((await this.page.locator('main .animate-spin').count()) > 0) {
-                        return false;
-                    }
                     const hasRows = (await this.tableRows.filter({ visible: true }).count()) > 0;
                     const isEmpty =
                         (await this.emptyTitle.isVisible().catch(() => false)) ||
@@ -160,8 +178,10 @@ export class AdminContractsPage {
     async selectTab(label) {
         await this.acceptCookiesIfVisible();
         const resolved = await this.resolveTabLabel(label);
-        await this.tab(resolved).click();
-        await expect.poll(async () => this.isTabActive(resolved)).toBeTruthy();
+        const tabBtn = this.tab(resolved);
+        await expect(tabBtn).toBeVisible({ timeout: 20000 });
+        await tabBtn.click({ force: true });
+        await expect.poll(async () => this.isTabActive(resolved), { timeout: 15000 }).toBeTruthy();
         await this.waitForContractsListSettled();
     }
 
@@ -348,6 +368,10 @@ export class AdminContractsPage {
     async openRequestByCustomer(customerName, actionLabel = 'Price now', tab = 'Needs pricing') {
         await this.gotoContractsPage();
         await this.selectTab(tab);
+        if (await this.searchInput.isVisible().catch(() => false)) {
+            await this.searchInput.fill(customerName);
+            await this.page.waitForTimeout(600);
+        }
         const row = this.tableRows.filter({ visible: true }).filter({ hasText: customerName }).first();
         await expect(row).toBeVisible({ timeout: 30000 });
         return this._openRow(row, actionLabel);
@@ -374,4 +398,8 @@ export class AdminContractsPage {
 
         return { customerName, companyName, agentName, area, termMonths };
     }
+}
+
+function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

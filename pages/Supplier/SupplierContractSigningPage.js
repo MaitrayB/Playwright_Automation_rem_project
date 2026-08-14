@@ -154,26 +154,111 @@ export class SupplierContractSigningPage {
         ).toBeVisible();
     }
 
-    async typeSignature(name = 'QA Supplier Signer') {
-        await this.signHereBtn.click();
-        await this.typeSignatureTab.click();
+    /**
+     * Fill signer name + typed Script signature (all required Sign fields).
+     * Call twice if Sign agreement stays disabled after the first pass.
+     */
+    async fillAllSignFields(name = 'QA Supplier Signer') {
+        await this.acceptCookiesIfVisible();
+        await expect(this.signerNameInput).toBeVisible({ timeout: 15000 });
+        await this.signerNameInput.click({ force: true });
+        await this.signerNameInput.fill('');
+        await this.signerNameInput.pressSequentially(name, { delay: 40 });
+        await expect(this.signerNameInput).toHaveValue(name);
+
+        await this.signHereBtn.click({ force: true });
+        for (let i = 0; i < 6; i++) {
+            await this.acceptCookiesIfVisible();
+            if (await this.typeSignatureTab.isVisible().catch(() => false)) {
+                await this.typeSignatureTab.click({ force: true });
+            }
+            if (await this.typedSignatureInput.isVisible().catch(() => false)) break;
+            await this.page.waitForTimeout(400);
+        }
+        await expect(this.typedSignatureInput).toBeVisible({ timeout: 10000 });
+        await this.typedSignatureInput.click({ force: true });
         await this.typedSignatureInput.fill(name);
+        await expect(this.typedSignatureInput).toHaveValue(name);
+
+        const scriptFont = this.page.getByRole('button', { name: 'Script', exact: true });
+        await expect(scriptFont).toBeVisible({ timeout: 8000 });
+        await scriptFont.click({ force: true });
+        await this.page.waitForTimeout(500);
+    }
+
+    async isSignAgreementEnabled() {
+        const signBtn = this.page.getByRole('button', { name: 'Sign agreement', exact: true });
+        return signBtn.isEnabled().catch(() => false);
     }
 
     /**
-     * AC-5.8 — sign and land on success (no password capture)
+     * Switch off Upload, type a signature, and wait until Sign agreement enables.
+     * Re-enters every field once more if the first pass leaves Sign disabled.
+     */
+    async typeSignature(name = 'QA Supplier Signer') {
+        await this.fillAllSignFields(name);
+        if (await this.isSignAgreementEnabled()) return;
+
+        await this.page.waitForTimeout(500);
+        await this.fillAllSignFields(name);
+        await expect(this.page.getByRole('button', { name: 'Sign agreement', exact: true })).toBeEnabled({
+            timeout: 20000,
+        });
+    }
+
+    /**
+     * AC-5.8 — sign and land on success (no password capture).
+     * Wait for Sign to enable, settle, then submit; retry if develop returns Failed to fetch.
      */
     async signAgreementAndVerifyDone(signerName = 'QA Supplier Signer') {
-        await this.signerNameInput.fill(signerName);
+        await this.acceptCookiesIfVisible();
         await this.typeSignature(signerName);
-        await expect(this.signAgreementBtn).toBeEnabled({ timeout: 10000 });
-        await this.signAgreementBtn.click();
+        await this.submitSignWithRetry();
 
         await expect(this.allDoneHeading).toBeVisible({ timeout: 45000 });
         await expect(this.signedAwaitingConfirmation).toBeVisible();
         await expect(this.willBeInTouch).toBeVisible();
         await expect(this.viewSignedDocumentLink).toBeVisible();
         await expect(this.passwordFields).toHaveCount(0);
+    }
+
+    async waitUntilReadyToSign() {
+        await this.acceptCookiesIfVisible();
+        const signBtn = this.page.getByRole('button', { name: 'Sign agreement', exact: true });
+        await expect(signBtn).toBeVisible();
+        if (!(await signBtn.isEnabled().catch(() => false))) {
+            const name =
+                (await this.signerNameInput.inputValue().catch(() => '')) || 'QA Supplier Signer';
+            await this.typeSignature(name);
+        }
+        await this.page.waitForTimeout(3000);
+        await expect(signBtn).toBeEnabled({ timeout: 20000 });
+    }
+
+    async submitSignWithRetry(maxAttempts = 3) {
+        const signBtn = this.page.getByRole('button', { name: 'Sign agreement', exact: true });
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            await this.waitUntilReadyToSign();
+            await signBtn.click();
+
+            const done = await this.allDoneHeading
+                .waitFor({ state: 'visible', timeout: 25000 })
+                .then(() => true)
+                .catch(() => false);
+            if (done) return;
+
+            const fetchFailed = await this.page
+                .getByText(/Failed to fetch/i)
+                .isVisible()
+                .catch(() => false);
+            if (!fetchFailed || attempt === maxAttempts) {
+                await expect(this.allDoneHeading).toBeVisible({ timeout: 8000 });
+                return;
+            }
+
+            await this.page.waitForTimeout(2500);
+            await this.acceptCookiesIfVisible();
+        }
     }
 }
 
