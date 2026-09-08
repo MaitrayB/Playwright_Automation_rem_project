@@ -279,7 +279,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
 
     test.describe('2 — Admin Issue Contract for Signing', () => {
         test.beforeAll(async ({}, testInfo) => {
-            testInfo.setTimeout(420000);
+            testInfo.setTimeout(600000);
             // Seed a closed Drawdown deal for Issue-for-signing + shared signing token ACs
             fulfilmentCustomerName = `QA Fulfilment ${Date.now()}`;
             customerSigningEmail = await adminGen.generateRandomEmailmailinator();

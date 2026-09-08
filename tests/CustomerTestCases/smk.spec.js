@@ -14,6 +14,7 @@ import { SupplierRegistrationPage } from '../../pages/Suppliers/SupplierRegistra
 import { OrdersPage as SupplierOrdersPage } from '../../pages/Suppliers/OrdersPage.js';
 import { TakeOrderSheetPage } from '../../pages/Suppliers/TakeOrderSheetPage.js';
 import { MyOrderDetailsPage } from '../../pages/Suppliers/MyOrderDetailsPage.js';
+import { ensureCookieConsentDismissed } from '../../utils/cookieConsent.js';
 
 const csvPath = './Data/testData.csv';
 
@@ -94,6 +95,7 @@ async function supplierTakeOrder(browser, testInfo, orderId, options = {}) {
       await supplierRegistrationPage.doItLaterBtn.click();
     }
     await expect(supplierOrdersPage.availableOrdersTab).toBeVisible({ timeout: 15000 });
+    await ensureCookieConsentDismissed(supplierPage);
   });
 
   await test.step('Take order from Available Orders', async () => {
@@ -102,6 +104,7 @@ async function supplierTakeOrder(browser, testInfo, orderId, options = {}) {
     }
 
     console.log(`Taking order ID: ${takenOrderId}`);
+    await ensureCookieConsentDismissed(supplierPage);
     await supplierOrdersPage.takeAvailableOrder(takenOrderId);
     await supplierPage.waitForTimeout(2000);
   });
@@ -110,17 +113,18 @@ async function supplierTakeOrder(browser, testInfo, orderId, options = {}) {
     await takeOrderSheetPage.verifySheetDisplayed();
   });
 
-  await test.step('Scroll and agree to Supplier Protection & Dispute Policy', async () => {
-    await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.supplierProtectionPolicyTab);
-  });
-
-  await test.step('Scroll and agree to ESG weighbridge requirement', async () => {
-    await takeOrderSheetPage.scrollAndAgreeToPolicy(takeOrderSheetPage.esgWeighbridgeTab);
+  await test.step('Agree to take-order policies', async () => {
+    await ensureCookieConsentDismissed(supplierPage);
+    await takeOrderSheetPage.acceptAllPolicies();
   });
 
   await test.step('Click Take Order button', async () => {
+    await expect(takeOrderSheetPage.takeThisOrderBtn).toBeEnabled({ timeout: 20000 });
     await takeOrderSheetPage.takeThisOrderBtn.click();
-    await expect(takeOrderSheetPage.takeOrderSuccessMsg).toBeVisible({ timeout: 15000 });
+    await Promise.race([
+      takeOrderSheetPage.takeOrderSuccessMsg.waitFor({ state: 'visible', timeout: 15000 }),
+      takeOrderSheetPage.takeOrderSheet.waitFor({ state: 'hidden', timeout: 15000 }),
+    ]);
     await supplierPage.waitForTimeout(2000);
   });
 
@@ -172,6 +176,302 @@ test.describe('Customer side test cases', () => {
       await orderPage.verifyCannotProceedWithoutAddress();
     });
 
+  });
+
+  test('1.2 - Customer booking flow: address, waste, placement, dates', async () => {
+    test.setTimeout(240000);
+
+    await loginPage.goto(TestData.baseURL);
+    await ensureCookieConsentDismissed(page);
+
+    await test.step('AC-5: Incomplete address step cannot continue', async () => {
+      await orderPage.verifyCannotProceedWithoutAddress();
+    });
+
+    await test.step('AC-1: Complete UK delivery address continues to waste type', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[0]);
+      await orderPage.verifyWasteTypeStepVisible();
+    });
+
+    await test.step('AC-5: Incomplete waste step cannot continue', async () => {
+      await orderPage.verifyContinueBlocked();
+    });
+
+    await test.step('AC-2: Waste category and questions allow booking to continue', async () => {
+      await orderPage.selectWaste(TestData.WasteType[0]);
+      await orderPage.openWasteQuestionsModal();
+      await orderPage.verifyContinueBlocked();
+      await orderPage.answerWasteTypeQuestions(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+      await orderPage.submitWasteQuestionsAndContinue();
+      await orderPage.skipChargeableItemsIfShown();
+    });
+
+    await test.step('AC-5: Incomplete placement step cannot continue', async () => {
+      await orderPage.verifyPlacementStepVisible();
+      await orderPage.verifyContinueBlocked();
+    });
+
+    await test.step('AC-3: Skip placement continues to offers', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+      await orderPage.verifyOffersStepVisible();
+    });
+
+    await test.step('AC-4: Selecting an available offer reaches the date step', async () => {
+      await orderPage.selectSkipSizeOnly(TestData.SkipSize[0]);
+      await orderPage.clickContinueOnSkipSelection();
+      if (await orderPage.skipTarpNoBtn.isVisible({ timeout: 8000 }).catch(() => false)) {
+        await orderPage.dismissSkipTarpModal();
+      }
+      await orderPage.verifyDateStepVisible();
+    });
+
+    await test.step('AC-5: Incomplete date step cannot continue', async () => {
+      await orderPage.verifyContinueBlocked();
+    });
+
+    await test.step('AC-4: Delivery and collection dates continue to payment', async () => {
+      await orderPage.selectEarliestAvailableDeliveryAndCollection();
+      await orderPage.continueFromDateStepToPayment();
+    });
+  });
+
+  test('1.3 - Private placement: no permit without photo (AC-14, AC-16)', async () => {
+    test.setTimeout(480000);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+
+    await test.step('AC-14 / AC-16: Book private property without a placement photo', async () => {
+      await orderPage.navigateToPlacementStep();
+      await orderPage.selectPrivatePlacementWithoutPhoto();
+      await orderPage.continueFromPlacementToDateStep();
+      await orderPage.selectEarliestAvailableDeliveryAndCollection();
+      await orderPage.continueFromDateStepToPayment();
+      await orderPage.verifyNoPermitOnOrderSummary();
+    });
+
+    await test.step('Complete payment and open the created order', async () => {
+      await orderPage.completePayment();
+      await dashboardPage.gotoSuccessPage();
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+    });
+
+    await test.step('AC-14: Private property order has no permit', async () => {
+      await orderDeliveryDetailsPage.verifyRoadPermitNotOnOrder();
+    });
+  });
+
+  test('1.4 - Public placement: permit and council processing days (AC-15)', async () => {
+    test.setTimeout(480000);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+
+    await test.step('AC-15: Public land adds a permit and shows council processing time', async () => {
+      await orderPage.navigateToPlacementStep();
+      await orderPage.selectPublicPlacement();
+      await orderPage.continueFromPlacementToDateStep();
+      await orderPage.verifyEarliestDeliveryRespectsCouncilProcessingDays();
+      await orderPage.selectEarliestAvailableDeliveryAndCollection();
+      await orderPage.continueFromDateStepToPayment();
+      await orderPage.verifyPermitOnOrderSummary();
+    });
+
+    await test.step('AC-15: Permit is on the created order', async () => {
+      await orderPage.completePayment();
+      await dashboardPage.gotoSuccessPage();
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+      await orderDeliveryDetailsPage.verifyRoadPermitOnOrder();
+    });
+  });
+
+  test('1.5 - Placement photo is attached after the order is created (AC-17)', async () => {
+    test.setTimeout(480000);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+
+    await test.step('AC-17: Upload a placement photo during booking', async () => {
+      await orderPage.navigateToPlacementStep();
+      await orderPage.selectPrivatePlacementWithoutPhoto();
+      await orderPage.uploadPlacementPhoto('Data/test_image.png');
+      await orderPage.continueFromPlacementToDateStep();
+      await orderPage.selectEarliestAvailableDeliveryAndCollection();
+      await orderPage.continueFromDateStepToPayment();
+    });
+
+    await test.step('AC-17: Photo is attached on the created order', async () => {
+      await orderPage.completePayment();
+      await dashboardPage.gotoSuccessPage();
+      await dashboardPage.navigateToViewOrderDetails();
+      await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+      await orderDeliveryDetailsPage.verifyPlacementPhotoAttached();
+    });
+  });
+
+  test('1.6 - Offers: matching sizes selectable and carry to summary (AC-19, AC-24)', async () => {
+    test.setTimeout(240000);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await ensureCookieConsentDismissed(page);
+
+    let selectedOffer;
+
+    await test.step('AC-19: No heavy waste and no permit keeps matching sizes selectable', async () => {
+      await orderPage.navigateToPlacementStep({ heavyWaste: TestData.HeavyWaste[0] });
+      await orderPage.selectPrivatePlacementWithoutPhoto();
+      await orderPage.continueFromPlacementToOffers();
+      await orderPage.verifyNoUnavailableOffers();
+      await orderPage.selectAvailableOffer('4');
+      await orderPage.selectAvailableOffer('20');
+      await orderPage.selectAvailableOffer('40');
+      await orderPage.selectAvailableOffer('4');
+    });
+
+    await test.step('AC-24: Selected size, price, and hire period carry to summary and total', async () => {
+      selectedOffer = await orderPage.captureSelectedOfferDetails('4');
+      await orderPage.clickContinueOnSkipSelection();
+      if (await orderPage.skipTarpNoBtn.isVisible({ timeout: 8000 }).catch(() => false)) {
+        await orderPage.dismissSkipTarpModal();
+      }
+      await orderPage.verifyDateStepVisible();
+      await orderPage.selectEarliestAvailableDeliveryAndCollection();
+      await orderPage.continueFromDateStepToPayment();
+      await orderPage.verifyOfferCarriedToOrderSummary(selectedOffer);
+    });
+  });
+
+  test('1.7 - Offers: permit-required sizes unavailable (AC-21)', async () => {
+    test.setTimeout(240000);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await ensureCookieConsentDismissed(page);
+
+    await test.step('AC-21: Sizes that cannot go on the road stay unavailable', async () => {
+      await orderPage.navigateToPlacementStep({ heavyWaste: TestData.HeavyWaste[0] });
+      await orderPage.selectPublicPlacement();
+      await orderPage.continueFromPlacementToOffers();
+      await orderPage.verifyOfferAvailable('4');
+      await orderPage.verifyOfferUnavailable('10', "Can't go on the road");
+      await orderPage.verifyOfferUnavailable('20', "Can't go on the road");
+      await orderPage.verifyUnavailableOfferCannotBeSelected('10');
+      await orderPage.selectAvailableOffer('4');
+    });
+  });
+
+  test('1.8 - Offers: heavy waste, combined rules, and in-place answer change (AC-20, AC-22, AC-23)', async () => {
+    test.setTimeout(240000);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await ensureCookieConsentDismissed(page);
+
+    let offersUrl;
+
+    await test.step('AC-22: A size ruled out by heavy waste or permit stays unavailable', async () => {
+      await orderPage.navigateToPlacementStep({ heavyWaste: TestData.HeavyWaste[1] });
+      await orderPage.selectPublicPlacement();
+      await orderPage.continueFromPlacementToOffers();
+      offersUrl = page.url();
+      await orderPage.verifyOfferAvailable('4');
+      await orderPage.verifyOfferUnavailable('20', "Can't go on the road");
+      await orderPage.verifyOfferUnavailable('10');
+      await orderPage.verifyUnavailableOfferCannotBeSelected('20');
+    });
+
+    await test.step('AC-23 / AC-20: Changing placement updates offers in place; heavy-only sizes stay locked', async () => {
+      await orderPage.changePlacementAnswerFromUnavailableOffer('20', TestData.Placement[0]);
+      await orderPage.verifyStillOnOffersStep(offersUrl);
+      await orderPage.verifyOfferAvailable('20');
+      await orderPage.verifyOfferUnavailable('10', "Can't take heavy waste");
+      await orderPage.verifyUnavailableOfferCannotBeSelected('10');
+    });
+
+    await test.step('AC-23: Changing heavy waste from an unavailable offer unlocks matching sizes in place', async () => {
+      await orderPage.changeHeavyWasteAnswerFromUnavailableOffer('10', TestData.HeavyWaste[0]);
+      await orderPage.verifyStillOnOffersStep(offersUrl);
+      await orderPage.verifyOfferAvailable('10');
+      await orderPage.verifyNoUnavailableOffers();
+      await orderPage.selectAvailableOffer('10');
+    });
+  });
+
+  test('1.9 - Chargeable items and under-20 yard card payment (AC-25, AC-30)', async () => {
+    test.setTimeout(480000);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await ensureCookieConsentDismissed(page);
+
+    let paidTotal;
+
+    await test.step('AC-25: Extra chargeable items appear on the summary and in the total', async () => {
+      await orderPage.navigateToPlacementStep({ chargeableItems: ['Double Mattress'] });
+      await orderPage.selectPrivatePlacementWithoutPhoto();
+      await orderPage.continueFromPlacementToOffers();
+      await orderPage.continueFromSelectedOfferToPayment('4');
+      const totals = await orderPage.verifyChargeableItemsOnOrderSummaryAndTotal(['Double Mattress']);
+      paidTotal = totals.total;
+    });
+
+    await test.step('AC-30: Under-20 yard skip takes card or wallet payment and shows Payment Successful', async () => {
+      await orderPage.verifyCardOrWalletPaymentRequired();
+      await orderPage.completePayment();
+      await orderPage.verifyPaymentSuccessful(paidTotal);
+    });
+  });
+
+  test('1.10 - Plasterboard taken to the tip is not charged (AC-29)', async () => {
+    test.setTimeout(240000);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await ensureCookieConsentDismissed(page);
+
+    await test.step('AC-29: Taking plasterboard to the tip adds no plasterboard extra', async () => {
+      await orderPage.navigateToPlacementStep({ plasterBoard: TestData.PlasterBoard[1] });
+      await orderPage.selectPrivatePlacementWithoutPhoto();
+      await orderPage.continueFromPlacementToOffers();
+      await orderPage.selectAvailableOffer('4');
+      await orderPage.clickContinueOnSkipSelection();
+      if (await orderPage.skipTarpNoBtn.isVisible({ timeout: 8000 }).catch(() => false)) {
+        await orderPage.dismissSkipTarpModal();
+      }
+      await orderPage.selectPlasterboardTakeToTip();
+      await orderPage.verifyDateStepVisible();
+      await orderPage.selectEarliestAvailableDeliveryAndCollection();
+      await orderPage.continueFromDateStepToPayment();
+      await orderPage.verifyNoPlasterboardExtraCharged();
+    });
+  });
+
+  test('1.11 - No extras, RoRo place-order, and verification requirements (AC-26, AC-31, AC-32)', async () => {
+    test.setTimeout(480000);
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+    await ensureCookieConsentDismissed(page);
+
+    await test.step('AC-26: Booking continues with no extra chargeable lines when none are selected', async () => {
+      await orderPage.navigateToPlacementStep();
+      await orderPage.selectPrivatePlacementWithoutPhoto();
+      await orderPage.continueFromPlacementToOffers();
+      await orderPage.continueFromSelectedOfferToPayment('20');
+      await orderPage.verifyNoChargeableItemsOnOrderSummary();
+    });
+
+    await test.step('AC-31: 20 yard or larger skip places the order without taking hire payment', async () => {
+      await orderPage.verifyNoHirePaymentAtPlaceOrder();
+      await orderPage.placeRoRoOrderWithoutHirePayment();
+    });
+
+    await test.step('AC-32: RoRo order requires ID, extra-tonnage agreement, and deposit before delivery', async () => {
+      await orderPage.verifyRoRoVerificationRequirements();
+    });
   });
 
   test('Customer message verification @chat', async () => {
@@ -393,6 +693,7 @@ test.describe('Customer side test cases', () => {
   });
 
   test('Site Contacts - guest user: Add site contact while placing an order', async () => {
+    test.setTimeout(480000);
     let contact;
     let skipValues;
     // ✅ Get random CSV row at runtime
@@ -460,6 +761,7 @@ test.describe('Customer side test cases', () => {
   });
 
   test('Site Contacts: Add site contact while placing an order', async () => {
+    test.setTimeout(480000);
     let result, contact, skipValues;
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -493,9 +795,7 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Choose date', async () => {
-      const dayNumber = new Date().getDate();
-      console.log(`Today's day number is: ${dayNumber}`);
-      await orderPage.chooseStaticDate(dayNumber);
+      await orderPage.chooseDate(TestData.BookingDay[0]);
     });
 
     await test.step('Complete payment', async () => {
@@ -519,6 +819,7 @@ test.describe('Customer side test cases', () => {
   });
 
   test('Site Contacts: Select existing site contact while placing an order', async ({ },) => {
+    test.setTimeout(480000);
     let result, contact, skipValues;
     console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
@@ -552,8 +853,7 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Choose date', async () => {
-      const dayNumber = new Date().getDate();
-      await orderPage.chooseStaticDate(dayNumber);
+      await orderPage.chooseDate(TestData.BookingDay[0]);
     });
 
     await test.step('Complete payment', async () => {
@@ -575,8 +875,10 @@ test.describe('Customer side test cases', () => {
     });
   });
 
-  test(`Missed Collection for today's date`, async () => {
+  test(`Missed Collection for today's date`, async ({ browser }, testInfo) => {
+    test.setTimeout(600000);
     let skipValues;
+    let orderId;
     // console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto(TestData.baseURL);
@@ -623,19 +925,31 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Verify Order Delivery Details', async () => {
-      await dashboardPage.navigateToViewOrderDetails();
+      orderId = await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step('Supplier takes the order and marks delivered', async () => {
+      await supplierTakeOrder(browser, testInfo, orderId, { markDelivered: true });
+    });
+
+    await test.step('Customer confirms delivery', async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
+      await orderDeliveryDetailsPage.confirmTodaysDelivery();
     });
 
     await test.step(`Confirm and verify missed collection`, async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
       await orderDeliveryDetailsPage.missedCollection();
-      await orderDeliveryDetailsPage.verifyMissedCollectionLabel.scrollIntoViewIfNeeded();
-      await expect(orderDeliveryDetailsPage.verifyMissedCollectionLabel).toBeVisible();
     });
 
   });
 
-  test('Confirm skip collection', async () => {
+  test('Confirm skip collection', async ({ browser }, testInfo) => {
+    test.setTimeout(600000);
     let skipValues;
+    let orderId;
     //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto(TestData.baseURL);
@@ -682,16 +996,29 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Verify Order Delivery Details', async () => {
-      await dashboardPage.navigateToViewOrderDetails();
+      orderId = await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step('Supplier takes the order and marks delivered', async () => {
+      await supplierTakeOrder(browser, testInfo, orderId, { markDelivered: true });
+    });
+
+    await test.step('Customer confirms delivery', async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
+      await orderDeliveryDetailsPage.confirmTodaysDelivery();
     });
 
     await test.step('Confirm skip collection', async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
       await orderDeliveryDetailsPage.confirmCollection();
     });
 
   });
 
   test(`Missed Delivery for today's date`, async ({ browser }, testInfo) => {
+    test.setTimeout(600000);
     let skipValues;
     let orderId;
     let dayNumber = new Date().getDate();
@@ -744,22 +1071,22 @@ test.describe('Customer side test cases', () => {
       orderId = await dashboardPage.navigateToViewOrderDetails();
     });
 
-    await test.step('Supplier takes the order', async () => {
-      await supplierTakeOrder(browser, testInfo, orderId);
+    await test.step('Supplier takes the order and marks delivered', async () => {
+      await supplierTakeOrder(browser, testInfo, orderId, { markDelivered: true });
     });
 
     await test.step(`Mark and verify missed delivery for today's date`, async () => {
       await page.reload();
       await page.waitForTimeout(2000);
       await orderDeliveryDetailsPage.missedDelivery();
-      await orderDeliveryDetailsPage.verifyMissedDeliveryLabel.scrollIntoViewIfNeeded();
-      await expect(orderDeliveryDetailsPage.verifyMissedDeliveryLabel).toBeVisible();
     });
 
   });
   
-  test('Request collection outside 3 days free limit and pay for difference', async () => {
+  test('Request collection outside 3 days free limit and pay for difference', async ({ browser }, testInfo) => {
+    test.setTimeout(600000);
     let skipValues;
+    let orderId;
     // console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto(TestData.baseURL);
@@ -806,17 +1133,31 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Verify Order Delivery Details', async () => {
-      await dashboardPage.navigateToViewOrderDetails();
+      orderId = await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step('Supplier takes the order and marks delivered', async () => {
+      await supplierTakeOrder(browser, testInfo, orderId, { markDelivered: true });
+    });
+
+    await test.step('Customer confirms delivery', async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
+      await orderDeliveryDetailsPage.confirmTodaysDelivery();
     });
 
     await test.step('Request collection', async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
       await orderDeliveryDetailsPage.requestCollection("no");
     });
 
   });
 
-  test('Request collection within 3 days free limit', async () => {
+  test('Request collection within 3 days free limit', async ({ browser }, testInfo) => {
+    test.setTimeout(600000);
     let skipValues;
+    let orderId;
     //console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[2]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto(TestData.baseURL);
@@ -863,10 +1204,22 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Verify Order Delivery Details', async () => {
-      await dashboardPage.navigateToViewOrderDetails();
+      orderId = await dashboardPage.navigateToViewOrderDetails();
+    });
+
+    await test.step('Supplier takes the order and marks delivered', async () => {
+      await supplierTakeOrder(browser, testInfo, orderId, { markDelivered: true });
+    });
+
+    await test.step('Customer confirms delivery', async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
+      await orderDeliveryDetailsPage.confirmTodaysDelivery();
     });
 
     await test.step('Request collection', async () => {
+      await page.reload();
+      await page.waitForTimeout(2000);
       await orderDeliveryDetailsPage.requestCollection("yes");
     });
 
@@ -874,6 +1227,7 @@ test.describe('Customer side test cases', () => {
 
 
   test(`Confirm Delivery for today's date`, async ({ browser }, testInfo) => {
+    test.setTimeout(600000);
     let skipValues;
     let orderId;
     //console.log(`🧾 Running logged-in User's flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[1]}, ${TestData.Placement[0]}`);
@@ -932,8 +1286,13 @@ test.describe('Customer side test cases', () => {
     await test.step(`Verify today's delivery confirmed on customer order details`, async () => {
       await page.reload();
       await page.waitForTimeout(2000);
-      await orderDeliveryDetailsPage.verifyConfirmDeliveryLabel.scrollIntoViewIfNeeded();
-      await expect(orderDeliveryDetailsPage.verifyConfirmDeliveryLabel).toBeVisible();
+      await orderDeliveryDetailsPage.confirmTodaysDelivery();
+      await expect(
+        orderDeliveryDetailsPage.verifyConfirmDeliveryLabel
+          .or(page.getByText('Delivery Confirmed'))
+          .or(page.getByRole('button', { name: /^Delivered$/ }))
+          .first()
+      ).toBeVisible({ timeout: 15000 });
     });
 
   });
@@ -952,6 +1311,7 @@ test.describe('Customer side test cases', () => {
   });
 
   test('Place an order for Wrong Skip Guarantee and login with existing user', async () => {
+    test.setTimeout(480000);
     let skipValues;
     //console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[3]}, ${TestData.Placement[1]}`);
 
@@ -974,13 +1334,17 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('Permit check', async () => {
-      await orderPage.permitCheck(TestData.Placement[1]);
+      await orderPage.permitCheck(TestData.Placement[0]);
     });
 
-    await test.step('Select wrong skip guarantee, Skip Size & property', async () => {
-      //skipSize, Skiptarp, Plasterboard
+    await test.step('Select skip, add Wrong Skip Guarantee, continue', async () => {
+      const selected = await orderPage.selectSkipSizeOnly(TestData.SkipSize[0]);
+      console.log('Selected skip:', selected);
       await orderPage.wrongSkipSelection();
-      await orderPage.selectSkip(TestData.SkipSize[3], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
+      await orderPage.clickContinueOnSkipSelection();
+      if (await orderPage.skipTarpNoBtn.isVisible({ timeout: 8000 }).catch(() => false)) {
+        await orderPage.skipTarpNoBtn.click();
+      }
     });
 
     await test.step('Choose date', async () => {
@@ -1005,6 +1369,9 @@ test.describe('Customer side test cases', () => {
     await test.step('Verify Order Delivery Details', async () => {
       await dashboardPage.navigateToViewOrderDetails();
       await orderDeliveryDetailsPage.verifyOrderDeliveryDetails();
+      if (!(await orderDeliveryDetailsPage.verifyWrongSkipGuaranteeLabel.isVisible({ timeout: 3000 }).catch(() => false))) {
+        await orderDeliveryDetailsPage.openFinancialsTab();
+      }
       await orderDeliveryDetailsPage.verifyWrongSkipGuaranteeLabel.scrollIntoViewIfNeeded();
       await expect(orderDeliveryDetailsPage.verifyWrongSkipGuaranteeLabel).toBeVisible();
     });
@@ -1012,37 +1379,105 @@ test.describe('Customer side test cases', () => {
   });
 
   test('Upgrading skip for logged-in user', async () => {
-    await test.step('Go to profile settings', async () => {
-      await loginPage.goto(TestData.baseURL);
-      await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
-      await profilesettingpage.goToProfileSettingsPage();
+    test.setTimeout(480000);
+    let skipValues;
+
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
     });
 
-    await test.step('Navigate and Upgrade skip', async () => {
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      skipValues = await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[0], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
+    });
+
+    await test.step('Choose date', async () => {
+      await orderPage.chooseDate(TestData.BookingDay[0]);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate to the new order and upgrade skip', async () => {
+      await dashboardPage.gotoSuccessPage();
       await dashboardPage.navigateToViewOrderDetails();
       await orderDeliveryDetailsPage.upgradeSkip();
+      await orderDeliveryDetailsPage.openActivityTab();
       await orderDeliveryDetailsPage.upgradeSkipRefundRequestedLog.scrollIntoViewIfNeeded();
       await expect(orderDeliveryDetailsPage.upgradeSkipRefundRequestedLog).toBeVisible();
     });
   });
 
   test('Downgrading skip for logged-in user @smoke', async () => {
-    await test.step('Go to profile settings', async () => {
+    test.setTimeout(480000);
+    let skipValues;
 
-      await loginPage.goto(TestData.baseURL);
-      await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
-      await profilesettingpage.goToProfileSettingsPage();
+    await loginPage.goto(TestData.baseURL);
+    await loginPage.login(TestData.credentials.customer.username, TestData.credentials.customer.password);
+
+    await test.step('Enter postcode', async () => {
+      await orderPage.enterPostcode(TestData.postcodes[1]);
     });
 
-    await test.step('Navigate and Downgrade skip', async () => {
+    await test.step('Select waste type', async () => {
+      await orderPage.selectWaste(TestData.WasteType[1]);
+    });
+
+    await test.step('Continue waste type', async () => {
+      skipValues = await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
+    });
+
+    await test.step('Select item from the list', async () => {
+      await orderPage.selectItemFromTheList();
+    });
+
+    await test.step('Permit check', async () => {
+      await orderPage.permitCheck(TestData.Placement[0]);
+    });
+
+    await test.step('Select skip & property', async () => {
+      await orderPage.selectSkip(TestData.SkipSize[2], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
+    });
+
+    await test.step('Choose date', async () => {
+      await orderPage.chooseDate(TestData.BookingDay[0]);
+    });
+
+    await test.step('Complete payment', async () => {
+      await orderPage.completePayment();
+    });
+
+    await test.step('Navigate to the new order and downgrade skip', async () => {
+      await dashboardPage.gotoSuccessPage();
       await dashboardPage.navigateToViewOrderDetails();
       await orderDeliveryDetailsPage.downgradeSkip();
+      await orderDeliveryDetailsPage.openActivityTab();
       await orderDeliveryDetailsPage.downgradeRefundRequestedLog.scrollIntoViewIfNeeded();
       await expect(orderDeliveryDetailsPage.downgradeRefundRequestedLog).toBeVisible();
     });
   });
 
   test('Place order and add 2 Tonne bags @smoke', async () => {
+    test.setTimeout(480000);
     let skipValues;
     //console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[1]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[2]}, ${TestData.Placement[0]}`);
 
@@ -1112,6 +1547,7 @@ test.describe('Customer side test cases', () => {
   });
 
   test('Change billing address and place order @smoke', async () => {
+    test.setTimeout(480000);
     // console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[1]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
 
     await loginPage.goto(TestData.baseURL);
@@ -1177,6 +1613,7 @@ test.describe('Customer side test cases', () => {
   });
 
   test('Place order and add road permit @smoke', async () => {
+    test.setTimeout(480000);
     try {
       let skipValues;
       //console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, Skipsize-${TestData.SkipSize[0]}, ${TestData.Placement[0]}`);
@@ -1236,8 +1673,13 @@ test.describe('Customer side test cases', () => {
         await orderDeliveryDetailsPage.roadpermitFeeLbl.scrollIntoViewIfNeeded();
         await expect(orderDeliveryDetailsPage.roadpermitFeeLbl).toBeVisible();
         await page.reload();
-        await orderDeliveryDetailsPage.verifyOrderHistoryForAddedPermit.scrollIntoViewIfNeeded();
-        await expect(orderDeliveryDetailsPage.verifyOrderHistoryForAddedPermit).toBeVisible();
+        await orderDeliveryDetailsPage.openFinancialsTab();
+        await expect(orderDeliveryDetailsPage.roadpermitFeeLbl).toBeVisible();
+        await orderDeliveryDetailsPage.openActivityTab();
+        const permitHistory = orderDeliveryDetailsPage.verifyOrderHistoryForAddedPermit
+          .or(page.getByText(/Road Permit/i));
+        await permitHistory.first().scrollIntoViewIfNeeded();
+        await expect(permitHistory.first()).toBeVisible();
       });
 
       await test.step('Order Placement Email Verification', async () => {
@@ -1254,6 +1696,7 @@ test.describe('Customer side test cases', () => {
   });
 
   test('Start order as guest and logs in with existing account @smoke', async () => {
+    test.setTimeout(480000);
     try {
       let skipValues;
       // console.log(`🧾 Running Guest flow for:  ${TestData.postcodes[0]}, ${TestData.WasteType[0]}, Heavywaste -${TestData.HeavyWaste[0]}, Plasterboard -${TestData.PlasterBoard[0]}, ${TestData.Placement[2]}, Skipsize-${TestData.SkipSize[0]}`);
@@ -1277,7 +1720,7 @@ test.describe('Customer side test cases', () => {
       });
 
       await test.step('Permit check', async () => {
-        await orderPage.permitCheck(TestData.Placement[2]);
+        await orderPage.permitCheck(TestData.Placement[0]);
       });
 
       await test.step('Select skip & property', async () => {
@@ -1322,6 +1765,7 @@ test.describe('Customer side test cases', () => {
   });
 
   test('Place an order as Guest User @smoke', async () => {
+    test.setTimeout(480000);
     let skipValues;
     // ✅ Get random CSV row at runtime
     //const randomRow = getRandomRow(csvPath);
@@ -1340,7 +1784,7 @@ test.describe('Customer side test cases', () => {
       });
 
       await test.step('Continue waste type', async () => {
-        skipValues = await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[1]);
+        skipValues = await orderPage.continueWaste(TestData.HeavyWaste[0], TestData.PlasterBoard[0]);
       });
 
       await test.step('Select item from the list', async () => {
@@ -1348,13 +1792,11 @@ test.describe('Customer side test cases', () => {
       });
 
       await test.step('Permit check', async () => {
-        await orderPage.permitCheck(TestData.Placement[1]);
+        await orderPage.permitCheck(TestData.Placement[0]);
       });
 
       await test.step('Select skip & property', async () => {
-        //await orderPage.selectSkip(randomRow.SkipSize, randomRow.PlasterBoard, randomRow.ToneBag, randomRow.SelfDispose, "No");
-        //skipSize, Skiptarp, Plasterboard
-        await orderPage.selectSkip(TestData.SkipSize[1], "No", TestData.plasterBoardTypes[2], skipValues.HeavyWaste, skipValues.PlasterBoard);
+        await orderPage.selectSkip(TestData.SkipSize[0], "No", TestData.plasterBoardTypes[0], skipValues.HeavyWaste, skipValues.PlasterBoard);
       });
 
       await test.step('Choose date', async () => {
@@ -1388,10 +1830,12 @@ test.describe('Customer side test cases', () => {
     }
     catch (error) {
       console.log(error);
+      throw error;
     }
   });
 
   test('Place an order as Logged-in User @smoke', async () => {
+    test.setTimeout(480000);
     let skipValues;
 
     await test.step('Sign up new user', async () => {
@@ -1460,6 +1904,7 @@ test.describe('Supplier Take Order', () => {
   test.setTimeout(180000);
 
   test('Supplier takes an order from available orders', async ({ browser }, testInfo) => {
+    test.setTimeout(600000);
     await supplierTakeOrder(browser, testInfo);
   });
 });

@@ -69,7 +69,8 @@ export class SignUpPage {
         const contact = await genfunc.getSiteContactDetails();
 
         try {
-            if (await this.loginBtn.isVisible()) {
+            await this.loginBtn.or(this.firstNameInput).first().waitFor({ state: 'visible', timeout: 30000 });
+            if (await this.loginBtn.isVisible() && await this.firstNameInput.isVisible()) {
                 //console.log('guest user');
                 await this.page.locator('#firstName').focus();
                 await this.firstNameInput.fill(firstName);
@@ -125,8 +126,8 @@ export class SignUpPage {
         const loginPage = new LoginPage(this.page);
 
         await this.page.locator('#firstName').focus();
-        await this.firstNameInput.fill("Navin");
-        await this.lastNameInput.fill("Shah");
+        await this.firstNameInput.fill(TestData.credentials.customer.firstName);
+        await this.lastNameInput.fill(TestData.credentials.customer.lastName);
         await this.emailInput.fill(TestData.credentials.customer.username);
         await this.confirmEmailInput.fill(TestData.credentials.customer.username);
         await this.phoneInput.fill('+44 16977 2987');

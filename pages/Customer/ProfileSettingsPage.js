@@ -53,9 +53,9 @@ export class ProfileSettingsPage {
 
         // Revert back to original details (optional)   
 
-        await this.firstnameInput.fill("Navin");
-        await this.lastnameInput.fill("Shah");
-        await this.phoneInput.fill("1333444333");
+        await this.firstnameInput.fill(TestData.credentials.customer.firstName);
+        await this.lastnameInput.fill(TestData.credentials.customer.lastName);
+        await this.phoneInput.fill(TestData.credentials.customer.phone);
         await this.saveChangesBtn.click();
 
         await this.page.waitForTimeout(2000);

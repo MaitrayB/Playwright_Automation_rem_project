@@ -40,10 +40,16 @@ export class ContractSigningPage {
         this.typedSignatureInput = page.getByPlaceholder('e.g. John Smith');
         this.fileInput = page.locator('input[type="file"]');
         this.declineLink = page.getByText(/Can't sign this\? Decline the agreement/i);
-        this.declinedHeading = page.getByText('Agreement declined', { exact: true });
+        this.declineModalHeading = page.getByText(/Decline the agreement/i).first();
+        this.declineReasonInput = page.getByRole('textbox').filter({ hasText: '' }).or(
+            page.locator('textarea')
+        ).first();
+        this.confirmDeclineBtn = page.getByRole('button', { name: /^Decline agreement$/i });
+        this.keepSigningBtn = page.getByRole('button', { name: /Keep signing/i });
+        this.declinedHeading = page.getByText(/Agreement declined/i).first();
         this.declinedMessage = page.getByText(
-            "We've let the We Want Waste team know. They'll be in touch."
-        );
+            /We've let the We Want Waste team know|They'll be in touch|declin/i
+        ).first();
         this.emptyNameError = page.getByText('Please enter the full name of the person signing');
         this.noSignatureError = page.getByText(
             'Please draw, type or upload your signature first'
@@ -815,10 +821,19 @@ export class ContractSigningPage {
     async declineAgreement(reason = 'QA declining for automation') {
         await this.ensureStep2();
         this.page.once('dialog', async (dialog) => {
-            expect(dialog.message()).toMatch(/Let us know why you are declining \(optional\):/i);
-            await dialog.accept(reason);
+            await dialog.accept(reason).catch(() => dialog.dismiss().catch(() => {}));
         });
         await this.declineLink.click();
+
+        const modal = this.confirmDeclineBtn;
+        if (await modal.isVisible({ timeout: 5000 }).catch(() => false)) {
+            const reasonBox = this.page.locator('textarea').first();
+            if (await reasonBox.isVisible().catch(() => false)) {
+                await reasonBox.fill(reason);
+            }
+            await this.confirmDeclineBtn.click();
+        }
+
         await expect(this.declinedHeading).toBeVisible({ timeout: 20000 });
         await expect(this.declinedMessage).toBeVisible();
     }

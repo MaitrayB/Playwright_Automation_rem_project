@@ -17,7 +17,7 @@ export class Order_Admin_Page {
     constructor(page) {
         this.page = page;
         this.searchInput = page.locator("//input[contains(@placeholder,'Search')]");
-        this.orderChatBtn = page.locator('h1, h2, h3').filter({ hasText: /Order #/ }).locator('..').getByRole('button', { name: /^(Chat|Open chat)$/i });
+        this.orderChatBtn = page.getByRole('button', { name: /^(Chat|Open chat)$/i });
         this.latestChatThread = page.locator('.divide-y button').first();
         this.customerLastMsg = page.locator("div[class*='flex justify-start']").last();
         this.replyInput = page.getByPlaceholder('Type a message...');

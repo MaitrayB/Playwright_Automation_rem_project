@@ -68,7 +68,7 @@ export class TakeOrderSheetPage {
         // Submit Take Order Sheet button locator
         this.takeThisOrderBtn = this.takeOrderSheet.getByRole('button', { name: /Take this Order/i });
         this.submitBtnNameDuringSubmission = this.takeOrderSheet.getByRole('button', { name: 'Taking Order...' });
-        this.takeOrderSuccessMsg = this.takeOrderSheet.getByText(/Order taken successfully/i);
+        this.takeOrderSuccessMsg = this.page.getByText(/Order taken successfully/i);
     }
 
     async verifySheetDisplayed() {
@@ -284,9 +284,29 @@ export class TakeOrderSheetPage {
         await this.confirmButton.click();
     }
 
+    async isPolicyAlreadyAccepted(policyTab) {
+        const tabText = (await policyTab.textContent().catch(() => '')) || '';
+        if (/accepted/i.test(tabText)) {
+            return true;
+        }
+        const acceptedBadge = policyTab.locator('xpath=ancestor::div[1]').getByText('Accepted', { exact: true });
+        return acceptedBadge.isVisible({ timeout: 1000 }).catch(() => false);
+    }
+
     async scrollAndAgreeToPolicy(policyTab) {
+        if (!(await policyTab.isVisible({ timeout: 3000 }).catch(() => false))) {
+            return;
+        }
         await policyTab.click();
-        await this.page.waitForTimeout(2000);
+        await this.page.waitForTimeout(1000);
+
+        if (await this.isPolicyAlreadyAccepted(policyTab) && !(await this.iAgreeBtn.isVisible().catch(() => false))) {
+            return;
+        }
+
+        if (!(await this.iAgreeBtn.isVisible({ timeout: 3000 }).catch(() => false))) {
+            return;
+        }
 
         const pdfCanvas = this.takeOrderSheet.locator('canvas').first();
         if (await pdfCanvas.isVisible()) {
@@ -316,7 +336,7 @@ export class TakeOrderSheetPage {
             await this.page.waitForTimeout(2000);
         }
 
-        await this.iAgreeBtn.click({ timeout: 15000 });
+        await this.iAgreeBtn.click({ force: true, timeout: 15000 });
         await this.page.waitForTimeout(1000);
     }
 }

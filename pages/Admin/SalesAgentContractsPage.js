@@ -16,7 +16,7 @@ export class SalesAgentContractsPage {
         this.logoutBtn = page.getByRole('button', { name: 'Logout' });
         this.staffSignInHeading = page.getByRole('heading', { name: 'Staff Sign In' });
         this.newRequestLink = page.getByRole('link', { name: 'New request' }).first();
-        this.searchInput = page.getByPlaceholder('Search customer…');
+        this.searchInput = page.getByPlaceholder(/Search/i);
         this.contractsTable = page.locator('table');
         this.tableHeaders = this.contractsTable.locator('th');
         this.tableRows = this.contractsTable.locator('tbody tr');
@@ -31,6 +31,7 @@ export class SalesAgentContractsPage {
             'Cancelled',
         ];
         this.expectedColumns = ['Customer', 'Postcode', 'Lines', 'Status', 'Supplier', 'Submitted'];
+        // Product may also show an ID column before Customer
         // Product rename: Closed → Agreed, ready to close → ready to agree
         this.statusBadges = {
             awaitingPricing: {
@@ -94,9 +95,46 @@ export class SalesAgentContractsPage {
     async verifyDesktopTableColumns() {
         await expect(this.contractsTable).toBeVisible();
         const headers = await this.tableHeaders.allTextContents();
+        const normalized = headers.map((h) => h.trim());
         for (const column of this.expectedColumns) {
-            expect(headers.map((h) => h.trim())).toContain(column);
+            expect(normalized).toContain(column);
         }
+    }
+
+    /** Customer cell — 2nd column when an ID (#123) column is present. */
+    async customerCellText(row) {
+        const cells = row.locator('td');
+        const first = ((await cells.first().innerText().catch(() => '')) || '').trim();
+        if (/^#\d+/.test(first) && (await cells.count()) > 1) {
+            return ((await cells.nth(1).innerText()) || '').trim();
+        }
+        return first;
+    }
+
+    async waitForContractsListSettled() {
+        await expect
+            .poll(
+                async () => {
+                    const hasRows = (await this.tableRows.count()) > 0;
+                    const isEmpty = await this.page
+                        .getByText('Nothing sent yet')
+                        .isVisible()
+                        .catch(() => false);
+                    return hasRows || isEmpty;
+                },
+                { timeout: 30000 }
+            )
+            .toBeTruthy();
+    }
+
+    async getVisibleCustomerNames() {
+        await this.waitForContractsListSettled();
+        const count = await this.tableRows.count();
+        const names = [];
+        for (let i = 0; i < count; i++) {
+            names.push(await this.customerCellText(this.tableRows.nth(i)));
+        }
+        return names;
     }
 
     async verifyStatusFilterPills() {
@@ -145,36 +183,6 @@ export class SalesAgentContractsPage {
             }
         }
         return label;
-    }
-
-    /**
-     * Filter changes show a spinner before rows/empty state render.
-     * Wait until loading finishes so callers don't read an empty list mid-fetch.
-     */
-    async waitForContractsListSettled() {
-        await expect
-            .poll(
-                async () => {
-                    const hasRows = (await this.tableRows.count()) > 0;
-                    const isEmpty = await this.page
-                        .getByText('Nothing sent yet')
-                        .isVisible()
-                        .catch(() => false);
-                    return hasRows || isEmpty;
-                },
-                { timeout: 30000 }
-            )
-            .toBeTruthy();
-    }
-
-    async getVisibleCustomerNames() {
-        await this.waitForContractsListSettled();
-        const count = await this.tableRows.count();
-        const names = [];
-        for (let i = 0; i < count; i++) {
-            names.push((await this.tableRows.nth(i).locator('td').first().innerText()).trim());
-        }
-        return names;
     }
 
     async verifyStatusBadge(badgeKey) {
@@ -234,11 +242,13 @@ export class SalesAgentContractsPage {
     }
 
     async searchCustomer(text) {
+        await expect(this.searchInput).toBeVisible({ timeout: 15000 });
         await this.searchInput.fill(text);
         await this.page.waitForTimeout(500);
     }
 
     async clearSearch() {
+        if (!(await this.searchInput.isVisible().catch(() => false))) return;
         await this.searchInput.fill('');
         await this.page.waitForTimeout(500);
     }
@@ -246,7 +256,7 @@ export class SalesAgentContractsPage {
     async openFirstRequestRow() {
         const firstRow = this.tableRows.first();
         await expect(firstRow).toBeVisible({ timeout: 10000 });
-        const customer = (await firstRow.locator('td').first().innerText()).trim();
+        const customer = await this.customerCellText(firstRow);
         await Promise.all([
             this.page.waitForURL(/\/sales\/contracts\/\d+/, { timeout: 30000 }),
             firstRow.click(),
@@ -263,12 +273,13 @@ export class SalesAgentContractsPage {
         await this.selectStatusFilter('All');
         await this.clearSearch();
         await this.searchCustomer(customerName);
-        await expect
-            .poll(async () => (await this.getVisibleCustomerNames()).some((n) => n.includes(customerName)), {
-                timeout: 20000,
-            })
-            .toBeTruthy();
-        return this.openFirstRequestRow();
+        const row = this.tableRows.filter({ hasText: customerName }).first();
+        await expect(row).toBeVisible({ timeout: 20000 });
+        await Promise.all([
+            this.page.waitForURL(/\/sales\/contracts\/\d+/, { timeout: 30000 }),
+            row.click(),
+        ]);
+        return customerName;
     }
 
     async openNewRequest() {

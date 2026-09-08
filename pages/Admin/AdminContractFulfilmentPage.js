@@ -16,7 +16,8 @@ export class AdminContractFulfilmentPage {
         this.fulfilmentHeading = page.getByRole('heading', { name: /Fulfilment — Contract #\d+/i });
         this.notSentBadge = page
             .getByText('Agreed — not sent to sign', { exact: true })
-            .or(page.getByText('Closed — not issued', { exact: true }));
+            .or(page.getByText('Closed — not issued', { exact: true }))
+            .first();
         this.closedNotIssuedBadge = this.notSentBadge;
         this.awaitingSignaturesBadge = page
             .locator('main')

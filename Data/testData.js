@@ -6,9 +6,11 @@ export const TestData = {
   },
   credentials: {
     customer: {
-      username: 'navin@yopmail.com',
+      username: 'remqa.smk@yopmail.com',
       password: 'P@ssw0rd',
-      firstName: 'Navin'
+      firstName: 'Remqa',
+      lastName: 'Tester',
+      phone: '+44 16977 2987'
     },
     agent: {
       username: 'mat+admin@remwaste.com',
@@ -46,7 +48,7 @@ export const TestData = {
 
   customer: {
     credentials: {
-      username: 'navin@yopmail.com',
+      username: 'remqa.smk@yopmail.com',
       password: 'P@ssw0rd'
     }
   },

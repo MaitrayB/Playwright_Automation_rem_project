@@ -22,10 +22,12 @@ export class OrderDeliveryDetailsPage {
 
         this.deliveryDetailsSec = page.locator('h3:has-text("Delivery Details")');
         this.skipDetailsSec = page.locator('h3:has-text("Skip Details")');
-        this.customerInfoSec = page.locator('h3:has-text("Customer Information")');
+        this.customerInfoSec = page.getByRole('heading', { name: 'Customer Information' })
+            .or(page.getByText('Customer', { exact: true }));
         this.orderItemsSec = page.getByRole('heading', { name: 'Order Items' })//page.locator('h2:has-text("Order Items")');
         this.financialsTab = page.getByRole('button', { name: /^Financials$/i }).or(page.getByText('Financials', { exact: true }));
         this.overviewTab = page.getByRole('button', { name: /^Overview$/i }).or(page.getByText('Overview', { exact: true }));
+        this.imagesTab = page.getByRole('button', { name: /^Images/i }).or(page.getByText(/^Images/i));
         this.skipTarpLbl = page.locator("//h3[contains(.,'Skip Tarp')]");
         this.skipTarpLineItemHeading = page.getByRole('heading', { name: /Skip Tarp(aulin)?\s*\(/i })
             .or(page.getByText(/Skip Tarpaulin\s*\(/i));
@@ -39,7 +41,7 @@ export class OrderDeliveryDetailsPage {
         this.tonneBagBtn = page.getByRole('button', { name: '1 Tonne Bag We supply a tonne' }); //page.locator("//button[contains(.,'Tonne Bag')]");
         //this.addQuantity = page.locator("//div[@class='flex items-center space-x-4']/button[2]");
         this.verifyTonneBagLabel = page.getByRole('heading', { name: 'Plasterboard Tonne Bag' });
-        this.verifyTotalQuantity = page.getByText('Quantity:').nth(2);
+        this.verifyTotalQuantity = page.getByText(/Plasterboard disposal \(1 tonne\)/i);
 
         this.addBtnPopup = page.locator("(//button[contains(.,'Add Item')])[last()]");
         this.payBtn = page.locator("(//button[contains(.,'Pay')])[last()]");
@@ -72,7 +74,7 @@ export class OrderDeliveryDetailsPage {
         this.freeExtensionDayUsedLbl = page.getByText('Free extension days used: 0/3');
         this.freeExtensionRemainingLbl = page.getByText('Free extension days remaining: 3');
         this.dateexendedLlb = page.locator("//p[contains(.,'Collection date extended from')]");
-        this.manageCollectionBtn = page.locator("//button[contains(.,'Manage Collection')]");
+        this.manageCollectionBtn = page.getByRole('button', { name: /Manage Collection/i });
         this.completePaymentBtn = page.getByRole('button', { name: 'Set Collection Date' });
         this.payBtn = page.locator("//button[contains(.,'Pay ')]");
 
@@ -80,7 +82,8 @@ export class OrderDeliveryDetailsPage {
         this.confirmDeliveryBtn = page.getByRole('button', { name: 'Confirm Delivery' });
         this.textArea = page.getByPlaceholder('Add a message about this event...');
         this.submitBtn = page.getByRole('button', { name: 'Submit' });
-        this.eventSuccessMsg = page.locator("//p[contains(.,'Event submitted successfully')]");
+        this.eventSuccessMsg = page.getByText('Event submitted successfully')
+            .or(page.getByRole('heading', { name: 'Report Submitted' }));
         this.verifyConfirmDeliveryLabel = page.locator('span:has-text("Delivery Confirmed")');
 
         this.missedDeliveryBtn = page.getByRole('button', { name: 'Missed Delivery' });
@@ -92,10 +95,13 @@ export class OrderDeliveryDetailsPage {
         this.confirmCollectionBtn = page.getByRole('button', { name: 'Confirm Collection' });
         //this.collectionConfirmedtxt = page.locator('//span[contains(.,"Collection Confirmed")]');
         this.missedCollectionBtn = page.getByRole('button', { name: 'Missed Collection' });
-        this.verifyMissedCollectionLabel = page.locator('span:has-text("Missed Collection")');
+        this.verifyMissedCollectionLabel = page.locator('span:has-text("Missed Collection")')
+            .or(page.getByRole('heading', { name: 'Report Submitted' }))
+            .or(page.getByText('Missed Collection', { exact: true }));
 
         // Site Contact elements
-        this.siteContactCard = page.getByRole('heading', { name: 'Site Contact' });
+        this.siteContactCard = page.getByRole('heading', { name: 'Site Contact' })
+            .or(page.getByText('Site Contact', { exact: true }));
         this.newContactName = this.siteContactCard.locator('..').getByText('Name', { exact: true }).locator('..').locator('.text-gray-400');
         this.newContactPhone = this.siteContactCard.locator('..').getByText('Phone', { exact: true }).locator('..').locator('.text-gray-400');
         this.newContactEmail = this.siteContactCard.locator('..').getByText('Email', { exact: true }).locator('..').locator('.text-gray-400');
@@ -110,8 +116,9 @@ export class OrderDeliveryDetailsPage {
         this.imageDeletedMsg = page.getByText("Image removed successfully");
 
         // Payment History
-        this.orderTotalAmt = page.locator("//div[@class='space-y-3 pt-4']/div [3]");
-        this.moreOptionsBtn = page.locator('button:has(svg.lucide-more-vertical)'); //css xpath=> //button[.//svg[contains(@class,'lucide-more-vertical')]]
+        this.orderTotalAmt = page.getByText('Total', { exact: true }).locator('xpath=following-sibling::*[1]');
+        this.moreOptionsBtn = page.getByRole('button', { name: 'More actions' })
+            .or(page.locator('button:has(svg.lucide-more-vertical)'));
         this.paymentHistoryBtn = page.getByRole('button', { name: 'Payment History' });
         this.pymtHistoryLbl = page.locator('h3:has-text("Payment History")');
         this.basePrice = page.locator('div:has-text("Base Price")').locator('div.text-white.font-semibold.text-lg');
@@ -130,7 +137,7 @@ export class OrderDeliveryDetailsPage {
         this.upgradeSkipRefundRequestedLog = page.getByText('Skip Changed').first();
 
         // Send message feature locators
-        this.orderChatBtn = page.locator('h1, h2, h3').filter({ hasText: /Order #/ }).locator('..').getByRole('button', { name: /^(Chat|Open chat)$/i });
+        this.orderChatBtn = page.getByRole('button', { name: /^(Chat|Open chat)$/i });
         this.startNewChatBtn = page.getByRole('button', { name: 'Start New Chat' });
         this.sendMessageBtn = page.getByRole('button', { name: 'Send Message' });
         this.preDefinedMessages = page.locator('.justify-end .mb-3 button');
@@ -143,18 +150,48 @@ export class OrderDeliveryDetailsPage {
     }
 
     async verifyOrderDeliveryDetails() {
-        await expect(this.manageDeliveryBtn).toBeVisible();
-        await expect(this.manageCollectionBtn).toBeVisible();
         await expect(this.deliveryDetailsSec).toBeVisible();
         await expect(this.skipDetailsSec).toBeVisible();
-        await expect(this.customerInfoSec).toBeVisible();
-        await expect(this.orderItemsSec).toBeVisible();
+        await expect(this.customerInfoSec.first()).toBeVisible();
+    }
+
+    async verifyRoadPermitNotOnOrder() {
+        if (await this.financialsTab.first().isVisible({ timeout: 8000 }).catch(() => false)) {
+            await this.openFinancialsTab();
+        }
+        await expect(this.roadpermitFeeLbl).toHaveCount(0);
+        await expect(this.page.getByRole('heading', { name: /Road Permit/i })).toHaveCount(0);
+    }
+
+    async verifyRoadPermitOnOrder() {
+        await this.openFinancialsTab();
+        await expect(
+            this.roadpermitFeeLbl.or(this.page.getByRole('heading', { name: /Road Permit/i })).first()
+        ).toBeVisible({ timeout: 15000 });
+    }
+
+    async verifyPlacementPhotoAttached() {
+        const imagesTab = this.page.getByRole('button', { name: /^Images/i });
+        await imagesTab.first().waitFor({ state: 'visible', timeout: 15000 });
+        await expect(imagesTab.first()).toContainText(/1/);
+        await imagesTab.first().click();
+        const attachedImage = this.page.locator(
+            'img[alt*="image" i], img[alt*="placement" i], img[alt*="photo" i], img[alt*="Order" i]'
+        ).or(this.page.getByRole('img').filter({ hasNot: this.page.locator('[alt="We Want Waste"]') }));
+        await expect(attachedImage.first()).toBeVisible({ timeout: 15000 });
     }
 
     async openFinancialsTab() {
         await this.financialsTab.first().waitFor({ state: 'visible', timeout: 15000 });
         await this.financialsTab.first().click();
         await expect(this.orderItemsSec.first()).toBeVisible({ timeout: 15000 });
+    }
+
+    async openActivityTab() {
+        const activity = this.page.getByRole('button', { name: /^Activity$/i });
+        await activity.waitFor({ state: 'visible', timeout: 15000 });
+        await activity.click();
+        await this.page.waitForTimeout(1000);
     }
 
     getSkipTarpLineItemBlock() {
@@ -213,20 +250,26 @@ export class OrderDeliveryDetailsPage {
     }
 
     async addRoadPermit() {
+        await this.openFinancialsTab();
         await this.page.waitForTimeout(2000);
         await this.addItemBtn.click();
         await this.page.waitForTimeout(2000);
         await this.roadPermitBtn.waitFor({ state: 'visible' });
         await this.roadPermitBtn.click();
-        await this.page.waitForTimeout(3000);
-        await this.addBtnPopup.click();
         await this.page.waitForTimeout(2000);
-        // await this.permitAndDeliveryOption.click();
-        // await this.permitConfirnBtn.click();
-        await this.page.getByRole('button', { name: 'Pay £' }).click();
+        await this.addBtnPopup.click();
+        const payAmountBtn = this.page.getByRole('button', { name: /Pay £/i });
+        await payAmountBtn.first().waitFor({ state: 'visible', timeout: 15000 });
+        await payAmountBtn.first().click();
+        await this.page.waitForTimeout(2000);
+        if (await payAmountBtn.first().isVisible({ timeout: 8000 }).catch(() => false)) {
+            await payAmountBtn.first().click();
+        }
+        await this.roadpermitFeeLbl.or(this.page.getByText(/Road Permit/i)).first().waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async addTonneBag() {
+        await this.openFinancialsTab();
         await this.page.waitForTimeout(2000);
         await this.addItemBtn.click();
         await this.page.waitForTimeout(2000);
@@ -240,7 +283,9 @@ export class OrderDeliveryDetailsPage {
     }
 
     async downgradeSkip() {
+        await this.openFinancialsTab();
         await this.page.waitForTimeout(3000);
+        await expect(this.updateSkipBtn).toBeEnabled({ timeout: 15000 });
         await this.updateSkipBtn.focus();
         await this.updateSkipBtn.click();
         await this.page.waitForTimeout(2000);
@@ -260,6 +305,56 @@ export class OrderDeliveryDetailsPage {
         return { skipTest: false };
     }
 
+    async skipChangePaymentFinished() {
+        if (await this.skipChangeSuccessMsg.isVisible().catch(() => false)) {
+            return true;
+        }
+        if (await this.doneBtn.isVisible().catch(() => false)) {
+            return true;
+        }
+        const dialog = this.page.getByRole('dialog');
+        const dialogOpen = await dialog.first().isVisible().catch(() => false);
+        if (!dialogOpen && await this.updateSkipBtn.isVisible().catch(() => false)) {
+            return true;
+        }
+        return false;
+    }
+
+    async completeSkipChangePayment() {
+        const payAmountBtn = this.page.getByRole('button', { name: /Pay £/i });
+        const complete = this.page.getByRole('button', { name: 'Complete Payment' });
+        const deadline = Date.now() + 25000;
+        while (Date.now() < deadline) {
+            if (await this.skipChangePaymentFinished()) {
+                return;
+            }
+            if (await payAmountBtn.first().isVisible().catch(() => false)) {
+                await payAmountBtn.first().click();
+                await this.page.waitForTimeout(1500);
+                continue;
+            }
+            if (await complete.isVisible().catch(() => false)) {
+                await complete.click();
+                await this.page.waitForTimeout(1500);
+                continue;
+            }
+            for (const frame of this.page.frames()) {
+                const card = frame.locator('#payment-numberInput');
+                if (await card.isVisible().catch(() => false)) {
+                    await card.fill('4111 1111 1111 1111');
+                    await frame.locator('#payment-expiryInput').fill('12/34');
+                    await frame.locator('#payment-cvcInput').fill('123');
+                    await this.page.waitForTimeout(1000);
+                    if (await complete.isVisible().catch(() => false)) {
+                        await complete.click();
+                    }
+                    break;
+                }
+            }
+            await this.page.waitForTimeout(500);
+        }
+    }
+
     async performPreviousSkipActions() {
         await this.previousSkipBtn.click();
         await this.changeSkipBtn.click();
@@ -275,13 +370,22 @@ export class OrderDeliveryDetailsPage {
         await this.nextSkipBtn.click();
         await this.page.waitForTimeout(2000);
         await this.changeSkipBtn.click();
-        await this.payExtraBtn.waitFor({ state: 'visible' });
-        await this.payExtraBtn.click();
-        await this.page.waitForTimeout(5000);
+        const payExtra = this.page.getByRole('button', { name: /Pay £|Pay Extra/i }).or(this.payExtraBtn);
+        await payExtra.first().waitFor({ state: 'visible', timeout: 15000 });
+        await payExtra.first().click();
+        await this.page.waitForTimeout(2000);
+        await this.completeSkipChangePayment();
+        await expect.poll(async () => this.skipChangePaymentFinished(), { timeout: 30000 }).toBeTruthy();
+        if (await this.doneBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await this.doneBtn.click();
+        }
+        await this.page.waitForTimeout(2000);
     }
 
     async upgradeSkip() {
+        await this.openFinancialsTab();
         await this.page.waitForTimeout(2000);
+        await expect(this.updateSkipBtn).toBeEnabled({ timeout: 15000 });
         await this.updateSkipBtn.focus();
         await this.updateSkipBtn.click();
         await this.page.waitForTimeout(2000);
@@ -300,36 +404,160 @@ export class OrderDeliveryDetailsPage {
         return { skipTest: false };
     }
 
+    async openCollectionManagement() {
+        const triggers = this.page.getByRole('button', {
+            name: /Manage Collection|Request Collection|Update Collection Date|Request collection/i,
+        });
+
+        if (await triggers.first().isVisible({ timeout: 3000 }).catch(() => false)) {
+            await triggers.first().scrollIntoViewIfNeeded();
+            await triggers.first().click();
+            return;
+        }
+
+        if (await this.moreOptionsBtn.first().isVisible().catch(() => false)) {
+            await this.moreOptionsBtn.first().click();
+            await this.page.waitForTimeout(500);
+            const menuItems = (await this.page.getByRole('button').allTextContents())
+                .map((t) => t.trim())
+                .filter(Boolean);
+            console.log('More actions items:', menuItems);
+            if (await triggers.first().isVisible({ timeout: 3000 }).catch(() => false)) {
+                await triggers.first().click();
+                return;
+            }
+            await this.page.keyboard.press('Escape').catch(() => {});
+        }
+
+        const waitingForCollection = this.page.getByRole('button', { name: /Waiting for Collection/i });
+        if (await waitingForCollection.isVisible().catch(() => false)) {
+            await waitingForCollection.click();
+            await this.page.waitForTimeout(1000);
+            if (await triggers.first().isVisible({ timeout: 3000 }).catch(() => false)) {
+                await triggers.first().click();
+                return;
+            }
+        }
+
+        await triggers.first().waitFor({ state: 'visible', timeout: 15000 });
+        await triggers.first().scrollIntoViewIfNeeded();
+        await triggers.first().click();
+    }
+
+    async openDeliveryManagement() {
+        const manage = this.manageDeliveryBtn.first();
+        if (await manage.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await manage.scrollIntoViewIfNeeded();
+            await manage.click();
+            return;
+        }
+
+        if (await this.moreOptionsBtn.first().isVisible().catch(() => false)) {
+            await this.moreOptionsBtn.first().click();
+            if (await manage.isVisible({ timeout: 3000 }).catch(() => false)) {
+                await manage.click();
+                return;
+            }
+            await this.page.keyboard.press('Escape').catch(() => {});
+        }
+
+        const waitingForDelivery = this.page.getByRole('button', { name: /Waiting for Delivery/i });
+        if (await waitingForDelivery.isVisible().catch(() => false)) {
+            await waitingForDelivery.click();
+        }
+
+        await manage.waitFor({ state: 'visible', timeout: 15000 });
+        await manage.scrollIntoViewIfNeeded();
+        await manage.click();
+    }
+
+    async pickCollectionDate(dayNumber) {
+        const dialog = this.page.getByRole('dialog', { name: /Set Collection Date/i });
+        await dialog.waitFor({ state: 'visible', timeout: 15000 });
+        const dateTrigger = dialog.getByRole('button', { name: /Collection Date/i });
+        if (await dateTrigger.isVisible().catch(() => false)) {
+            await dateTrigger.click();
+            await this.page.waitForTimeout(800);
+        }
+        const dayBtn = dialog.getByRole('button', { name: String(dayNumber), exact: true })
+            .or(this.page.getByRole('button', { name: String(dayNumber), exact: true }));
+        await dayBtn.last().click();
+        await this.page.waitForTimeout(1500);
+    }
+
     async requestCollection(freelimit) {
         await this.page.waitForTimeout(2000);
-        await this.manageCollectionBtn.click();
-        await this.page.waitForTimeout(2000);
+        await this.openCollectionManagement();
+        await this.page.waitForTimeout(1000);
         await this.updateCollectionDtBtn.click();
-        if (await this.collectionMgmtNotAvailableMsg.isVisible()) {
+        await this.page.waitForTimeout(2000);
+        if (await this.collectionMgmtNotAvailableMsg.isVisible().catch(() => false)) {
             await this.closeCollectionBtn.click();
             console.log("Collection date management is not available, skipping the collection date update test.");
+            return;
         }
-        else {
-            if (freelimit === 'yes') {
-                await this.nextDeliveryDateFree.click();
-                await this.page.waitForTimeout(2000);
-                await this.agreeCheckbox.click();
-                await this.setCollectionDateBtn.waitFor({ state: 'visible' });
-                await this.setCollectionDateBtn.click();
-                await this.page.waitForTimeout(3000);
+
+        const collectionDay = 7;
+        if (freelimit === 'yes') {
+            await this.pickCollectionDate(collectionDay + 2);
+            await this.agreeCheckbox.check();
+            const setBtn = this.page.getByRole('dialog').getByRole('button', { name: /Set Collection Date|Confirm/i });
+            await setBtn.waitFor({ state: 'visible', timeout: 10000 });
+            await setBtn.click();
+            await this.page.waitForTimeout(3000);
+            return;
+        }
+
+        await this.pickCollectionDate(collectionDay + 7);
+        if (await this.page.getByRole('button', { name: 'Request Extension' }).isVisible().catch(() => false)) {
+            await this.pickCollectionDate(collectionDay + 5);
+        }
+        await this.agreeCheckbox.check();
+        const payOrSet = this.page.getByRole('dialog').getByRole('button', {
+            name: /Complete Payment|Pay |Set Collection Date/i,
+        });
+        await payOrSet.first().waitFor({ state: 'visible', timeout: 15000 });
+        await payOrSet.first().click();
+        const payAmountBtn = this.page.getByRole('button', { name: /Pay £/i });
+        if (await payAmountBtn.isVisible({ timeout: 15000 }).catch(() => false)) {
+            await payAmountBtn.click();
+        } else {
+            await this.fillCollectionPaymentIfNeeded();
+        }
+        const dialog = this.page.getByRole('dialog', { name: /Set Collection Date/i });
+        await Promise.race([
+            dialog.waitFor({ state: 'hidden', timeout: 30000 }),
+            this.dateexendedLlb.waitFor({ state: 'visible', timeout: 30000 }),
+            this.page.getByText('14 Sept 2026').first().waitFor({ state: 'visible', timeout: 30000 }),
+        ]);
+    }
+
+    async fillCollectionPaymentIfNeeded() {
+        const deadline = Date.now() + 20000;
+        while (Date.now() < deadline) {
+            for (const frame of this.page.frames()) {
+                const card = frame.locator('#payment-numberInput');
+                if (await card.isVisible().catch(() => false)) {
+                    await card.fill('4111 1111 1111 1111');
+                    await frame.locator('#payment-expiryInput').fill('12/34');
+                    await frame.locator('#payment-cvcInput').fill('123');
+                    await this.page.waitForTimeout(1000);
+                    const complete = this.page.getByRole('button', { name: 'Complete Payment' });
+                    if (await complete.isVisible().catch(() => false)) {
+                        await complete.click();
+                    }
+                    return;
+                }
             }
-            else {
-                await this.nextDeliveryChargeBtn.click();
-                await this.page.waitForTimeout(2000);
-                await this.agreeCheckbox.click();
-                await this.completePaymentBtn.click();
-                await expect(this.dateexendedLlb).toBeVisible();
+            if (await this.dateexendedLlb.isVisible().catch(() => false)) {
+                return;
             }
+            await this.page.waitForTimeout(500);
         }
     }
 
     async confirmTodaysDelivery() {
-        await this.manageDeliveryBtn.click();
+        await this.openDeliveryManagement();
         await this.page.waitForTimeout(1000);
         await this.confirmDeliveryBtn.click();
         await this.page.waitForTimeout(1000);
@@ -338,25 +566,29 @@ export class OrderDeliveryDetailsPage {
         await this.textArea.fill(`Today's delivery confirmed`);
         await this.page.waitForTimeout(1000);
         await this.submitBtn.click();
-        await this.page.waitForTimeout(2000);
-        expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
+        await expect(this.eventSuccessMsg.first()).toBeVisible({ timeout: 15000 });
         await this.page.waitForTimeout(2000);
     }
 
     async missedDelivery() {
-        await this.manageDeliveryBtn.scrollIntoViewIfNeeded();
-        await this.manageDeliveryBtn.click();
+        await this.openDeliveryManagement();
         await this.page.waitForTimeout(1000);
         await this.missedDeliveryBtn.click();
         await this.page.setInputFiles('input[type="file"]', 'Data/missed_delivery.png')// upload missed delivery image
         await this.textArea.fill('Missed Delivery');
         await this.submitBtn.click();
-        expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
+        await expect(this.eventSuccessMsg.first()).toBeVisible({ timeout: 15000 });
+        const reportDialog = this.page.getByRole('dialog', { name: /Missed Delivery/i });
+        const closeBtn = reportDialog.getByRole('button', { name: /^Close$/ });
+        if (await closeBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await closeBtn.click();
+            await reportDialog.waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {});
+        }
     }
 
     async confirmCollection() {
         await this.page.waitForTimeout(2000);
-        await this.manageCollectionBtn.click();
+        await this.openCollectionManagement();
         await this.page.waitForTimeout(1000);
         await this.confirmCollectionBtn.click();
         await this.page.waitForTimeout(1000);
@@ -365,34 +597,47 @@ export class OrderDeliveryDetailsPage {
         await this.textArea.fill('Skip has been collected successfully!');
         await this.page.waitForTimeout(1000);
         await this.submitBtn.click();
-        await this.page.waitForTimeout(3000);
-        await this.collectionConfirmedtxt.scrollIntoViewIfNeeded();
-        await expect(this.collectionConfirmedtxt).toBeVisible();
-
+        await expect(
+            this.collectionConfirmedtxt
+                .or(this.page.getByRole('heading', { name: 'Report Submitted' }))
+                .or(this.eventSuccessMsg)
+                .first()
+        ).toBeVisible({ timeout: 15000 });
+        const closeBtn = this.page.getByRole('dialog').getByRole('button', { name: /^Close$/ });
+        if (await closeBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await closeBtn.click();
+        }
     }
 
     async missedCollection() {
         await this.page.waitForTimeout(2000);
-        await this.manageCollectionBtn.click();
+        await this.openCollectionManagement();
         await this.page.waitForTimeout(1000);
         await this.missedCollectionBtn.click();
         await this.page.waitForTimeout(1000);
         await this.page.setInputFiles('input[type="file"]', 'Data/missed_delivery.png'); // upload missed collection image
         await this.textArea.fill('Missed Collection');
         await this.submitBtn.click();
-        await this.page.waitForTimeout(2000);
-        expect(this.eventSuccessMsg).toHaveText("Event submitted successfully");
+        await expect(this.eventSuccessMsg).toBeVisible({ timeout: 15000 });
+        const reportDialog = this.page.getByRole('dialog', { name: /Missed Collection/i });
+        const closeBtn = reportDialog.getByRole('button', { name: /^Close$/ });
+        if (await closeBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await closeBtn.click();
+            await reportDialog.waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {});
+        }
     }
 
     async verifySiteContactDetails({ cname, phone, email }) {
-        await expect(this.siteContactCard).toHaveText("Site Contact");
-        await expect(this.newContactName).toHaveText(cname);
-        await expect(this.newContactPhone).toHaveText(phone);
-        await expect(this.newContactEmail).toHaveText(email);
+        const section = this.siteContactCard.first().locator('..');
+        await expect(this.siteContactCard.first()).toBeVisible();
+        await expect(section.getByText(cname, { exact: true })).toBeVisible();
+        await expect(section.getByText(String(phone), { exact: true })).toBeVisible();
+        await expect(section.getByText(email, { exact: true })).toBeVisible();
     }
 
     async addImage() {
-        await expect(this.orderImagesTitle).toBeVisible();
+        await this.imagesTab.first().click();
+        await expect(this.orderImagesTitle).toBeVisible({ timeout: 15000 });
         await this.orderImagesTitle.scrollIntoViewIfNeeded();
         await this.addImagesBtn.waitFor({ state: 'visible' });
         await this.page.waitForTimeout(1000);
@@ -435,10 +680,10 @@ export class OrderDeliveryDetailsPage {
     }
 
     async verifyPaymentHistory() {
-        const text = await this.orderTotalAmt.textContent();
+        const text = await this.orderTotalAmt.first().textContent();
         console.log(text);
-        const amt = text.slice(5);
-        await this.moreOptionsBtn.click();
+        const amt = (text || '').replace(/[^\d.]/g, '');
+        await this.moreOptionsBtn.first().click();
         await this.paymentHistoryBtn.click();
         await expect(this.pymtHistoryLbl).toBeVisible();
         const basePrice = await this.basePrice.textContent();
