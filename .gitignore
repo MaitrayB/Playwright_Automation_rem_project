@@ -1,0 +1,9 @@
+node_modules/
+.browsers/
+reports/
+test-results/
+allure-results/
+allure-report/
+playwright-report/
+.DS_Store
+Data/.contractCustomer.session.json
