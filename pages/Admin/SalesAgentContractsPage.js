@@ -20,10 +20,11 @@ export class SalesAgentContractsPage {
         this.contractsTable = page.locator('table');
         this.tableHeaders = this.contractsTable.locator('th');
         this.tableRows = this.contractsTable.locator('tbody tr');
+        // Product regrouped filters: Everything / Ready to agree / With pricing
         this.filterLabels = [
-            'All',
-            'Needs pricing',
-            'Priced',
+            'Everything',
+            'Ready to agree',
+            'With pricing',
             'Agreed',
             'Awaiting signatures',
             'Active',
@@ -43,12 +44,12 @@ export class SalesAgentContractsPage {
                 classPattern: /bg-blue-500\/15.*text-blue-400|text-blue-400.*bg-blue-500\/15/,
             },
             closed: {
-                // List may show "Agreed" or "Agreed — not sent to sign" (now grey, not green)
+                // List may show "Agreed" or "Agreed — not sent to sign" (violet; grey/green still accepted)
                 text: 'Agreed',
                 textPattern: /^(Agreed|Closed)( — .*)?$/,
                 classExact: true,
                 classPattern:
-                    /bg-gray-500\/15.*text-gray-400|text-gray-400.*bg-gray-500\/15|bg-green-500\/15.*text-green-400|text-green-400.*bg-green-500\/15/,
+                    /bg-violet-500\/15.*text-violet-300|text-violet-300.*bg-violet-500\/15|bg-gray-500\/15.*text-gray-400|text-gray-400.*bg-gray-500\/15|bg-green-500\/15.*text-green-400|text-green-400.*bg-green-500\/15/,
             },
         };
     }
@@ -70,12 +71,21 @@ export class SalesAgentContractsPage {
 
     async verifyContractsPageLoaded() {
         await this.acceptCookiesIfVisible();
-        await expect(this.page).toHaveURL(/\/sales\/contracts\/?$/, { timeout: 30000 });
+        await expect(this.page).toHaveURL(/\/sales\/contracts\/?(?:\?.*)?$/, { timeout: 30000 });
         await expect(this.pageHeading).toBeVisible({ timeout: 30000 });
     }
 
     async gotoContractsPage({ expectLoaded = true } = {}) {
         const genFunctions = new genericFunctions(this.page);
+        const back = this.page.getByRole('button', { name: /Back to Contracts/i });
+        if (await back.isVisible().catch(() => false)) {
+            await back.click();
+            await this.acceptCookiesIfVisible();
+            if (expectLoaded) {
+                await this.verifyContractsPageLoaded();
+            }
+            return;
+        }
         const onList = /\/sales\/contracts\/?$/.test(new URL(this.page.url()).pathname);
         if (!onList) {
             await genFunctions.gotoWithRetry(genFunctions.buildURL('/sales/contracts'));
@@ -138,10 +148,10 @@ export class SalesAgentContractsPage {
     }
 
     async verifyStatusFilterPills() {
-        // Core filters always expected; post-rename lifecycle tabs may vary by environment
         const core = ['All', 'Needs pricing', 'Priced', 'Cancelled'];
         for (const label of core) {
-            await expect(this.filterPill(label)).toBeVisible();
+            const resolved = await this.resolveFilterLabel(label);
+            await expect(this.filterPill(resolved)).toBeVisible();
         }
         await expect(
             this.filterPill('Agreed').or(this.filterPill('Closed')).first()
@@ -149,7 +159,12 @@ export class SalesAgentContractsPage {
     }
 
     async isFilterPillActive(label) {
-        const pill = this.filterPill(label);
+        const resolved = await this.resolveFilterLabel(label);
+        const pill = this.filterPill(resolved);
+        const pressed = await pill.getAttribute('aria-pressed').catch(() => null);
+        if (pressed === 'true') {
+            return true;
+        }
         const className = (await pill.getAttribute('class')) || '';
         if (className.includes('bg-[#0037C1]') && className.includes('text-white')) {
             return true;
@@ -174,15 +189,29 @@ export class SalesAgentContractsPage {
         await this.waitForContractsListSettled();
     }
 
-    /** Map legacy Closed / missing tabs onto current product labels. */
+    /**
+     * Map legacy / logical filter names onto the current grouped pills.
+     * All → Everything, Needs pricing → With pricing, Priced → Ready to agree.
+     */
     async resolveFilterLabel(label) {
-        if (label === 'Closed') {
-            const agreed = this.filterPill('Agreed');
-            if ((await agreed.count()) > 0 && (await agreed.first().isVisible().catch(() => false))) {
-                return 'Agreed';
+        const aliases = {
+            All: ['Everything', 'All'],
+            Everything: ['Everything', 'All'],
+            'Needs pricing': ['With pricing', 'Needs pricing'],
+            'With pricing': ['With pricing', 'Needs pricing'],
+            Priced: ['Ready to agree', 'Priced'],
+            'Ready to agree': ['Ready to agree', 'Priced'],
+            Closed: ['Agreed', 'Closed'],
+            Agreed: ['Agreed', 'Closed'],
+        };
+        const candidates = aliases[label] || [label];
+        for (const candidate of candidates) {
+            const pill = this.filterPill(candidate);
+            if ((await pill.count()) > 0 && (await pill.first().isVisible().catch(() => false))) {
+                return candidate;
             }
         }
-        return label;
+        return candidates[0];
     }
 
     async verifyStatusBadge(badgeKey) {
@@ -210,7 +239,7 @@ export class SalesAgentContractsPage {
             badgeKey === 'priced'
                 ? 'bg-blue-500/15 text-blue-400'
                 : badgeKey === 'closed'
-                    ? 'bg-gray-500/15 text-gray-400'
+                    ? 'bg-violet-500/15 text-violet-300'
                     : 'bg-amber-500/15 text-amber-400';
 
         const probeId = `badge-probe-${badgeKey}`;
@@ -234,8 +263,10 @@ export class SalesAgentContractsPage {
         if (badgeKey === 'priced') {
             expect(rgb).toMatch(/rgb\(\s*\d+,\s*\d+,\s*2\d{2}\s*\)/); // blue-ish
         } else if (badgeKey === 'closed') {
-            // Agreed pill is grey (legacy green still accepted)
-            expect(rgb).toMatch(/rgb\(\s*(1\d{2}|2\d{2}),\s*(1\d{2}|2\d{2}),\s*(1\d{2}|2\d{2})\s*\)/);
+            // Agreed pill is violet (legacy grey/green still accepted)
+            expect(rgb).toMatch(
+                /rgb\(\s*(1\d{2}|2\d{2}),\s*\d{1,3},\s*(1\d{2}|2\d{2})\s*\)|rgb\(\s*(1\d{2}|2\d{2}),\s*(1\d{2}|2\d{2}),\s*(1\d{2}|2\d{2})\s*\)/
+            );
         }
 
         await this.page.evaluate((id) => document.getElementById(id)?.remove(), probeId);

@@ -190,6 +190,8 @@ export class OrderPage {
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the terms and' });
     this.placeOrderBtn = page.getByRole('button', { name: 'Place Order' });
     this.completePaymentBtn = page.getByRole('button', { name: 'Complete Payment' });
+    this.addNewPaymentMethodBtn = page.getByRole('button', { name: /Add New Payment Method/i });
+    this.walletPayButtons = page.getByRole('button', { name: /Apple Pay|Google Pay|GPay|PayPal/i });
 
     //billing address change locators
     this.otherBillingAddressRadioOption = page.getByRole('radio', { name: 'Other' });
@@ -722,12 +724,20 @@ export class OrderPage {
     const deadline = Date.now() + 30000;
     while (Date.now() < deadline) {
       for (const frame of this.page.frames()) {
-        const card = frame.locator('#payment-numberInput');
-        if (await card.isVisible().catch(() => false)) {
+        const cardById = frame.locator('#payment-numberInput');
+        if (await cardById.isVisible().catch(() => false)) {
           return {
-            card,
+            card: cardById,
             expiry: frame.locator('#payment-expiryInput'),
             cvc: frame.locator('#payment-cvcInput'),
+          };
+        }
+        const cardByName = frame.getByRole('textbox', { name: /Card number/i });
+        if (await cardByName.isVisible().catch(() => false)) {
+          return {
+            card: cardByName,
+            expiry: frame.getByRole('textbox', { name: /Expiration/i }),
+            cvc: frame.getByRole('textbox', { name: /Security code|CVC/i }),
           };
         }
       }
@@ -1432,6 +1442,43 @@ export class OrderPage {
   async verifyCardOrWalletPaymentRequired() {
     await expect(this.completePaymentBtn).toBeVisible({ timeout: 15000 });
     await expect(this.placeOrderBtn).toHaveCount(0);
+  }
+
+  async verifyNoTermsCheckboxGatesPayment() {
+    await this.waitForPaymentPanel();
+    await expect(this.termsCheckbox).toHaveCount(0);
+    await expect(this.page.getByRole('checkbox', { name: /I agree to the terms/i })).toHaveCount(0);
+    await expect(this.completePaymentBtn.or(this.placeOrderBtn).first()).toBeVisible();
+  }
+
+  async expectPaymentCtaEnabled() {
+    await expect(this.completePaymentBtn.or(this.placeOrderBtn).first()).toBeEnabled({ timeout: 15000 });
+  }
+
+  async verifyWalletsNotAvailable() {
+    await this.waitForPaymentPanel();
+    await expect(this.page.getByRole('button', { name: /Apple Pay/i })).toHaveCount(0);
+    await expect(this.page.getByRole('button', { name: /Google Pay|GPay/i })).toHaveCount(0);
+  }
+
+  async fillVisibleCardForm() {
+    const locators = await this.getLiveStripeCardLocators();
+    expect(locators, 'Card form should be available when wallets are not').toBeTruthy();
+    await locators.card.click();
+    await locators.card.fill('4111111111111111');
+    await locators.expiry.click();
+    await locators.expiry.fill('1234');
+    await locators.cvc.click();
+    await locators.cvc.fill('123');
+    return true;
+  }
+
+  async chargeCardWhenWalletsUnavailable() {
+    await this.verifyWalletsNotAvailable();
+    await this.fillVisibleCardForm();
+    await this.expectPaymentCtaEnabled();
+    const submitted = await this.clickCompletePayment();
+    expect(submitted, 'Complete Payment should charge the card without a terms checkbox').toBe(true);
   }
 
   async verifyPaymentSuccessful(expectedTotal) {

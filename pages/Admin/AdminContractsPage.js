@@ -23,7 +23,7 @@ export class AdminContractsPage {
         this.footerCount = page.getByText(/\d+\s+requests?/i);
         this.emptyTitle = page.getByText('Nothing here', { exact: true });
         this.searchInput = page.getByPlaceholder(/Search/i);
-        // Product rename: Closed → Agreed (Closed still accepted via selectTab mapping)
+        // Logical tab names; All maps to Everything on the current UI
         this.tabLabels = ['All', 'Needs pricing', 'Priced', 'Agreed', 'Cancelled'];
         this.expectedColumns = [
             'From',
@@ -111,7 +111,11 @@ export class AdminContractsPage {
                         .first()
                         .isVisible()
                         .catch(() => false);
-                    const hasTabs = await this.tab('All').isVisible().catch(() => false);
+                    const hasTabs = await this.tab('Everything')
+                        .or(this.tab('All'))
+                        .first()
+                        .isVisible()
+                        .catch(() => false);
                     return hasRows || isEmpty || hasFooter || hasTabs;
                 },
                 { timeout }
@@ -125,7 +129,13 @@ export class AdminContractsPage {
     }
 
     async isTabActive(label) {
-        const className = (await this.tab(label).getAttribute('class')) || '';
+        const resolved = await this.resolveTabLabel(label);
+        const tabBtn = this.tab(resolved);
+        const pressed = await tabBtn.getAttribute('aria-pressed').catch(() => null);
+        if (pressed === 'true') {
+            return true;
+        }
+        const className = (await tabBtn.getAttribute('class')) || '';
         return className.includes('bg-[#0037C1]') && className.includes('text-white');
     }
 
@@ -146,7 +156,11 @@ export class AdminContractsPage {
     }
 
     async verifySidebarBadgeHiddenWhenZeroNeedsPricing() {
-        await this.page.route('**/api/contract-requests/queue?status=submitted&limit=1*', async (route) => {
+        const fulfillEmptyQueue = async (route) => {
+            if (route.request().method() === 'OPTIONS') {
+                await route.continue();
+                return;
+            }
             await route.fulfill({
                 status: 200,
                 contentType: 'application/json',
@@ -158,20 +172,52 @@ export class AdminContractsPage {
                     totalPages: 0,
                 }),
             });
+        };
+        const fulfillEmptyCounts = async (route) => {
+            if (route.request().method() === 'OPTIONS') {
+                await route.continue();
+                return;
+            }
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    counts: {
+                        all: 0,
+                        submitted: 0,
+                        priced: 0,
+                        agreed: 0,
+                        awaiting_signatures: 0,
+                        active: 0,
+                        ended: 0,
+                        cancelled: 0,
+                    },
+                }),
+            });
+        };
+
+        await this.page.route(/\/api\/contract-requests\/queue\/counts.*/, fulfillEmptyCounts);
+        await this.page.route(/\/api\/contract-requests\/queue(?:\?.*)?$/, async (route) => {
+            const url = route.request().url();
+            if (!/[?&]limit=1(?:&|$)/.test(url)) {
+                await route.continue();
+                return;
+            }
+            await fulfillEmptyQueue(route);
         });
 
-        await this.gotoContractsPage();
+        await this.page.reload({ waitUntil: 'domcontentloaded' });
+        await this.acceptCookiesIfVisible();
+        await expect(this.pageHeading).toBeVisible({ timeout: 30000 });
         await expect(this.sidebarNeedsPricingBadge).toHaveCount(0);
-        await this.page.unroute('**/api/contract-requests/queue?status=submitted&limit=1*');
+        await this.page.unroute(/\/api\/contract-requests\/queue\/counts.*/);
+        await this.page.unroute(/\/api\/contract-requests\/queue(?:\?.*)?$/);
     }
 
     async verifyStatusTabs() {
         for (const label of this.tabLabels) {
-            if (label === 'Agreed') {
-                await expect(this.tab('Agreed').or(this.tab('Closed')).first()).toBeVisible();
-                continue;
-            }
-            await expect(this.tab(label)).toBeVisible();
+            const resolved = await this.resolveTabLabel(label);
+            await expect(this.tab(resolved)).toBeVisible();
         }
     }
 
@@ -180,29 +226,61 @@ export class AdminContractsPage {
         const resolved = await this.resolveTabLabel(label);
         const tabBtn = this.tab(resolved);
         await expect(tabBtn).toBeVisible({ timeout: 20000 });
-        await tabBtn.click({ force: true });
-        await expect.poll(async () => this.isTabActive(resolved), { timeout: 15000 }).toBeTruthy();
+        if (!(await this.isTabActive(resolved))) {
+            await Promise.all([
+                this.page
+                    .waitForResponse(
+                        (res) =>
+                            /\/api\/contract-requests\/queue/.test(res.url()) &&
+                            !/\/counts/.test(res.url()) &&
+                            res.ok(),
+                        { timeout: 15000 }
+                    )
+                    .catch(() => null),
+                tabBtn.click({ force: true }),
+            ]);
+            await expect.poll(async () => this.isTabActive(resolved), { timeout: 15000 }).toBeTruthy();
+        }
         await this.waitForContractsListSettled();
+        if (resolved === 'Needs pricing') {
+            await expect
+                .poll(
+                    async () => {
+                        const empty = await this.emptyTitle.isVisible().catch(() => false);
+                        const awaiting = await this.page
+                            .getByText('Awaiting pricing')
+                            .first()
+                            .isVisible()
+                            .catch(() => false);
+                        const priceNow = await this.page
+                            .getByRole('button', { name: 'Price now' })
+                            .first()
+                            .isVisible()
+                            .catch(() => false);
+                        return empty || awaiting || priceNow;
+                    },
+                    { timeout: 20000 }
+                )
+                .toBeTruthy();
+        }
     }
 
-    /** Closed → Agreed (and reverse if only legacy label is present). */
+    /** All → Everything; Closed → Agreed (legacy labels still accepted). */
     async resolveTabLabel(label) {
-        if (label === 'Closed' || label === 'Agreed') {
-            const preferred = label === 'Closed' ? 'Agreed' : 'Agreed';
-            const fallback = 'Closed';
-            const preferredTab = this.tab(preferred);
-            if (
-                (await preferredTab.count()) > 0 &&
-                (await preferredTab.first().isVisible().catch(() => false))
-            ) {
-                return preferred;
-            }
-            const legacy = this.tab(fallback);
-            if ((await legacy.count()) > 0 && (await legacy.first().isVisible().catch(() => false))) {
-                return fallback;
+        const aliases = {
+            All: ['Everything', 'All'],
+            Everything: ['Everything', 'All'],
+            Closed: ['Agreed', 'Closed'],
+            Agreed: ['Agreed', 'Closed'],
+        };
+        const candidates = aliases[label] || [label];
+        for (const candidate of candidates) {
+            const tabBtn = this.tab(candidate);
+            if ((await tabBtn.count()) > 0 && (await tabBtn.first().isVisible().catch(() => false))) {
+                return candidate;
             }
         }
-        return label;
+        return candidates[0];
     }
 
     async verifyDesktopTableColumns() {
@@ -269,20 +347,29 @@ export class AdminContractsPage {
 
     async verifySeesMultipleAgents() {
         await this.selectTab('Needs pricing');
-        const fromCells = this.tableRows.locator('td').nth(0);
-        // Collect agent names from first column across visible rows
         const names = new Set();
         const count = Math.min(await this.tableRows.count(), 20);
         for (let i = 0; i < count; i++) {
-            const name = (await this.tableRows.nth(i).locator('td').first().innerText()).trim();
+            const name = (await this.agentCellText(this.tableRows.nth(i))).split('\n')[0].trim();
             if (name) names.add(name);
         }
         expect(names.size).toBeGreaterThan(1);
     }
 
+    /** Skip a leading ID (#123) column when present. */
+    async dataColumnOffset(row) {
+        const first = ((await row.locator('td').first().innerText().catch(() => '')) || '').trim();
+        return /^#\d+/.test(first) ? 1 : 0;
+    }
+
+    async agentCellText(row) {
+        const offset = await this.dataColumnOffset(row);
+        return ((await row.locator('td').nth(offset).innerText()) || '').trim();
+    }
+
     async verifyFooterCount() {
         await expect(this.footerCount.first()).toBeVisible();
-        await expect(this.footerCount.first()).toHaveText(/\d+\s+requests?/i);
+        await expect(this.footerCount.first()).toHaveText(/(\d+\s+requests?|Showing\s+\d+\s+of\s+\d+\s+requests?)/i);
     }
 
     async verifyEmptyStateForTab(tabLabel) {
@@ -328,15 +415,19 @@ export class AdminContractsPage {
         await this.gotoContractsPage();
         await this.selectTab(tabLabel);
         await expect(this.emptyTitle).toBeVisible({ timeout: 15000 });
+        const displayLabel = await this.resolveTabLabel(tabLabel);
         // Description is separate from the "Nothing here" heading
         if (tabLabel === 'All') {
             await expect(
-                this.page.getByText('No contract requests yet.', { exact: true }).first()
+                this.page
+                    .getByText('No contract requests yet.', { exact: true })
+                    .or(this.page.getByText(/Nothing in\s+"(All|Everything)"/i))
+                    .first()
             ).toBeVisible();
         } else {
             await expect(
                 this.page
-                    .getByText(new RegExp(`Nothing in\\s+"${tabLabel}"`, 'i'))
+                    .getByText(new RegExp(`Nothing in\\s+"(${escapeRegExp(tabLabel)}|${escapeRegExp(displayLabel)})"`, 'i'))
                     .or(
                         this.page.getByText(
                             new RegExp(`No contract requests with status\\s+"${status}"`, 'i')
@@ -354,7 +445,10 @@ export class AdminContractsPage {
      */
     async openFirstRequest(actionLabel = 'Price now') {
         // Prefer visible desktop rows — a hidden <table> remains in the DOM on mobile.
-        const firstRow = this.tableRows.filter({ visible: true }).first();
+        const firstRow = this.tableRows
+            .filter({ visible: true })
+            .filter({ has: this.page.getByRole('button', { name: actionLabel }) })
+            .first();
         await expect(firstRow).toBeVisible({ timeout: 15000 });
         return this._openRow(firstRow, actionLabel);
     }
@@ -382,16 +476,18 @@ export class AdminContractsPage {
      * @param {'Price now'|'Open'} actionLabel
      */
     async _openRow(row, actionLabel) {
-        const customerText = (await row.locator('td').nth(1).innerText()).trim();
+        const offset = await this.dataColumnOffset(row);
+        const cells = row.locator('td');
+        const customerText = (await cells.nth(1 + offset).innerText()).trim();
         const customerName = customerText.split('\n')[0].trim();
         const companyName = customerText.split('\n')[1]?.trim() || null;
-        const agentName = (await row.locator('td').first().innerText()).trim().split('\n')[0].trim();
-        const area = (await row.locator('td').nth(2).innerText()).trim();
-        const termText = (await row.locator('td').nth(3).innerText()).trim();
+        const agentName = (await cells.nth(offset).innerText()).trim().split('\n')[0].trim();
+        const area = (await cells.nth(2 + offset).innerText()).trim();
+        const termText = (await cells.nth(3 + offset).innerText()).trim();
         const termMonths = termText.match(/~(\d+)/)?.[1] || null;
 
         await Promise.all([
-            this.page.waitForURL(/\/super-admin\/contracts\/\d+/, { timeout: 30000 }),
+            this.page.waitForURL(/\/super-admin\/contracts\/\d+/, { timeout: 30000, waitUntil: 'domcontentloaded' }),
             row.getByRole('button', { name: actionLabel }).click(),
         ]);
         await this.acceptCookiesIfVisible();
