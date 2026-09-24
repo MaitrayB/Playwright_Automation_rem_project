@@ -121,6 +121,35 @@ export class SignUpPage {
         return { cname, phone, email };
     }
 
+    async fillCreateAccountModalIfShown() {
+        const modalTitle = this.page.getByRole('heading', { name: 'Create Account' });
+        const success = this.page.getByRole('heading', { name: /Payment Successful/i });
+        await modalTitle.or(success).first().waitFor({ state: 'visible', timeout: 60000 }).catch(() => {});
+        if (!(await modalTitle.isVisible().catch(() => false))) {
+            return false;
+        }
+
+        const firstName = faker.person.firstName();
+        const lastName = faker.person.lastName();
+        const emailAddress = `${firstName}.${lastName}.${Date.now()}@yopmail.com`.replace(/\s/g, '');
+
+        await this.page.getByRole('textbox', { name: 'Name', exact: true }).fill(firstName);
+        await this.page.getByRole('textbox', { name: 'Surname' }).fill(lastName);
+        await this.page.getByRole('textbox', { name: 'E-mail', exact: true }).fill(emailAddress);
+        await this.page.getByRole('textbox', { name: 'Confirm E-mail' }).fill(emailAddress);
+        await this.page.getByRole('textbox', { name: 'Phone Number' }).fill('+44 16977 2987');
+
+        const noSiteContact = this.page.getByRole('button', { name: 'No', exact: true });
+        if (await noSiteContact.isVisible().catch(() => false)) {
+            await noSiteContact.click();
+        }
+
+        const continueInModal = modalTitle.locator('xpath=..').getByRole('button', { name: 'Continue' });
+        await expect(continueInModal).toBeEnabled({ timeout: 10000 });
+        await continueInModal.click();
+        return true;
+    }
+
     async fillSignUpFormExistingUser() {
 
         const loginPage = new LoginPage(this.page);

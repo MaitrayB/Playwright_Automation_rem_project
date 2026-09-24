@@ -465,12 +465,38 @@ test.describe('Customer side test cases', () => {
     });
 
     await test.step('AC-31: 20 yard or larger skip places the order without taking hire payment', async () => {
+      await orderPage.verifyNoTermsCheckboxGatesPayment();
+      await orderPage.expectPaymentCtaEnabled();
       await orderPage.verifyNoHirePaymentAtPlaceOrder();
       await orderPage.placeRoRoOrderWithoutHirePayment();
     });
 
     await test.step('AC-32: RoRo order requires ID, extra-tonnage agreement, and deposit before delivery', async () => {
       await orderPage.verifyRoRoVerificationRequirements();
+    });
+  });
+
+  test('1.12 - Payment CTA is not gated and card form works without wallets (AC-33, AC-35)', async () => {
+    test.setTimeout(480000);
+
+    await loginPage.goto(TestData.baseURL);
+    await ensureCookieConsentDismissed(page);
+
+    await test.step('Reach payment for an under-20 yard skip', async () => {
+      await orderPage.navigateToPlacementStep();
+      await orderPage.selectPrivatePlacementWithoutPhoto();
+      await orderPage.continueFromPlacementToOffers();
+      await orderPage.continueFromSelectedOfferToPayment('4');
+    });
+
+    await test.step('AC-33: No terms tick box; Complete Payment is enabled without a checkbox', async () => {
+      await orderPage.verifyNoTermsCheckboxGatesPayment();
+    });
+
+    await test.step('AC-35: When wallets are unavailable, the card form still charges via Complete Payment', async () => {
+      await orderPage.chargeCardWhenWalletsUnavailable();
+      await signUpPage.fillCreateAccountModalIfShown();
+      await orderPage.verifyPaymentSuccessful();
     });
   });
 

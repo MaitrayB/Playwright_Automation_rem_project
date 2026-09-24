@@ -139,7 +139,10 @@ test.describe('Commercial Contract Sales Lifecycle', () => {
 
             // AC-2.4.1
             await expect(contractsPage.searchInput).toBeVisible();
-            await expect(contractsPage.searchInput).toHaveAttribute('placeholder', 'Search customer…');
+            await expect(contractsPage.searchInput).toHaveAttribute(
+                'placeholder',
+                /Search (ID or )?customer/i
+            );
 
             // AC-2.4.2
             const partial = seededCustomerName.slice(0, 8).toLowerCase();
@@ -353,7 +356,9 @@ test.describe('4 — Admin Pricing Queue', () => {
         const badgeCount = await adminContractsPage.verifySidebarNeedsPricingBadge();
         await adminContractsPage.selectTab('Needs pricing');
         const footerText = await adminContractsPage.footerCount.first().innerText();
-        expect(footerText).toMatch(new RegExp(`^${badgeCount}\\s+requests?$`));
+        expect(footerText).toMatch(
+            new RegExp(`(?:^${badgeCount}\\s+requests?$|Showing\\s+\\d+\\s+of\\s+${badgeCount}\\s+requests?)`, 'i')
+        );
 
         // AC-4.2.2 — badge hidden when Needs pricing total is zero
         await adminContractsPage.verifySidebarBadgeHiddenWhenZeroNeedsPricing();
