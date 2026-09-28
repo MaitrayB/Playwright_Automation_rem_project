@@ -461,14 +461,38 @@ export class AdminContractsPage {
      */
     async openRequestByCustomer(customerName, actionLabel = 'Price now', tab = 'Needs pricing') {
         await this.gotoContractsPage();
+        await this.page.reload({ waitUntil: 'domcontentloaded' });
+        await this.acceptCookiesIfVisible();
+        if (/\/agent\/login|\/login/.test(this.page.url())) {
+            throw new Error(
+                'Admin session expired on the contracts queue — re-login before opening a request'
+            );
+        }
         await this.selectTab(tab);
+
+        const row = () =>
+            this.tableRows.filter({ visible: true }).filter({ hasText: customerName }).first();
+
         if (await this.searchInput.isVisible().catch(() => false)) {
             await this.searchInput.fill(customerName);
-            await this.page.waitForTimeout(600);
         }
-        const row = this.tableRows.filter({ visible: true }).filter({ hasText: customerName }).first();
-        await expect(row).toBeVisible({ timeout: 30000 });
-        return this._openRow(row, actionLabel);
+
+        const found = await row()
+            .waitFor({ state: 'visible', timeout: 15000 })
+            .then(() => true)
+            .catch(() => false);
+        if (!found) {
+            await this.page.reload({ waitUntil: 'domcontentloaded' });
+            await this.acceptCookiesIfVisible();
+            await this.selectTab(tab);
+            if (await this.searchInput.isVisible().catch(() => false)) {
+                await this.searchInput.fill('');
+                await this.searchInput.fill(customerName);
+            }
+        }
+
+        await expect(row()).toBeVisible({ timeout: 30000 });
+        return this._openRow(row(), actionLabel);
     }
 
     /**

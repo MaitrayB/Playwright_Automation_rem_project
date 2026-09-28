@@ -74,11 +74,24 @@ export class MailinatorPage {
         const pattern = linkText instanceof RegExp ? linkText : new RegExp(String(linkText), 'i');
 
         const findHref = async () => {
+            const hrefSelectors = [
+                'a[href*="contract-signing"]',
+                'a[href*="onboard"]',
+                'a[href*="staff-invitation"]',
+                'a[href*="wewantwaste"]',
+            ];
             for (const frame of this.page.frames()) {
                 const loc = frame.locator('a').filter({ hasText: pattern }).first();
                 if (await loc.count().catch(() => 0)) {
                     const href = await loc.getAttribute('href', { timeout: 2000 }).catch(() => null);
                     if (href) return href;
+                }
+                for (const selector of hrefSelectors) {
+                    const byHref = frame.locator(selector).first();
+                    if (await byHref.count().catch(() => 0)) {
+                        const href = await byHref.getAttribute('href', { timeout: 2000 }).catch(() => null);
+                        if (href && !/mailinator\.com/i.test(href)) return href;
+                    }
                 }
             }
             const pageLink = this.page.locator('a').filter({ hasText: pattern }).first();

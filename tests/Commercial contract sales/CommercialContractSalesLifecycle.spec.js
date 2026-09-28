@@ -19,7 +19,7 @@ import { genericFunctions } from '../../utils/genericFunctions.js';
 let seededCustomerName = '';
 
 test.describe('Commercial Contract Sales Lifecycle', () => {
-    test.describe.configure({ mode: 'serial' });
+    test.describe.configure({ mode: 'serial', timeout: 240000 });
     test.setTimeout(240000);
 
     test.beforeAll(async ({ browser }, testInfo) => {
@@ -56,7 +56,7 @@ test.describe('Commercial Contract Sales Lifecycle', () => {
             size: '8',
         });
         await contractsPage.gotoContractsPage();
-    });
+    }, { timeout: 240000 });
 
     test.afterAll(async () => {
         await context?.close();
@@ -300,7 +300,7 @@ test.describe('Commercial Contract Sales Lifecycle', () => {
 });
 
 test.describe('4 — Admin Pricing Queue', () => {
-    test.describe.configure({ mode: 'serial' });
+    test.describe.configure({ mode: 'serial', timeout: 180000 });
     test.setTimeout(180000);
 
     /** @type {import('@playwright/test').BrowserContext} */ let adminContext;
@@ -333,7 +333,7 @@ test.describe('4 — Admin Pricing Queue', () => {
             TestData.credentials.agent.password
         );
         await adminContractsPage.gotoContractsPage();
-    });
+    }, { timeout: 180000 });
 
     test.afterAll(async () => {
         await adminContext?.close();

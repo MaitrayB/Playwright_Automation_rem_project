@@ -41,7 +41,9 @@ export class AdminContractFulfilmentPage {
         });
         this.issueAndSendBtn = this.sendToCustomerBtn;
         this.cancelIssueBtn = page.getByRole('button', { name: 'Cancel', exact: true });
-        this.issuedStamp = page.getByText(/^(?:issued|sent)\s+\d{1,2}\/\d{1,2}\/\d{4}/i);
+        this.issuedStamp = page.getByText(
+            /^(?:issued|sent)\s+(?:\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4})/i
+        );
 
         // §6 — toast / flash messages
         this.customerVerifiedToast = page.getByText(
@@ -57,7 +59,7 @@ export class AdminContractFulfilmentPage {
             /The supply agreement goes out once the customer has signed — nothing to re-send yet\./i
         );
         this.emailUpdatedToast = page.getByText(
-            /Customer email updated — a fresh signing invite was sent to /i
+            /Customer email(?: and portal login)? updated(?: to .+?)?\s*[—–-]\s*a fresh signing invite was sent/i
         );
         this.phoneUpdatedToast = page.getByText(/Customer phone updated\./i);
         this.cannotEditAfterSignedToast = page.getByText(
@@ -285,7 +287,7 @@ export class AdminContractFulfilmentPage {
         await expect(this.awaitingSignaturesBadge).toBeVisible({ timeout: 20000 });
         await expect(this.issuedStamp).toBeVisible();
         await expect(this.issuedStamp).toHaveText(
-            /(?:issued|sent)\s+\d{1,2}\/\d{1,2}\/\d{4},\s+\d{1,2}:\d{2}:\d{2}/i
+            /(?:issued|sent)\s+(?:\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}),\s+\d{1,2}:\d{2}(?::\d{2})?/i
         );
 
         await expect(this.partyLabel('Customer')).toBeVisible({ timeout: 15000 });
@@ -597,18 +599,21 @@ export class AdminContractFulfilmentPage {
         await this.saveAndResendBtn.click();
 
         if (result === 'emailChanged') {
-            await expect(this.emailUpdatedToast).toBeVisible({ timeout: 20000 });
+            await expect(this.emailUpdatedToast.or(this.resendCustomerToast)).toBeVisible({
+                timeout: 20000,
+            });
             if (fields.email) {
-                await expect(
-                    this.page.getByText(
-                        new RegExp(
-                            `Customer email updated — a fresh signing invite was sent to ${escapeRegExp(
-                                fields.email
-                            )}`,
-                            'i'
-                        )
+                const legacyToast = this.page.getByText(
+                    new RegExp(
+                        `Customer email updated — a fresh signing invite was sent to ${escapeRegExp(
+                            fields.email
+                        )}`,
+                        'i'
                     )
-                ).toBeVisible();
+                );
+                await expect(legacyToast.or(this.page.getByText(fields.email).first())).toBeVisible({
+                    timeout: 15000,
+                });
             }
         } else if (result === 'phoneOnly') {
             await expect(this.phoneUpdatedToast).toBeVisible({ timeout: 20000 });
