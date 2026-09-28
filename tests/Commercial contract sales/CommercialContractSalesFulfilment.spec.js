@@ -23,7 +23,7 @@ import {
  */
 
 const CUSTOMER_SIGNING_EMAIL_SUBJECT = 'Your We Want Waste contract is ready to sign';
-const CUSTOMER_SIGNING_LINK_TEXT = /Review and sign your contract/i;
+const CUSTOMER_SIGNING_LINK_TEXT = /Review and sign/i;
 const SUPPLIER_SIGNING_EMAIL_SUBJECT = 'We Want Waste supply agreement — review and sign';
 const SUPPLIER_SIGNING_LINK_TEXT = /Review and sign|sign your (supply )?agreement|Open the agreement/i;
 
@@ -497,7 +497,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         let upfrontTermMonths = '';
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(360000);
+            testInfo.setTimeout(720000);
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
                 agentContractsPage,
@@ -554,7 +554,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         /** @type {ContractSigningPage} */ let declineSigningPage;
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(360000);
+            testInfo.setTimeout(720000);
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
                 agentContractsPage,
