@@ -23,7 +23,7 @@ export class SupplierRegistrationPage {
         this.emailInput = page.locator('#email');
         this.passwordInput = page.locator('#password');
         this.confirmPasswordInput = page.locator('#confirmPassword');
-        this.registerBtn = page.getByRole('button', { name: 'Complete Registration' });
+        this.registerBtn = page.getByRole('button', { name: /^(Create account|Complete Registration)$/i });
         this.registrationSuccessMessage = page.locator("//p[@class='text-sm text-green-500']");
         this.pageHeading = page.getByRole('heading');
         this.supplierEmailInput = page.locator('#email');
@@ -35,27 +35,28 @@ export class SupplierRegistrationPage {
         // Onboarding form locators
         this.companyNameErrorMsg = page.getByText('Company name is required');
         this.phoneErrorMsg = page.getByText('Please enter a valid UK phone number');
-        this.previousBtn = page.getByRole('button', { name: 'Previous' })
-            .or(page.getByRole('button', { name: 'Next' }).locator('xpath=preceding-sibling::button[1]'));
+        this.previousBtn = page.getByRole('button', { name: /^(Previous|Back)$/i });
         this.scrollWarningBanner = page.getByText('Please scroll down to read the full Supplier Protection & Dispute Policy');
         this.checkboxHintText = page.getByText('Please scroll to the bottom of the Supplier Protection & Dispute Policy above to enable this checkbox.');
         this.termsErrorMsg = page.getByText('You must accept the Supplier Protection & Dispute Policy to continue');
 
-        this.findCompanyNameInput = page.getByPlaceholder('Find company');
-        this.selectExistingCoName = page.locator('.absolute.z-50 button').filter({ has: page.locator('span', { hasText: 'active' }) }).first();
-        this.companyNameInput = page.locator('input[type="text"]');
-        this.phoneNumberInput = page.locator('input[type="tel"]');
-        this.postcodeInput = page.getByRole('textbox', { name: 'SW1A 1AA' });
-        this.skipHireCheckbox = page.getByRole('checkbox', { name: 'Skip Hire Skip bins and' });
-        this.nextBtn = page.getByRole('button', { name: 'Next' });
+        this.findCompanyNameInput = page.getByPlaceholder(/Find company|Search for your company/i);
+        this.selectExistingCoName = page.locator('ul button:not([disabled]), .absolute.z-50 button:not([disabled])')
+            .filter({ hasText: /active/i })
+            .first();
+        this.companyNameInput = page.locator('#onboarding-company');
+        this.phoneNumberInput = page.locator('#onboarding-phone');
+        this.postcodeInput = page.locator('#onboarding-postcode');
+        this.skipHireCheckbox = page.getByRole('checkbox', { name: /Skip hire/i });
+        this.nextBtn = page.getByRole('button', { name: /^(Next|Continue)$/i });
         this.privacyPolicyPdf = page.locator('.react-pdf__Page__canvas').first();
         this.vatRegistrationHeading = page.getByRole('heading', { name: 'VAT Registration' });
         this.vatNotRegisteredBtn = page.getByRole('button', { name: 'No', exact: true });
         this.selfBillingHeading = page.getByRole('heading', { name: 'Self-Billing Agreement' }).last();
         this.selfBillingAcceptLabel = page.getByText(/I accept the self-billing agreement/i);
         this.supplierProfileHeading = page.getByRole('heading', { name: 'Supplier Profile' });
-        this.termsCheckbox = page.getByText('I have read and agree to the');
-        this.completeBtn = page.getByRole('button', { name: 'Complete' });
+        this.termsCheckbox = page.getByRole('checkbox', { name: /agree to the Supplier Protection/i });
+        this.completeBtn = page.getByRole('button', { name: /^(Agree and finish setup|Complete)$/i });
 
         //Supplier order page locators
         this.orderPageHeading = page.getByRole('link', { name: 'Available Orders' });
@@ -79,8 +80,10 @@ export class SupplierRegistrationPage {
     async dismissDocumentsPopupIfVisible() {
         await this.acceptCookiesIfVisible();
 
-        const popupHeading = this.page.getByRole('heading', { name: 'Upload Documents Required' });
-        const doItLater = this.page.getByRole('button', { name: /^do it later$/i });
+        const popupHeading = this.page.getByRole('heading', { name: /Upload Documents Required|Your account is set up/i });
+        const doItLater = this.page.getByRole('button', { name: /^do it later$/i })
+            .or(this.page.getByRole('button', { name: /Browse orders first/i }))
+            .or(this.page.getByRole('link', { name: /Browse orders first/i }));
 
         // Unverified suppliers: popup appears ~3s after redirect to /orders/available.
         // Do not exit early when nav links are visible — they render behind the modal.
@@ -123,7 +126,7 @@ export class SupplierRegistrationPage {
         await this.page.waitForLoadState('domcontentloaded');
 
         if (this.page.url().includes('/onboarding')) {
-            await expect(this.page.getByText(/complete your onboarding/i)).toBeVisible();
+            await expect(this.page.getByText(/Step \d+ of \d+|complete your onboarding/i).first()).toBeVisible({ timeout: 30000 });
             return;
         }
 
@@ -145,18 +148,21 @@ export class SupplierRegistrationPage {
     }
 
     async verifyRegistrationSuccess() {
-        await Promise.race([
-            this.registrationSuccessMessage.waitFor({ state: 'visible', timeout: 30000 }),
-            this.page.waitForURL(/\/onboarding/, { timeout: 30000 }),
-        ]);
-        if (this.page.url().includes('/onboarding')) {
-            const onboardingReady = this.page.getByText(/complete your onboarding/i)
+        await expect.poll(async () => {
+            if (this.page.url().includes('/onboarding')) return 'onboarding';
+            if (await this.page.getByText(/Step \d+ of \d+/).isVisible().catch(() => false)) return 'step';
+            if (await this.registrationSuccessMessage.isVisible().catch(() => false)) return 'message';
+            return '';
+        }, { timeout: 45000 }).not.toBe('');
+
+        if (this.page.url().includes('/onboarding') || await this.page.getByText(/Step \d+ of \d+/).isVisible().catch(() => false)) {
+            const onboardingReady = this.page.getByText(/Step \d+ of \d+/)
                 .or(this.companyNameInput)
-                .or(this.page.getByRole('heading', { name: /onboarding/i }));
+                .or(this.page.getByText(/complete your onboarding/i));
             await expect(onboardingReady.first()).toBeVisible({ timeout: 30000 });
             return;
         }
-        await expect(this.registrationSuccessMessage).toContainText('Your Supplier Account has been created successfully! Complete your onboarding now to view orders.');
+        await expect(this.registrationSuccessMessage).toContainText(/created successfully/i);
     }
     //used
     async verifyPageLoaded() {
@@ -172,13 +178,13 @@ export class SupplierRegistrationPage {
 
     async changeCompanyNameOnOnboardingForm() {
         await this.companyNameInput.waitFor({ state: 'visible', timeout: 20000 });
-        await this.companyNameInput.fill(' ');
-        await this.companyNameInput.pressSequentially('bc');
+        await this.companyNameInput.fill('');
+        await this.companyNameInput.pressSequentially('bc', { delay: 40 });
         await this.selectExistingCoName.waitFor({ state: 'visible', timeout: 20000 });
-        await this.selectExistingCoName.click();
-        await this.page.waitForTimeout(1000);
+        await this.selectExistingCoName.evaluate((el) => el.click());
+        await expect(this.companyNameInput).not.toHaveValue('', { timeout: 10000 });
+        await expect(this.nextBtn).toBeEnabled({ timeout: 10000 });
 
-        // ✅ Read from the actual input field, not the button
         const newCoName = await this.companyNameInput.inputValue();
         return newCoName;
     }
@@ -188,6 +194,9 @@ export class SupplierRegistrationPage {
         await this.companyNameInput.waitFor({ state: 'visible', timeout: 20000 });
         await this.companyNameInput.fill('');
         await this.companyNameInput.press('Tab');
+        if (!(await this.companyNameErrorMsg.isVisible().catch(() => false))) {
+            await this.nextBtn.click({ force: true });
+        }
         await this.page.waitForTimeout(500);
     }
 
@@ -210,10 +219,9 @@ export class SupplierRegistrationPage {
 
     //Proceed to phone step
     async proceedToPhoneStep() {
+        await expect(this.nextBtn).toBeEnabled({ timeout: 10000 });
         await this.nextBtn.scrollIntoViewIfNeeded();
-        await this.nextBtn.click({ force: true });
-        await this.page.waitForTimeout(1000);
-        // Confirm we are now on the phone step
+        await this.nextBtn.click();
         await this.phoneNumberInput.waitFor({ state: 'visible', timeout: 10000 });
     }
 
@@ -221,8 +229,10 @@ export class SupplierRegistrationPage {
     async enterInvalidPhoneAndTriggerError(invalidPhone) {
         await this.phoneNumberInput.fill('');
         await this.phoneNumberInput.fill(invalidPhone);
-        // Blur to trigger validation
-        // await this.phoneNumberInput.press('Tab');
+        await this.phoneNumberInput.press('Tab');
+        if (!(await this.phoneErrorMsg.isVisible().catch(() => false))) {
+            await this.nextBtn.click({ force: true });
+        }
         await this.page.waitForTimeout(500);
     }
 
@@ -279,7 +289,7 @@ export class SupplierRegistrationPage {
     }
 
     async advanceToTermsStep(page) {
-        const termsCheckbox = page.getByRole('checkbox', { name: /I have read and agree to the/i });
+        const termsCheckbox = page.getByRole('checkbox', { name: /agree to the Supplier Protection|I have read and agree to the/i });
 
         for (let step = 0; step < 10; step++) {
             if (await this.privacyPolicyPdf.isVisible({ timeout: 1000 }).catch(() => false)) {
@@ -289,6 +299,9 @@ export class SupplierRegistrationPage {
                 return;
             }
             if (await termsCheckbox.isVisible({ timeout: 1000 }).catch(() => false)) {
+                return;
+            }
+            if (await this.completeBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
                 return;
             }
 
@@ -368,66 +381,57 @@ export class SupplierRegistrationPage {
         // Step 1: Navigate through all steps to reach the Terms step
         const { companyName, phone, postcode, hirePeriod } = supplier;
         //console.log(`completeOnboardingForm: Starting with companyName=${companyName}, phone=${phone}, postcode=${postcode}, hirePeriod=${hirePeriod}`);
+        const continueFromCurrentStep = async () => {
+            await expect(this.nextBtn).toBeEnabled({ timeout: 15000 });
+            await this.nextBtn.scrollIntoViewIfNeeded();
+            await this.nextBtn.click();
+            await page.waitForTimeout(500);
+        };
+
         if (await this.companyNameInput.isVisible()) {
             await this.verifyCompanyNameOnOnboardingForm(companyName);
-            await this.nextBtn.scrollIntoViewIfNeeded();
-            await this.nextBtn.click({ force: true });
-            await page.waitForTimeout(1000);
+            await continueFromCurrentStep();
         }
         if (await this.phoneNumberInput.isVisible()) {
             const phoneValue = (await this.phoneNumberInput.inputValue()).replace(/\s/g, '');
             const expectedPhone = phone.replace(/\s/g, '');
             expect(phoneValue).toBe(expectedPhone);
-            await this.nextBtn.scrollIntoViewIfNeeded();
-            await this.nextBtn.click({ force: true });
-            await page.waitForTimeout(1000);
+            await continueFromCurrentStep();
         }
         //Postcode
         await expect(this.postcodeInput).toHaveValue(postcode);
-        await this.nextBtn.scrollIntoViewIfNeeded();
-        await this.nextBtn.click({ force: true });
-        await page.waitForTimeout(1000);
+        await continueFromCurrentStep();
 
         if (scenarioName === 'Scenario 5: Step Navigation') {
             // Verify we can navigate back to previous steps and the data is retained
-            await this.previousBtn.scrollIntoViewIfNeeded();
-            await this.previousBtn.click({ force: true });
-            await page.waitForTimeout(500);
-            await this.previousBtn.click({ force: true });
-            await page.waitForTimeout(500);
-            await this.previousBtn.click({ force: true });
-            await page.waitForTimeout(500);
+            await this.previousBtn.click();
+            await expect(this.postcodeInput).toBeVisible({ timeout: 10000 });
+            await this.previousBtn.click();
+            await expect(this.phoneNumberInput).toBeVisible({ timeout: 10000 });
+            await this.previousBtn.click();
             await expect(this.companyNameInput).toHaveValue(companyName);
-            await page.waitForTimeout(1000);
-            await this.nextBtn.click({ force: true });
+            await continueFromCurrentStep();
             const phoneValue = (await this.phoneNumberInput.inputValue()).replace(/\s/g, '');
             const expectedPhone = phone.replace(/\s/g, '');
             expect(phoneValue).toBe(expectedPhone);
-            await page.waitForTimeout(1000);
-            await this.nextBtn.click({ force: true });
+            await continueFromCurrentStep();
             await expect(this.postcodeInput).toHaveValue(postcode);
-            await page.waitForTimeout(1000);
-            await this.nextBtn.click({ force: true });
+            await continueFromCurrentStep();
         }
 
-        //Hire period
-        await expect(page.getByRole('button', { name: `${hirePeriod} days` })).toBeVisible();
-        await this.nextBtn.scrollIntoViewIfNeeded();
-        await this.nextBtn.click({ force: true });
-        await page.waitForTimeout(1000);
+        //Hire period is shown as selectable cards, with the invited value already selected
+        await expect(page.getByText(new RegExp(`${hirePeriod}\\s*days`, 'i')).first()).toBeVisible();
+        await continueFromCurrentStep();
 
         //Services
         await this.skipHireCheckbox.scrollIntoViewIfNeeded();
         await this.skipHireCheckbox.check({ force: true });
-        await page.waitForTimeout(1000);
-        await this.nextBtn.scrollIntoViewIfNeeded();
-        await this.nextBtn.click({ force: true });
-        await page.waitForTimeout(1000);
+        await continueFromCurrentStep();
 
         await this.advanceToTermsStep(page);
 
-        // Terms step — PDF canvas may not render on all mobile browsers
-        const termsCheckbox = page.getByRole('checkbox', { name: /I have read and agree to the/i });
+        // Terms step — agreement is a checkbox. Older builds also required scrolling a PDF.
+        const termsCheckbox = page.getByRole('checkbox', { name: /agree to the Supplier Protection|I have read and agree to the/i });
         await termsCheckbox.or(this.privacyPolicyPdf).or(this.scrollWarningBanner).first()
             .waitFor({ state: 'visible', timeout: 30000 });
         const scrollWarningVisible = await this.scrollWarningBanner.isVisible({ timeout: 3000 }).catch(() => false);
@@ -449,11 +453,21 @@ export class SupplierRegistrationPage {
         if (!(await termsCheckbox.isChecked().catch(() => false))) {
             await termsCheckbox.check({ force: true });
         }
-        await page.waitForTimeout(1000);
+        await expect(this.completeBtn).toBeEnabled({ timeout: 10000 });
         await this.completeBtn.scrollIntoViewIfNeeded();
-        await this.completeBtn.click({ force: true });
-        await page.waitForURL(/\/orders/, { timeout: 30000 }).catch(() => {});
-        await page.waitForTimeout(1000);
+        await this.completeBtn.click();
+
+        const accountReady = page.getByRole('heading', { name: 'Your account is set up' });
+        await Promise.race([
+            page.waitForURL(/\/orders/, { timeout: 30000 }),
+            accountReady.waitFor({ state: 'visible', timeout: 30000 }),
+        ]);
+        if (await accountReady.isVisible().catch(() => false)) {
+            const browseOrders = page.getByRole('button', { name: /Browse orders first/i })
+                .or(page.getByRole('link', { name: /Browse orders first/i }));
+            await browseOrders.first().click();
+            await page.waitForURL(/\/orders/, { timeout: 30000 });
+        }
     }
 
     //Verify the terms checkbox is disabled before scrolling

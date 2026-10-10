@@ -156,10 +156,15 @@ export class genericFunctions {
     }
 
     async generateRandomEmailmailinator() {
-        const firstName = faker.person.firstName();
-        const lastName = faker.person.lastName();
-        const emailAddress = `${firstName}_${lastName}@mailinator.com`;
-        return emailAddress;
+        const sanitize = (value) =>
+            String(value)
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9]/g, '');
+        const firstName = sanitize(faker.person.firstName()) || 'qa';
+        const lastName = sanitize(faker.person.lastName()) || 'user';
+        const unique = Date.now().toString().slice(-6);
+        return `${firstName}_${lastName}${unique}@mailinator.com`;
     }
 
     async generateRandomPhoneNum() {

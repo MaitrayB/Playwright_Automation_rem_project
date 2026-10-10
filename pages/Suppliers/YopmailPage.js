@@ -56,19 +56,22 @@ export class YopmailPage {
         }
     }
 
+    async dismissYopmailAds() {
+        await this.page.evaluate(() => {
+            document.querySelectorAll('ins.adsbygoogle, iframe[title="Advertisement"], iframe[id^="aswift"]').forEach((el) => el.remove());
+        }).catch(() => {});
+    }
+
     async ensureInboxLoaded(email) {
         if (await this.page.locator('#ifinbox').isVisible({ timeout: 3000 }).catch(() => false)) {
             return;
         }
 
+        await this.dismissYopmailAds();
         const inboxBtn = this.page.locator('button.md').first();
         if (await inboxBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-            await inboxBtn.click();
+            await inboxBtn.click({ force: true, timeout: 10000 });
             await this.page.waitForTimeout(2000);
-        }
-
-        if (!(await this.page.locator('#ifinbox').isVisible({ timeout: 5000 }).catch(() => false))) {
-            await this.accessInbox(email);
         }
     }
 
@@ -108,11 +111,14 @@ export class YopmailPage {
     }
 
     async accessInbox(email) {
-        await this.page.waitForSelector('.ycptinput', { state: 'visible' });
-        await this.emailInput.click();
-        await this.emailInput.fill(email);
-        await this.inboxBtn.click();
-        await this.page.waitForTimeout(3000);
+        const login = email.split('@')[0];
+        await this.page.goto(`https://yopmail.com/en/?login=${encodeURIComponent(login)}`, {
+            waitUntil: 'domcontentloaded',
+            timeout: 30000,
+        });
+        await this.page.waitForTimeout(2000);
+        await this.handleRecaptchaIfPresent();
+        await this.ensureInboxLoaded(email);
     }
 
     async waitForInvitationEmail(coName, subject, email = '', maxRetries = 10, retryDelay = 3000) {

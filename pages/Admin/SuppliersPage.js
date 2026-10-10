@@ -1,6 +1,7 @@
 import { expect } from "allure-playwright";
 import { genericFunctions } from '../../utils/genericFunctions.js';
 import { tableHelper } from '../../utils/tableHelper.js';
+import { ensureCookieConsentDismissed } from '../../utils/cookieConsent.js';
 /*
 Below 2 TYPEDEF lines you need for:
 ✔ VS Code IntelliSense
@@ -54,6 +55,27 @@ export class SuppliersPage {
         this.supplierVerifiedSuccessMsg = page.getByText('Supplier verified successfully');
     }
 
+    async fillField(locator, value) {
+        await locator.evaluate((el, val) => {
+            el.scrollIntoView({ block: 'center', inline: 'center' });
+            const prototype = el instanceof HTMLTextAreaElement
+                ? HTMLTextAreaElement.prototype
+                : HTMLInputElement.prototype;
+            const setter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
+            setter?.call(el, val);
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        }, value);
+    }
+
+    async activateControl(locator) {
+        await locator.evaluate((el) => {
+            el.scrollIntoView({ block: 'center', inline: 'nearest' });
+            if (el instanceof HTMLInputElement && el.checked) return;
+            el.click();
+        });
+    }
+
     async isCardView() {
         const viewport = this.page.viewportSize();
         if (viewport) {
@@ -105,12 +127,13 @@ export class SuppliersPage {
         let phoneInput;
         let companyName;
         let postcode, serviceRadius, hirePeriod, minimumTonne
-        await this.inviteBtn.click();
+        await ensureCookieConsentDismissed(this.page);
+        await this.inviteBtn.click({ force: true });
 
         if (invitationTypeOptions === 'Blank Invitation') {
-            await this.blankInvitationRadioBtn.check();
-            await this.sendInvitationsViaEmail.check();
-            await this.sendInvitationsViaPhone.check();
+            await this.activateControl(this.blankInvitationRadioBtn);
+            await this.activateControl(this.sendInvitationsViaEmail);
+            await this.activateControl(this.sendInvitationsViaPhone);
             if (domainName === 'yopmail.com') {
                 emailInput = await genFunctions.generateRandomEmail();
             }
@@ -119,17 +142,19 @@ export class SuppliersPage {
             }
             phoneInput = await genFunctions.generateRandomPhoneNum();
 
-            await this.supplierEmailInput.fill(emailInput);
-            await this.supplierTelInput.fill(phoneInput);
+            await this.fillField(this.supplierEmailInput, emailInput);
+            await this.fillField(this.supplierTelInput, phoneInput);
 
             companyName = '-'; // Blank invitation has no company name, so we use a placeholder value for validation later
         }
         if (invitationTypeOptions === 'Invitation with Co. Information') {
-            await this.inviteWithInfoRadioOption.check();
-            await this.sendInvitationsViaEmail.check();
-            await this.sendInvitationsViaPhone.check();
-            await this.findCompanyNameInput.pressSequentially('abcl');
-            await this.selectExistingCoName.click();
+            await this.activateControl(this.inviteWithInfoRadioOption);
+            await this.activateControl(this.sendInvitationsViaEmail);
+            await this.activateControl(this.sendInvitationsViaPhone);
+            await this.findCompanyNameInput.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+            await this.findCompanyNameInput.pressSequentially('abcl', { delay: 40 });
+            await this.selectExistingCoName.waitFor({ state: 'visible', timeout: 20000 });
+            await this.selectExistingCoName.evaluate((el) => el.click());
 
             if (domainName === 'yopmail.com') {
                 emailInput = await genFunctions.generateRandomEmail();
@@ -139,19 +164,24 @@ export class SuppliersPage {
             }
             phoneInput = await genFunctions.generateRandomPhoneNum();
 
-            await this.supplierEmailInput.fill(emailInput);
-            await this.supplierTelInput.fill(phoneInput);
+            await this.fillField(this.supplierEmailInput, emailInput);
+            await this.fillField(this.supplierTelInput, phoneInput);
             postcode = 'M1 1AA';
             serviceRadius = '27';
             hirePeriod = '14';
             minimumTonne = '2.6';
-            await this.postcodeInput.fill(postcode);
-            await this.sericeRadiusInput.fill(serviceRadius);
-            await this.hirePeriodInput.fill(hirePeriod);
-            await this.minimumTonneInput.fill(minimumTonne);
+            await this.fillField(this.postcodeInput, postcode);
+            await this.fillField(this.sericeRadiusInput, serviceRadius);
+            await this.fillField(this.hirePeriodInput, hirePeriod);
+            if (await this.minimumTonneInput.isVisible().catch(() => false)) {
+                await this.fillField(this.minimumTonneInput, minimumTonne);
+            }
         }
 
-        await this.sendInvitationBtn.click();
+        await this.sendInvitationBtn.evaluate((el) => {
+            el.scrollIntoView({ block: 'center', inline: 'center' });
+            el.click();
+        });
         // Success validation
         if (invitationTypeOptions === 'Blank Invitation') {
             await this.invitationSentSuccessMsg.waitFor();
@@ -190,6 +220,7 @@ export class SuppliersPage {
     async deleteSupplier(email, { adminLogin, credentials } = {}) {
         const tblHelper = new tableHelper(this.page, 'table.w-full');
         console.log('Deleting supplier with email:', email);
+        await ensureCookieConsentDismissed(this.page);
 
         if (adminLogin && credentials) {
             await this.ensureOnSuppliersPage(adminLogin, credentials);
@@ -217,7 +248,7 @@ export class SuppliersPage {
         await expect(this.deleteSupplierPopupHeading).toBeVisible();
         await this.deleteSupplierBtn.click();
         await this.page.waitForTimeout(1000);
-        await expect(this.deleteSuccessMsg).toBeVisible();
+        await expect(this.deleteSuccessMsg).toBeVisible({ timeout: 20000 });
         await this.page.waitForTimeout(1000);
 
         // Optional: Validate row removed

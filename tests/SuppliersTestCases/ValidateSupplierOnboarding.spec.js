@@ -190,7 +190,7 @@ test.describe('Supplier Onboarding Validation cases', async () => {
 
         //Step 3: Verify company name is pre-filled from invitation
         await supplierRegistrationPage.verifyCompanyNameOnOnboardingForm(supplier.companyName);
-        await expect(registrationPage.getByText('ℹ️ Company name has been pre-filled from your invitation. Please confirm or update it below.')).toBeVisible();
+        await expect(registrationPage.getByText("Pre-filled from your invitation. Check it's right.")).toBeVisible();
 
         //Step5: Edit company name
         const newCoName = await supplierRegistrationPage.changeCompanyNameOnOnboardingForm();
@@ -539,17 +539,16 @@ test.describe('Supplier Onboarding Validation cases', async () => {
 
         // Step2: Start onboarding but do not complete
         await supplierRegistrationPage.verifyCompanyNameOnOnboardingForm(supplier.companyName);
-        await registrationPage.getByRole('button', { name: 'Next' }).click();
+        await registrationPage.getByRole('button', { name: /^(Next|Continue)$/ }).click();
 
         //Step 3 & 4: Try to access supplier dashboard / Verify redirect to onboarding page
         genFunctions = new genericFunctions(registrationPage);
         const supplierLoginPageURL = genFunctions.buildURL('/supplier/login');
         await registrationPage.goto(supplierLoginPageURL);
         await supplierRegistrationPage.supplierLogin(supplier.email, TestData.credentials.supplier.registrationPassword);
-        await registrationPage.waitForTimeout(3000);
 
         // Step 4: Verify redirect to onboarding page
-        expect(currentUrl).toContain('/onboarding');
+        await expect(registrationPage).toHaveURL(/\/onboarding/);
 
         //Step 5: Complete onboarding
         await supplierRegistrationPage.completeOnboardingForm(registrationPage, supplier);

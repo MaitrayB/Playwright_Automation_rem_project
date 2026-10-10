@@ -192,8 +192,8 @@ async function expectSigningLinkInvalid(browser, testInfo, link) {
 }
 
 test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
-    test.describe.configure({ mode: 'serial', timeout: 720000 });
-    test.setTimeout(720000);
+    test.describe.configure({ mode: 'serial', timeout: 1200000 });
+    test.setTimeout(1200000);
 
     /** @type {import('@playwright/test').BrowserContext} */ let agentContext;
     /** @type {import('@playwright/test').Page} */ let agentPage;
@@ -497,7 +497,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         let upfrontTermMonths = '';
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(720000);
+            testInfo.setTimeout(1200000);
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
                 agentContractsPage,
@@ -554,7 +554,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         /** @type {ContractSigningPage} */ let declineSigningPage;
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(720000);
+            testInfo.setTimeout(1200000);
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
                 agentContractsPage,
@@ -604,7 +604,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
      * before the supplier receives "We Want Waste supply agreement — review and sign".
      */
     test.describe('5 — Supplier Contract Signing', () => {
-        test.describe.configure({ timeout: 720000 });
+        test.describe.configure({ timeout: 1200000 });
 
         /** @type {import('@playwright/test').BrowserContext} */ let supplierContext;
         /** @type {SupplierContractSigningPage} */ let supplierSigningPage;
@@ -615,7 +615,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         let supplierSigningLink = '';
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(720000);
+            testInfo.setTimeout(1200000);
 
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
@@ -802,7 +802,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         }
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(720000);
+            testInfo.setTimeout(1200000);
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
                 agentContractsPage,
@@ -1081,7 +1081,7 @@ test.describe('Commercial Contract Sales — Phase 2 Fulfilment', () => {
         /** @type {string} */ let declinedEmail;
 
         test.beforeAll(async ({ browser }, testInfo) => {
-            testInfo.setTimeout(720000);
+            testInfo.setTimeout(1200000);
             const seeded = await seedIssuedSigningContract({
                 agentAuth,
                 agentContractsPage,

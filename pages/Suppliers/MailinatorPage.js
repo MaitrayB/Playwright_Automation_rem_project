@@ -32,9 +32,10 @@ export class MailinatorPage {
 
     async accessInbox(email) {
         const inbox = this.getInboxName(email);
-        await this.page.goto(`https://www.mailinator.com/v4/public/inboxes.jsp?to=${inbox}`, {
-            waitUntil: 'domcontentloaded',
-        });
+        await this.page.goto(
+            `https://www.mailinator.com/v4/public/inboxes.jsp?to=${encodeURIComponent(inbox)}`,
+            { waitUntil: 'domcontentloaded' }
+        );
         await this.page.waitForTimeout(4000);
         await this.mailRow.click();
         await this.page.waitForTimeout(3000);
@@ -52,9 +53,10 @@ export class MailinatorPage {
         const subjectPattern = subject instanceof RegExp ? subject : new RegExp(subject, 'i');
 
         for (let attempt = 0; attempt < maxRetries; attempt++) {
-            await this.page.goto(`https://www.mailinator.com/v4/public/inboxes.jsp?to=${inbox}`, {
-                waitUntil: 'domcontentloaded',
-            });
+            await this.page.goto(
+                `https://www.mailinator.com/v4/public/inboxes.jsp?to=${encodeURIComponent(inbox)}`,
+                { waitUntil: 'domcontentloaded' }
+            );
             await this.page.waitForTimeout(3000);
 
             const subjectRow = this.page.getByText(subjectPattern).first();
