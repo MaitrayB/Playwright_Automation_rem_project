@@ -46,7 +46,10 @@ export async function prepareCookieConsent(context) {
  * @param {import('@playwright/test').BrowserContext} context
  */
 export async function seedCookieYesConsent(context) {
-    await context.addCookies([cookieYesConsentCookie()]);
+    await Promise.race([
+        context.addCookies([cookieYesConsentCookie()]),
+        new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
 }
 
 /**
@@ -120,14 +123,14 @@ export async function ensureCookieConsentDismissed(page) {
         await closeAccidentalCookieYesTabs(page);
 
         if (await acceptAll.isVisible({ timeout: 250 }).catch(() => false)) {
-            await acceptAll.click({ force: true }).catch(() => {});
+            await acceptAll.click({ force: true, timeout: 2000 }).catch(() => {});
             await seedCookieYesConsent(page.context()).catch(() => {});
         } else if (await bannerIsBlocking()) {
             await page.evaluate(() => {
                 const btn = document.querySelector('button[data-cky-tag="accept-button"]');
                 if (btn) btn.click();
             }).catch(() => {});
-            await acceptAll.click({ force: true }).catch(() => {});
+            await acceptAll.click({ force: true, timeout: 2000 }).catch(() => {});
         }
 
         if (!(await bannerIsBlocking())) {

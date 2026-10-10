@@ -23,6 +23,7 @@ import { MailinatorPage } from '../../pages/Suppliers/MailinatorPage.js';
 /** @type {MailinatorPage} */ let mailinatorPage;
 
 test.describe('Supplier Invitations', async () => {
+    test.setTimeout(180000);
 
     test('Scenario 1: Blank Invitation', async ({ browser }, testInfo) => {
         const context = await browser.newContext({

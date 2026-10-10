@@ -18,11 +18,10 @@ export class SupplierMenuNavigation {
 
         //Logout
         this.logOutBtn = page.getByRole('button', { name: 'Logout' });
-        // Mobile hamburger toggle: the icon-only button (no aria-label) in the
-        // collapsed (lg:hidden) top bar. The sibling Notifications button has an
-        // aria-label, so :not([aria-label]) isolates the menu toggle.
+        // Mobile hamburger: the icon-only button in the top bar. Chat and
+        // notifications have aria-labels; this one does not.
         this.mobileMenuToggle = page
-            .locator('div.lg\\:hidden div.h-16 button:not([aria-label])')
+            .locator('div.h-14 button:not([aria-label])')
             .filter({ has: page.locator('svg') })
             .first();
     }

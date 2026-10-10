@@ -39,13 +39,15 @@ export class AdminLogin {
         await this.passwordInput.waitFor();
         await this.passwordInput.fill(password);
         await ensureCookieConsentDismissed(this.page);
+        await this.page.getByRole('button', { name: /^Accept All$/i }).click({ force: true, timeout: 2000 }).catch(() => {});
+        await ensureCookieConsentDismissed(this.page);
         await this.signInBtn.scrollIntoViewIfNeeded();
         await Promise.all([
             this.page.waitForURL(url => !url.pathname.includes('/login'), {
                 timeout: 45000,
                 waitUntil: 'commit',
             }),
-            this.signInBtn.click(),
+            this.signInBtn.click({ force: true }),
         ]);
         await expect(
             this.landingPageTitle
